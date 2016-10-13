@@ -1,0 +1,34 @@
+= RatSlap =
+
+== Linux configuration tool for Logitech mice (currently only G300S) ==
+
+== Introduction ==
+
+//RatSlap// aims to provide a way to configure configurable Logitech mice from
+within Linux.
+
+== Availability ==
+
+//RatSlap// is available on [[https://gitlab.com/krayon/ratslap|GitLab]],
+[[https://github.com/krayon/ratslap|GitHub]] and
+[[https://bitbucket.org/krayonx/ratslap|BitBucket]] with the primary repository
+being [[https://gitlab.com/krayon/ratslap|GitLab]].
+
+== History ==
+
+I recently (October 2016) purchased a Logitech G300S due mainly to the many
+extra buttons. I didn't care that the software didn't support Linux as I only
+wanted the extra buttons to generate extra mouse buttons, not keys or anything
+fancy.
+
+Unfortunately, when I plugged it in, I discovered that none of the default 3
+modes generated the extra mouse buttons I desired, instead generating useless
+and annoying keypress events such as //CTRL-C//, //CTRL-X// and //CTRL-V//.
+
+== Features ==
+
+* None
+
+== Version History ==
+
+<<< vim:set ts=4 sw=4 et tw=80 ai si syn=creole: >>>
