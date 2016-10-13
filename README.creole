@@ -31,4 +31,14 @@ and annoying keypress events such as //CTRL-C//, //CTRL-X// and //CTRL-V//.
 
 == Version History ==
 
-<<< vim:set ts=4 sw=4 et tw=80 ai si syn=creole: >>>
+== Notes ==
+
+=== Technique to sniff USB traffic ===
+
+https://julien.danjou.info/blog/2012/logitech-k750-linux-support shows a
+technique for sniffing USB traffic using the //usbmon// kernel module.
+
+Unfortunately it looks like I'll need to create a Windows VM to run the Logitech
+software on :(
+
+<<< vim:set ts=4 sw=4 tw=80 et cindent ai si syn=creole: >>>
