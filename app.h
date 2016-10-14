@@ -26,8 +26,10 @@
 #define   APP_H
 
 #define APP_NAME                    "RatSlap"
+#define APP_SUMMARY                 "Linux configuration tool for Logitech mice (currently only G300S)"
 #define BIN_NAME                    "ratslap"
 #define APP_AUTHOR                  "Todd Harbour"
 #define APP_COPYRIGHT               "Copyright (C) 2016 "APP_AUTHOR
+#define APP_URL                     "https://gitlab.com/krayon/ratslap/"
 
 #endif /* APP_H */

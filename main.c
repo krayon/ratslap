@@ -28,13 +28,17 @@
 #include "git.h"
 #include "log.h"
 
-int main (int argc, char *argv[]) {
+void print_ver(void) {
     printf("%s v%s (BUILT: %s)\n", (APP_NAME), (APP_VERSION), (BUILD_DATE));
     printf("%s\n", (APP_COPYRIGHT));
+    printf("%s\n", (APP_SUMMARY));
+    printf("%s\n", (APP_URL));
+}
 
+int main (int argc, char *argv[]) {
     log_init();
 
-
+    print_ver();
 
     log_end();
 
