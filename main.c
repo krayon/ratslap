@@ -22,6 +22,13 @@
       51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  **********************************************************************/
 
+#include <stdio.h>
+
+#include "app.h"
+
 int main (int argc, char *argv[]) {
+    printf("%s\n", (APP_NAME));
+    printf("%s\n", (APP_COPYRIGHT));
+
     return 0;
 }

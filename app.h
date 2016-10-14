@@ -28,6 +28,6 @@
 #define APP_NAME                    "RatSlap"
 #define BIN_NAME                    "ratslap"
 #define APP_AUTHOR                  "Todd Harbour"
-#define APP_COPYRIGHT               "Copyright (C) 2014-2015 "APP_AUTHOR
+#define APP_COPYRIGHT               "Copyright (C) 2016 "APP_AUTHOR
 
 #endif /* APP_H */
