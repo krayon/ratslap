@@ -22,6 +22,11 @@
 #      51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # **********************************************************************/
 
+# Include BUILD options
+OPTIONS_FILE   = make.options.conf
+-include $(OPTIONS_FILE)
+BUILDOPTS      = $(foreach BO, $(OPTIONS), -D$(BO))
+
 # Programs
 CC             = gcc
 LINK           = gcc -o
@@ -67,7 +72,7 @@ PKGS           = libusb-1.0
 
 LIBS           = $(shell pkg-config --libs $(PKGS))
 
-CFLAGS        += $(CARCH_FLAG) $(CPU_FLAG) $(OPT_FLAGS) $(shell pkg-config --cflags $(PKGS)) -DDEBUG -DINFO
+CFLAGS        += $(CARCH_FLAG) $(CPU_FLAG) $(OPT_FLAGS) $(BUILDOPTS) $(shell pkg-config --cflags $(PKGS)) -DDEBUG -DINFO
 
 
 
@@ -110,7 +115,7 @@ _PHONY: all
 
 
 
-all: tags Changelog $(PROGS) done
+all: tags Changelog $(OPTIONS_FILE) $(PROGS) done
 
 
 
@@ -138,6 +143,9 @@ log.h: log.h.TEMPLATE
 	@# Generating log header
 	@echo "Generating log header file..."
 	@cat log.h.TEMPLATE >log.h
+	@for o in $(OPTIONS:DEBUG%=LOG%); do \
+	    sed -i 's/\(#define '$${o}' *\)NULL.*$$/\1_logfile/' log.h; \
+	done
 
 
 
@@ -155,6 +163,9 @@ ctags:
 	@echo "Generating tags file..."
 	@$(CTAGS) *
 tags: ctags
+
+$(OPTIONS_FILE): $(OPTIONS_FILE).DEFAULT
+	@cp $(OPTIONS_FILE).DEFAULT $(OPTIONS_FILE)
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $*.o
@@ -201,6 +212,13 @@ clean:
 	
 	@echo "  deleting: log.h";
 	@rm -f log.h;
+	
+	@if diff $(OPTIONS_FILE).DEFAULT $(OPTIONS_FILE) >/dev/null; then \
+		echo "  deleting: $(OPTIONS_FILE)"; \
+		rm -Rf "$(OPTIONS_FILE)"; \
+	else \
+		echo "   keeping: $(OPTIONS_FILE) (MODIFIED)"; \
+	fi
 	
 	@if [ -d "$(ARCHIVE_NAME)" ]; then \
 		echo "  deleting: $(ARCHIVE_NAME)"; \
