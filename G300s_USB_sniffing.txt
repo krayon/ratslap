@@ -31,3 +31,285 @@ USBMON SAMPLE
   bRequest, wValue, wIndex, wLength, as specified by the USB Specification 2.0.
   These words are safe to decode if Setup Tag was 's'. Otherwise, the setup
   packet was present, but not captured, and the fields contain filler.
+
+
+
+G300s COMMANDS
+==============
+
+LAUNCH EDITOR
+S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0423900
+S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0423900
+S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0423900
+S Co:2:039:0 s 21 09 03f2 0001 0002 2 = f24f
+S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0000000
+
+REBOOT OR RESET MAYBE?
+CAUSES MOUSE LIGHTS TO TURN OFF
+S Co:2:039:0 s 21 09 03f1 0001 0002 2 = f100
+
+
+
+START EDIT
+S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0420000
+
+OTHER OBSERVED MESSAGES
+POSSIBLY CONFIGURING EACH OF THE THREE MODES?
+* NOT NEEDED *
+S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0400000
+S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0404b03
+S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0420000
+S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0424b03
+S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0440000
+S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0460000
+
+
+
+NOTE: Some of the below is extrapolated and assumed. For example, the Logitech
+      software doesn't allow the re-assignment of the Left and Right Buttons,
+      nor does it allow you to assign buttons to mouse buttons with modifiers
+      (only keys with modifiers). Presumably the hardware doesn't have such
+      limitations.
+
+(START EDIT FIRST)
+RECONFIGURE LAYOUT
+S Co:2:039:0 s 21 09 03f5 0001 0023 35 = f5010384 04040440 01000002 00000300 00040000 05000000 01060001 190d0000
+      21 == bmRequestType
+      09 == bRequest
+    03f5 == wValue
+    0001 == wIndex
+    0023 == wLength (35d)
+
+    03f5 == Button set (03f3, 03f4, 03f5)
+	    (in the Windows software, on their little wheel of coloured modes,
+            f3 is top, f4 is bottom-right, f5 is bottom-left)
+
+  35 bytes
+  f5010384 04040440 01000002 00000300 00040000 05000000 04060001 190d0000 000000
+
+  f5010384040404400100000200000300000400000500000004060001190d0000000000
+
+  f5
+  - Button set (f3, f4, f5)
+
+    01
+  - Light colour:
+      00 == Black
+      01 == Red
+      02 == Green
+      03 == Yellow  (Red  + Green      )
+      04 == Blue
+      05 == Magenta (Blue + Red        )
+      06 == Cyan    (Blue + Green      )
+      07 == White   (Blue + Green + Red)
+
+      03
+  - Report rate (Polling Rate)
+      00 == 1000 reports per second
+      01 ==  125 reports per second
+      02 ==  250 reports per second
+      03 ==  500 reports per second
+
+        84
+  - DPI (position 1)
+      High nibble:
+        0  == Not DEFAULT
+        8  ==     DEFAULT
+      Low nibble:
+         4 == DPI position (as per Shift DPI point below)
+
+          04
+  - DPI (position 2):
+      * AS ABOVE *
+
+            04
+  - DPI (position 3)
+      * AS ABOVE *
+
+              04
+  - DPI (position 4)
+      * AS ABOVE *
+
+                40
+  - Shift DPI point:
+      40 == No shift DPI point
+      01 ==  250 dpi
+      02 ==  500 dpi
+      03 ==  750 dpi
+      04 == 1000 dpi
+      05 == 1250 dpi
+      06 == 1500 dpi
+      07 == 1750 dpi
+      08 == 2000 dpi
+      09 == 2250 dpi
+      0a == 2500 dpi
+
+                  010000
+  - Button 1 (Left Button):
+      00     == Misc:
+
+      01 == Button  1
+      02 == Button  2
+      03 == Button  3
+      ( button 4 and 5 are the scrollwheel )
+      04 == Button  6
+      05 == Button  7
+      06 == Button  8
+      07 == Button  9
+      08 == Button 10
+      09 == Button 11
+      0a == DPI Up
+      0b == DPI Down
+      0c == DPI Cycling
+      0d == Mode Switch
+      0e == DPI Shift
+      0f == DPI Default
+
+        00   == Modifier(s):
+
+        01 == Left  Ctrl
+        02 == Left  Shift
+        04 == Left  Alt
+        08 == Left  Super_L
+        10 == Right Ctrl
+        20 == Right Shift
+        40 == Right Alt
+        80 == Right Super_L
+
+          00 == Keys:
+
+          04 == 'a'
+          05 == 'b'
+          06 == 'c'
+          ...
+          1b == 'x'
+          1c == 'y'
+          1d == 'z'
+          1e == '1'
+          1f == '2'
+          ...
+          26 == '9'
+          27 == '0'
+          28 == Enter
+          29 == Escape
+          2a == Backspace
+          2b == Tab
+          2c == Space
+          2d == '-'
+          2e == '='
+          2f == '['
+          30 == ']'
+          31 == '\'
+
+          33 == ';'
+          34 == '''
+          35 == '`'
+          36 == ','
+          37 == '.'
+          38 == '/'
+
+          3a ==  F1
+          ...
+          3f ==  F6
+          ...
+          45 == F12
+          46 == Print Screen
+          47 == Scroll Lock
+          48 == Pause / Break
+          49 == Insert
+          4a == Home
+          4b == Page Up
+          4c == Delete
+          4d == End
+          4e == Page Down
+          4f == Right
+          50 == Left
+          51 == Down
+          52 == Up
+          53 == Num Lock
+          54 == Numpad '/'
+          55 == Numpad '*'
+          56 == Numpad '-'
+          57 == Numpad '+'
+          58 == Numpad Enter
+          59 == Numpad '1'
+          5a == Numpad '2'
+          5b == Numpad '3'
+          5c == Numpad '4'
+          5d == Numpad '5'
+          5e == Numpad '6'
+          5f == Numpad '7'
+          60 == Numpad '8'
+          61 == Numpad '9'
+          62 == Numpad '0'
+          63 == Numpad '.'
+
+          65 == Application (Windows Menu Button)
+
+          e0 == Left  Ctrl
+          e1 == Left  Shift
+          e2 == Left  Alt
+          e3 == Left  Super_L
+          e4 == Right Ctrl
+          e5 == Right Shift
+          e6 == Right Alt
+          e7 == Right Super_L
+
+
+
+
+
+
+
+
+                        020000
+  - Button 2 (Right Button)
+
+                              030000
+  - Button 3 (Middle Button)
+
+                                    040000
+  - Button 4 (G4 - Back  Left)
+
+                                          050000
+  - Button 5 (G5 - Front Left)
+
+                                                000406
+  - G6 - Back  Right
+
+                                                      000119
+  - G7 - Front Right
+
+                                                            0d0000
+  - G8 - Back  Middle
+
+                                                                  000000
+  - G9 - Front Middle
+
+Expected reply:
+  S Ci:2:039:0 s a1 01 03f1 0001 0002 2 <
+
+  FIXME: Why aren't any bytes printed? Does the 2 include the size? If so,
+  the server side message above contains too many bytes.
+
+  2 bytes:
+  f100 maybe? (FIXME)
+
+
+
+(AFTER RECONFIGURE LAYOUT - FINISHING UP 1/3)
+SET IDLE?
+* NOT NEEDED *
+S Co:2:039:0 s 21 0a 0000 0001 0000 0
+
+(AFTER RECONFIGURE LAYOUT - FINISHING UP 2/3)
+NO IDEA?
+* NOT NEEDED *
+S Co:2:039:0 s 21 09 03f2 0001 0002 2 = f24f
+
+(AFTER RECONFIGURE LAYOUT - FINISHING UP 3/3)
+FINISH UP? / PRINT REPORT?
+* NOT NEEDED *
+S Co:2:039:0 s 21 09 03f1 0001 0002 2 = f100
+C Co:2:039:0 0 2 >
+
