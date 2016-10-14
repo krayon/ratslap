@@ -2,9 +2,13 @@
  * ( settings from: http://datapax.com.au/code_conventions/ )
  */
 
+///////////////////////////////////////////////////
+//SOURCE//
+///////////////////////////////////////////////////
+
 /**********************************************************************
     RatSlap
-    Copyright (C) 2016 Todd Harbour
+    Copyright (C) 2014-2016 Todd Harbour
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -22,14 +26,11 @@
       51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  **********************************************************************/
 
-#include <stdio.h>
+#ifndef   GIT_H
+#define   GIT_H
 
-#include "app.h"
-#include "git.h"
+// SemVer ( Semantic Versioning - http://semver.org/ )
+#define APP_VERSION "%%APP_VERSION%%"
+#define BUILD_DATE  "%%BUILD_DATE%%"
 
-int main (int argc, char *argv[]) {
-    printf("%s v%s (BUILT: %s)\n", (APP_NAME), (APP_VERSION), (BUILD_DATE));
-    printf("%s\n", (APP_COPYRIGHT));
-
-    return 0;
-}
+#endif /* GIT_H */

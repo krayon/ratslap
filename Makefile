@@ -126,6 +126,14 @@ Changelog: gitup
 	@#git log --pretty=tformat:"%C(auto)[%ci] %h %s" >Changelog
 	@git log >Changelog
 
+git.h: gitup git.h.TEMPLATE
+	@# Generating GIT header
+	@echo "Generating git header file..."
+	@cat git.h.TEMPLATE >git.h
+	@sed -i 's#//SOURCE//#// WARNING // Auto-generated file, DO NOT MODIFY //#' git.h
+	@sed -i 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  git.h
+	@sed -i 's#\%\%BUILD_DATE\%\%#$(BUILD_DATE)#'                               git.h
+
 
 
 # Error
@@ -146,7 +154,7 @@ tags: ctags
 .c.o:
 	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $*.o
 
-$(BINNAME): $(OBJS)
+$(BINNAME): git.h $(OBJS)
 	@echo "Linking $(BINNAME)..."
 	
 	$(LINK) "$(BINNAME)" $(CFLAGS) $(LIBDIR) $(OBJS) $(LIBS)
@@ -182,6 +190,9 @@ clean:
 	
 	@echo "  deleting: tags";
 	@rm -f tags;
+	
+	@echo "  deleting: git.h";
+	@rm -f git.h;
 	
 	@if [ -d "$(ARCHIVE_NAME)" ]; then \
 		echo "  deleting: $(ARCHIVE_NAME)"; \
