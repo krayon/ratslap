@@ -1,0 +1,33 @@
+USBMON SAMPLE
+=============
+
+  1209409827 S Co:2:039:0 s 21 09 03f5 0001 0023 35 = f5000384 04040440 01000002 00000300 00040000 05000000 01080001 190d0000
+
+   S == submission
+  Co == Control Output to:
+      :2 == Bus 2;
+    :039 == Device 039;
+      :0 == Endpoint 0
+   s == Status?
+  - Setup:
+      21 == bmRequestType
+      09 == bRequest
+    03f5 == wValue
+    0001 == wIndex
+    0023 == wLength
+
+- Event Type. This type refers to the format of the event, not URB type.
+  Available types are: S - submission, C - callback, E - submission error.
+
+- "Address" word (formerly a "pipe"). It consists of four fields, separated by
+  colons: URB type and direction, Bus number, Device address, Endpoint number.
+  Type and direction are encoded with two bytes in the following manner:
+    Ci Co   Control input and output
+    Zi Zo   Isochronous input and output
+    Ii Io   Interrupt input and output
+    Bi Bo   Bulk input and output
+
+- Setup packet, if present, consists of 5 words: one of each for bmRequestType,
+  bRequest, wValue, wIndex, wLength, as specified by the USB Specification 2.0.
+  These words are safe to decode if Setup Tag was 's'. Otherwise, the setup
+  packet was present, but not captured, and the fields contain filler.
