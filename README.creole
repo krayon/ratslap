@@ -25,6 +25,12 @@ Unfortunately, when I plugged it in, I discovered that none of the default 3
 modes generated the extra mouse buttons I desired, instead generating useless
 and annoying keypress events such as //CTRL-C//, //CTRL-X// and //CTRL-V//.
 
+Worse still, I also discovered that the Windows software only allows you to
+assign mouse buttons 1 through 5 (as in //Left-Click//, //Middle-Click//,
+//Right-Click//, //Mouse Wheel Up// and //Mouse Wheel Down// respectively)!
+Hopefully this is a limitation in the Logitech software and not in the mouse
+itself.
+
 == Features ==
 
 * None
