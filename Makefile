@@ -102,7 +102,7 @@ PROGS          = $(BINNAME)
 DIST_FILES     = $(PROGS) LICENSE README.creole Changelog
 
 # Object files to build
-OBJS           = main.o
+OBJS           = log.o main.o
 
 # Default target
 .PHONY: _PHONY
@@ -134,6 +134,11 @@ git.h: gitup git.h.TEMPLATE
 	@sed -i 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  git.h
 	@sed -i 's#\%\%BUILD_DATE\%\%#$(BUILD_DATE)#'                               git.h
 
+log.h: log.h.TEMPLATE
+	@# Generating log header
+	@echo "Generating log header file..."
+	@cat log.h.TEMPLATE >log.h
+
 
 
 # Error
@@ -154,7 +159,7 @@ tags: ctags
 .c.o:
 	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $*.o
 
-$(BINNAME): git.h $(OBJS)
+$(BINNAME): git.h log.h $(OBJS)
 	@echo "Linking $(BINNAME)..."
 	
 	$(LINK) "$(BINNAME)" $(CFLAGS) $(LIBDIR) $(OBJS) $(LIBS)
@@ -193,6 +198,9 @@ clean:
 	
 	@echo "  deleting: git.h";
 	@rm -f git.h;
+	
+	@echo "  deleting: log.h";
+	@rm -f log.h;
 	
 	@if [ -d "$(ARCHIVE_NAME)" ]; then \
 		echo "  deleting: $(ARCHIVE_NAME)"; \

@@ -4,7 +4,7 @@
 
 /**********************************************************************
     RatSlap
-    Copyright (C) 2016 Todd Harbour
+    Copyright (C) 2014-2016 Todd Harbour
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -22,21 +22,35 @@
       51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  **********************************************************************/
 
+#ifndef   LOG_H
+#define   LOG_H
+
 #include <stdio.h>
 
-#include "app.h"
-#include "git.h"
-#include "log.h"
+// IN THE EVENT 'DEBUG_INPUT' IS ENABLED IN make.options.conf, THIS:
+//     dlog(LOG_INPUT, "TURN ON\n");
+// YIELDS LOG ENTRY, SOMETHING LIKE:
+//     20140215T175217+1100 [D]           main.c:00079:main            TURN ON
 
-int main (int argc, char *argv[]) {
-    printf("%s v%s (BUILT: %s)\n", (APP_NAME), (APP_VERSION), (BUILD_DATE));
-    printf("%s\n", (APP_COPYRIGHT));
+// Log levels, correspond to DEBUG* defines
+#define LOG                         NULL
+#define LOG_COMMS                   NULL
 
-    log_init();
+extern FILE *_logfile;
 
+int log_init(void);
+int log_end(void);
 
+inline void std_output(FILE *strm, const char *srcfile, const int line
+    , const char *func, const char *head, const char *text, ...);
 
-    log_end();
+#define dlog(LOGLEV, OUTPUT, args...) std_output((LOGLEV), (__FILE__)\
+    , (__LINE__), (__FUNCTION__), "[D]", (OUTPUT), ## args)
 
-    return 0;
-}
+#define ilog(        OUTPUT, args...) std_output(_logfile, (__FILE__)\
+    , (__LINE__), (__FUNCTION__), "[I]", (OUTPUT), ## args)
+
+#define elog(        OUTPUT, args...) std_output(_logfile, (__FILE__)\
+    , (__LINE__), (__FUNCTION__), "[E]", (OUTPUT), ## args)
+
+#endif /* LOG_H */
