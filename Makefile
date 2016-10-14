@@ -110,7 +110,7 @@ _PHONY: all
 
 
 
-all: tags Changelog $(OPTIONS_FILE) $(PROGS) done
+all: tags Changelog $(PROGS) done
 
 
 
@@ -142,9 +142,6 @@ ctags:
 	@echo "Generating tags file..."
 	@$(CTAGS) *
 tags: ctags
-
-$(OPTIONS_FILE): $(OPTIONS_FILE).DEFAULT
-	@cp $(OPTIONS_FILE).DEFAULT $(OPTIONS_FILE)
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $*.o
@@ -185,13 +182,6 @@ clean:
 	
 	@echo "  deleting: tags";
 	@rm -f tags;
-	
-	@if diff $(OPTIONS_FILE).DEFAULT $(OPTIONS_FILE) >/dev/null; then \
-		echo "  deleting: $(OPTIONS_FILE)"; \
-		rm -Rf "$(OPTIONS_FILE)"; \
-	else \
-		echo "   keeping: $(OPTIONS_FILE) (MODIFIED)"; \
-	fi
 	
 	@if [ -d "$(ARCHIVE_NAME)" ]; then \
 		echo "  deleting: $(ARCHIVE_NAME)"; \
