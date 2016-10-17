@@ -23,4 +23,4 @@
 # **********************************************************************/
 
 #OPTIONS += DEBUG					# General debugging
-#OPTIONS += DEBUG_COMMS			    # Debug communications
+#OPTIONS += DEBUG_USB				# Debug USB activity
