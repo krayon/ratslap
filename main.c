@@ -24,6 +24,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <getopt.h>
+#include <string.h>
 #include <libusb-1.0/libusb.h>
 
 #include "app.h"
@@ -41,6 +44,30 @@ static void help_version(void) {
     printf("%s\n", (APP_COPYRIGHT));
     printf("%s\n", (APP_SUMMARY));
     printf("%s\n", (APP_URL));
+}
+
+static void help_usage(void) {
+    printf("\
+\n\
+%s\n\
+\n\
+%s: %s -h|--help\n\
+       %s -V|--version\n\
+\n\
+-h|--h[elp]             - %s\n\
+-V|--v[ersion]          - %s %s %s\n\
+\n\
+%s: %s --help\n\
+",
+     _(APP_SUMMARY)
+
+    ,_("Usage"),    BIN_NAME /* -h|--h[elp] */
+    ,               BIN_NAME /* -V|--v[ersion] */
+
+    ,_("Displays this help")
+    ,_("Displays"), APP_NAME, _("version")
+    ,_("Example"),  BIN_NAME
+    );
 }
 
 static libusb_context *usb_init(void) {
@@ -133,9 +160,69 @@ static int mouse_deinit(void) {
 }
 
 int main (int argc, char *argv[]) {
+    int c;
+
     log_init();
 
     help_version();
+
+    while (1) {
+        int option_index = 0;
+        static struct option long_options[] = {
+            /* name, has_arg, flag, val
+             *   has_arg = 0 (no), 1 (reqd), 2 (opt)
+             *   flag = NULL (getopt_long returns val),
+             *     other (getopt_long returns 0, flag = val
+             *     if option found)
+             *   val = val to return, or load into var pointed to
+             *     by flag
+             */
+            {"help",        0, 0, 'h'},
+            {"version",     0, 0, 'V'},
+
+            {0,0,0,0}
+        };
+
+        c = getopt_long(argc, argv, "hV",
+                long_options, &option_index);
+
+        if (c == -1)
+            break;
+
+        switch (c) {
+            // Help
+            case 'h':
+                help_usage();
+                exit(0);
+
+            break;
+
+            // Version
+            case 'V':
+                // Already printed it
+
+                exit(0);
+
+            break;
+
+            case '?':
+                break;
+
+            default:
+                printf("?? getopt returned character code 0%o ??\n", c);
+        } // switch (c)
+    } // while (1)
+
+    if (optind < argc) {
+        char optout[255]
+             ,*po = &optout[0];
+
+        while (optind < argc) {
+            sprintf(po, "%s ", argv[optind++]);
+            po += strlen(po);
+        }
+        elog("ERROR: Unrecognised options: %s\n", optout);
+    }
 
     // Initialise USB
     usb_init();
