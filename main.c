@@ -27,6 +27,7 @@
 #include <libusb-1.0/libusb.h>
 
 #include "app.h"
+#include "lang.h"
 #include "git.h"
 #include "log.h"
 
