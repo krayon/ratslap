@@ -28,16 +28,21 @@
 #include <getopt.h>
 #include <string.h>
 #include <libusb-1.0/libusb.h>
+#include <linux/hid.h>
 
 #include "app.h"
 #include "lang.h"
 #include "git.h"
 #include "log.h"
 
+#define LOGITECH_G300S_VENDOR_ID   0x046d
+#define LOGITECH_G300S_PRODUCT_ID  0xc246
+
 libusb_context                     *usb_ctx        = NULL;
 libusb_device_handle               *usb_dev_handle = NULL;
 libusb_device                      *usb_device     = NULL;
 struct libusb_device_descriptor    usb_desc;
+int usb_interface_index = -1;
 
 static void help_version(void) {
     printf("%s v%s (BUILT: %s)\n", (APP_NAME), (APP_VERSION), (BUILD_DATE));
@@ -162,6 +167,147 @@ static int mouse_deinit(void) {
     return 1;
 }
 
+static void display_mouse_hid(const uint16_t vendor_id, const uint16_t product_id) {
+    uint8_t config_index    = 0;
+    uint8_t iface_index     = 0;
+
+    if (!usb_device) return;
+
+    if (usb_desc.idVendor != vendor_id || usb_desc.idProduct != product_id) {
+        elog("WARNING: Device descriptor doesn't match expected device\n");
+        return;
+    }
+
+    for (config_index = 0; config_index < usb_desc.bNumConfigurations; ++config_index) {
+        int                             altsetting_index = 0;
+        struct libusb_config_descriptor *config          = NULL;
+
+        libusb_get_config_descriptor(usb_device, config_index, &config);
+
+        dlog(LOG_USB, "USB Device @ 0x%p : Config %d:\n", usb_dev_handle, config_index);
+        dlog(LOG_USB, "  bLength:         %d\n", config->bLength);
+        dlog(LOG_USB, "  bDescriptorType: %d\n", config->bDescriptorType);
+        dlog(LOG_USB, "  wTotalLength:    %d\n", config->wTotalLength);
+        dlog(LOG_USB, "  iConfiguration:  %d\n", config->iConfiguration);
+        dlog(LOG_USB, "  bmAttributes:    %d\n", config->bmAttributes);
+        dlog(LOG_USB, "  MaxPower:        %d\n", config->MaxPower);
+        dlog(LOG_USB, "  extra (%d):     \"%s\"\n", config->extra_length, config->extra);
+        dlog(LOG_USB, "  bNumInterfaces:  %d\n", config->bNumInterfaces);
+
+        for (iface_index = 0; iface_index < config->bNumInterfaces; ++iface_index) {
+            const struct libusb_interface *iface = &config->interface[iface_index];
+
+            dlog(LOG_USB, "  Interface: %d\n", iface_index);
+            dlog(LOG_USB, "    num_altsetting: %d\n", iface->num_altsetting);
+
+            for (altsetting_index = 0; altsetting_index < iface->num_altsetting; ++altsetting_index) {
+                const struct libusb_interface_descriptor *iface_desc = &iface->altsetting[altsetting_index];
+
+                dlog(LOG_USB, "    AltSetting: %d\n", altsetting_index);
+                dlog(LOG_USB, "      Length:     %d\n", iface_desc->bLength);
+                dlog(LOG_USB, "      DescType:   %d\n", iface_desc->bDescriptorType);
+                dlog(LOG_USB, "      IFNum:      %d\n", iface_desc->bInterfaceNumber);
+                dlog(LOG_USB, "      AltSetting: %d\n", iface_desc->bAlternateSetting);
+                dlog(LOG_USB, "      NumEndPnts: %d\n", iface_desc->bNumEndpoints);
+                dlog(LOG_USB, "      IFClass:    %d\n", iface_desc->bInterfaceClass);
+                dlog(LOG_USB, "      IFSubClass: %d\n", iface_desc->bInterfaceSubClass);
+                dlog(LOG_USB, "      IFProtocol: %d\n", iface_desc->bInterfaceProtocol);
+                dlog(LOG_USB, "      Interface:  %d\n", iface_desc->iInterface);
+                dlog(LOG_USB, "      extra:      (%d) \"%s\"\n", iface_desc->extra_length, iface_desc->extra);
+            }
+            altsetting_index = 0;
+        }
+    }
+}
+
+int mouse_hid_detach_kernel(int iface) {
+    int ret = 0;
+
+    if (!usb_dev_handle || iface < 0) return -1;
+
+    ret = libusb_detach_kernel_driver(usb_dev_handle, iface);
+    if (ret != 0) {
+        elog("ERROR: Failed to detach kernel driver: %s\n", libusb_strerror(ret));
+        return ret;
+    }
+
+    ret = libusb_claim_interface(usb_dev_handle, iface);
+    if (ret != 0) {
+        elog("ERROR: Failed to claim interface: %s\n", libusb_strerror(ret));
+
+        // Reattach the kernel driver
+        ret = libusb_attach_kernel_driver(usb_dev_handle, iface);
+        if (ret != 0) {
+            elog("ERROR: Failed to attach kernel driver: %s\n", libusb_strerror(ret));
+        }
+
+        return ret;
+    }
+
+    return 0;
+}
+
+int mouse_hid_attach_kernel(int iface) {
+    int ret = 0;
+
+    if (!usb_dev_handle || iface < 0) return -1;
+
+    ret = libusb_release_interface(usb_dev_handle, iface);
+    if (ret != 0) {
+        elog("ERROR: Failed to release interface: %s\n", libusb_strerror(ret));
+    }
+
+    ret = libusb_attach_kernel_driver(usb_dev_handle, iface);
+    if (ret != 0) {
+        elog("ERROR: Failed to attach kernel driver: %s\n", libusb_strerror(ret));
+        return ret;
+    }
+
+    return 0;
+}
+
+int mouse_get_hid_interface_index(void) {
+    // FIXME: Do we need to take multiple configurations into account for other
+    // mice?
+
+    const int config_index = 0;
+    int iface_index = 0;
+    int altsetting_index = 0;
+
+    struct libusb_config_descriptor *config = NULL;
+
+    libusb_get_config_descriptor(usb_device, config_index, &config);
+
+    dlog(LOG_USB, "USB Device @ 0x%p : Config %d:\n", usb_dev_handle, config_index);
+    dlog(LOG_USB, "  bLength:         %d\n", config->bLength);
+    dlog(LOG_USB, "  bDescriptorType: %d\n", config->bDescriptorType);
+    dlog(LOG_USB, "  wTotalLength:    %d\n", config->wTotalLength);
+    dlog(LOG_USB, "  iConfiguration:  %d\n", config->iConfiguration);
+    dlog(LOG_USB, "  bmAttributes:    %d\n", config->bmAttributes);
+    dlog(LOG_USB, "  MaxPower:        %d\n", config->MaxPower);
+    dlog(LOG_USB, "  extra (%d):     \"%s\"\n", config->extra_length, config->extra);
+    dlog(LOG_USB, "  bNumInterfaces:  %d\n", config->bNumInterfaces);
+
+    for (iface_index = 0; iface_index < config->bNumInterfaces; ++iface_index) {
+        const struct libusb_interface *iface = &config->interface[iface_index];
+
+        dlog(LOG_USB, "  Interface: %d\n", iface_index);
+        dlog(LOG_USB, "    num_altsetting: %d\n", iface->num_altsetting);
+
+        for (altsetting_index = 0; altsetting_index < iface->num_altsetting; ++altsetting_index) {
+            const struct libusb_interface_descriptor *iface_desc = &iface->altsetting[altsetting_index];
+
+            if (iface_desc->bInterfaceClass == LIBUSB_CLASS_HID) {
+                dlog(LOG_USB, "Found class HID interface index: %d\n", iface_index);
+                return iface_index;
+            }
+        }
+    }
+
+    elog("ERROR: Unable to find USB HID class for any interface on primary configuration\n");
+    return -1;
+}
+
 int main (int argc, char *argv[]) {
     int c;
 
@@ -232,14 +378,41 @@ int main (int argc, char *argv[]) {
 
     // Initialise mouse
     // ID 046d:c246 == Logitech, Inc. Gaming Mouse G300
-    if (!mouse_init(0x046d, 0xc246, "Logitech G300s")) {
+    if (!mouse_init(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID, "Logitech G300s")) {
         mouse_deinit();
         usb_deinit();
         log_end();
         return 1;
     }
 
+    display_mouse_hid(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID);
+
+    // Get interface index
+    usb_interface_index = mouse_get_hid_interface_index();
+    if (usb_interface_index < 0) {
+        mouse_deinit();
+        usb_deinit();
+        log_end();
+        return 1;
+    }
+
+    printf("Detaching kernel driver...\n");
+    if (mouse_hid_detach_kernel(usb_interface_index) != 0) {
+        mouse_deinit();
+        usb_deinit();
+        log_end();
+        return 1;
+    }
+
+
+
     // MAIN FUNCTIONALITY HERE
+    sleep(10);
+
+
+
+    printf("Attaching kernel driver...\n");
+    mouse_hid_attach_kernel(usb_interface_index);
 
     // De-initialise mouse
     mouse_deinit();
