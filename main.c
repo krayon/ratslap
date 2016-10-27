@@ -38,6 +38,20 @@
 #define LOGITECH_G300S_VENDOR_ID   0x046d
 #define LOGITECH_G300S_PRODUCT_ID  0xc246
 
+typedef enum e_mode {
+     mode_f3 = 0
+    ,mode_f4
+    ,mode_f5
+    ,mode_COUNT
+} t_mode;
+
+const char *s_mode[] = {
+     "F3"
+    ,"F4"
+    ,"F5"
+    ,"INVALID"
+};
+
 libusb_context                     *usb_ctx        = NULL;
 libusb_device_handle               *usb_dev_handle = NULL;
 libusb_device                      *usb_device     = NULL;
@@ -58,19 +72,26 @@ static void help_usage(void) {
 \n\
 %s: %s -h|--help\n\
        %s -V|--version\n\
+       %s [-s|--select <mode>]\n\
 \n\
 -h|--h[elp]             - %s\n\
 -V|--v[ersion]          - %s %s %s\n\
+-s|--s[elect]           - %s\n\
 \n\
-%s: %s --help\n\
+<mode>                  - %s\n\
+\n\
+%s: %s --selec F3\n\
 ",
      _(APP_SUMMARY)
 
     ,_("Usage"),    BIN_NAME /* -h|--h[elp] */
     ,               BIN_NAME /* -V|--v[ersion] */
+    ,               BIN_NAME /* -s|--s[elect] ... */
 
     ,_("Displays this help")
     ,_("Displays"), APP_NAME, _("version")
+    ,_("Switches to <mode>")
+    ,_("A valid mode:          F3, F4 or F5")
     ,_("Example"),  BIN_NAME
     );
 }
@@ -266,46 +287,54 @@ int mouse_hid_attach_kernel(int iface) {
     return 0;
 }
 
-int mouse_get_hid_interface_index(void) {
-    // FIXME: Do we need to take multiple configurations into account for other
-    // mice?
+static t_mode change_mode(libusb_device_handle *usb_dev_handle, t_mode mode) {
+    unsigned char payload[] = "\xf0\xff\x00\x00";
 
-    const int config_index = 0;
-    int iface_index = 0;
-    int altsetting_index = 0;
+    int ret;
 
-    struct libusb_config_descriptor *config = NULL;
+    if (!usb_dev_handle || mode >= mode_COUNT) return mode_COUNT;
 
-    libusb_get_config_descriptor(usb_device, config_index, &config);
+    if (mode == mode_f3) {
+        // Top Mode
+        // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0800000
+        // NOTE: b0, c0, f0 also seem to work
+        payload[1] = '\x80';
 
-    dlog(LOG_USB, "USB Device @ 0x%p : Config %d:\n", usb_dev_handle, config_index);
-    dlog(LOG_USB, "  bLength:         %d\n", config->bLength);
-    dlog(LOG_USB, "  bDescriptorType: %d\n", config->bDescriptorType);
-    dlog(LOG_USB, "  wTotalLength:    %d\n", config->wTotalLength);
-    dlog(LOG_USB, "  iConfiguration:  %d\n", config->iConfiguration);
-    dlog(LOG_USB, "  bmAttributes:    %d\n", config->bmAttributes);
-    dlog(LOG_USB, "  MaxPower:        %d\n", config->MaxPower);
-    dlog(LOG_USB, "  extra (%d):     \"%s\"\n", config->extra_length, config->extra);
-    dlog(LOG_USB, "  bNumInterfaces:  %d\n", config->bNumInterfaces);
+    } else
+    if (mode == mode_f4) {
+        // (Bottom) Right Mode
+        // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0900000
+        // NOTE: d0 also seems to work
+        payload[1] = '\x90';
 
-    for (iface_index = 0; iface_index < config->bNumInterfaces; ++iface_index) {
-        const struct libusb_interface *iface = &config->interface[iface_index];
+    } else
+    if (mode == mode_f5) {
+        // (Bottom) Left Mode
+        // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0a00000
+        // NOTE: e0 also seems to work
+        payload[1] = '\xa0';
 
-        dlog(LOG_USB, "  Interface: %d\n", iface_index);
-        dlog(LOG_USB, "    num_altsetting: %d\n", iface->num_altsetting);
+    } else {
+        return mode_COUNT;
 
-        for (altsetting_index = 0; altsetting_index < iface->num_altsetting; ++altsetting_index) {
-            const struct libusb_interface_descriptor *iface_desc = &iface->altsetting[altsetting_index];
-
-            if (iface_desc->bInterfaceClass == LIBUSB_CLASS_HID) {
-                dlog(LOG_USB, "Found class HID interface index: %d\n", iface_index);
-                return iface_index;
-            }
-        }
     }
 
-    elog("ERROR: Unable to find USB HID class for any interface on primary configuration\n");
-    return -1;
+    ret = libusb_control_transfer(
+         usb_dev_handle
+        ,LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT
+        ,HID_REQ_SET_REPORT
+        ,0x03f0
+        ,0x0001
+        ,payload
+        ,sizeof(payload) - 1
+        ,1000);
+
+    // This process takes time
+    usleep(10000);
+
+    dlog(LOG_USB, "  --> %d\n", ret);
+
+    return mode;
 }
 
 int main (int argc, char *argv[]) {
@@ -328,11 +357,12 @@ int main (int argc, char *argv[]) {
              */
             {"help",        0, 0, 'h'},
             {"version",     0, 0, 'V'},
+            {"select",      1, 0, 's'},
 
             {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "hV",
+        c = getopt_long(argc, argv, "hVs:",
                 long_options, &option_index);
 
         if (c == -1)
@@ -354,6 +384,56 @@ int main (int argc, char *argv[]) {
 
             break;
 
+            // Select Mode
+            case 's':
+            {
+                t_mode mnew = mode_COUNT;
+
+                if (!optarg) {
+                    elog("ERROR: Mode required for select option\n");
+                    continue;
+                }
+
+                for (mnew = 0; mnew < mode_COUNT; ++mnew) {
+                    if (strcasecmp(optarg, s_mode[mnew]) == 0) break;
+                }
+
+                if (mnew == mode_COUNT) {
+                    elog("ERROR: Invalid mode for select option: %s\n", optarg);
+                    continue;
+                }
+
+                printf("Selecting Mode: %s\n", s_mode[mnew]);
+
+                // Initialise USB
+                usb_init();
+
+                // Initialise mouse
+                // ID 046d:c246 == Logitech, Inc. Gaming Mouse G300
+                if (!mouse_init(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID, "Logitech G300s")) {
+                    // Fall through to the next command
+                    continue;
+                }
+
+                display_mouse_hid(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID);
+
+                // FIXME: Get interface index somehow
+                usb_interface_index = 1;
+                if (usb_interface_index < 0) {
+                    // Fall through to the next command
+                    continue;
+                }
+
+                printf("Detaching kernel driver...\n");
+                if (mouse_hid_detach_kernel(usb_interface_index) != 0) {
+                    // Fall through to the next command
+                    continue;
+                }
+
+                change_mode(usb_dev_handle, mnew);
+            }
+            break;
+
             case '?':
                 break;
 
@@ -372,42 +452,6 @@ int main (int argc, char *argv[]) {
         }
         elog("ERROR: Unrecognised options: %s\n", optout);
     }
-
-    // Initialise USB
-    usb_init();
-
-    // Initialise mouse
-    // ID 046d:c246 == Logitech, Inc. Gaming Mouse G300
-    if (!mouse_init(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID, "Logitech G300s")) {
-        mouse_deinit();
-        usb_deinit();
-        log_end();
-        return 1;
-    }
-
-    display_mouse_hid(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID);
-
-    // Get interface index
-    usb_interface_index = mouse_get_hid_interface_index();
-    if (usb_interface_index < 0) {
-        mouse_deinit();
-        usb_deinit();
-        log_end();
-        return 1;
-    }
-
-    printf("Detaching kernel driver...\n");
-    if (mouse_hid_detach_kernel(usb_interface_index) != 0) {
-        mouse_deinit();
-        usb_deinit();
-        log_end();
-        return 1;
-    }
-
-
-
-    // MAIN FUNCTIONALITY HERE
-    sleep(10);
 
 
 
