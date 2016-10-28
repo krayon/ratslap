@@ -41,6 +41,8 @@ this is a limitation in the Logitech software and not in the mouse itself--
 
 == Version History ==
 
+v0.1.0    - First version, ability to select mode
+
 == Notes ==
 
 === Technique to sniff USB traffic ===
