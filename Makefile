@@ -93,7 +93,7 @@ APPVER = $(shell bash -c \
     '\
         git describe          --tags --match="*" --dirty &>/dev/null \
     &&  git describe --always --tags --match="*" --dirty             \
-    ||  (echo -n "0.0.1-"; git describe --always --tags --dirty)     \
+    ||  (echo -n "0.0.0-"; git describe --always --tags --dirty)     \
     ')
 
 BUILD_DATE     = $(shell date +'%Y-%m-%d %H:%M:%S%z')
