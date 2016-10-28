@@ -28,7 +28,7 @@ and annoying keypress events such as //CTRL-C//, //CTRL-X// and //CTRL-V//.
 Worse still, I also discovered that the Windows software only allows you to
 assign mouse buttons 1 through 7, skipping 4 and 5 (scroll-wheel). These are
 //Left-Click// (1), //Middle-Click// (2), //Right-Click// (3),
-//Browser Back// (6) and ////Browser Forward// (7) respectively! --Hopefully
+//Browser Back// (6) and //Browser Forward// (7) respectively! --Hopefully
 //this is a limitation in the Logitech software and not in the mouse itself--
 (see Notes).
 
