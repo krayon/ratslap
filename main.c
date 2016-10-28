@@ -52,6 +52,284 @@ const char *s_mode[] = {
     ,"INVALID"
 };
 
+const char *s_buttons[] = {
+     "NONE"
+    ,"Button1"
+    ,"Button2"
+    ,"Button3"
+    ,"Button6"
+    ,"Button7"
+    ,"Button8"
+    ,"Button9"
+    ,"Button10"
+    ,"Button11"
+    ,"DPIUp"
+    ,"DPIDown"
+    ,"DPICycle"
+    ,"ModeSwitch"
+    ,"DPIShift"
+    ,"DPIDefault"
+};
+
+const char *s_keys[] = {
+     "NONE"
+    ,"UNKNOWN:01"
+    ,"UNKNOWN:02"
+    ,"UNKNOWN:03"
+    ,"A"          // 04 ==   4
+    ,"B"
+    ,"C"
+    ,"D"
+    ,"E"
+    ,"F"
+    ,"G"
+    ,"H"
+    ,"I"
+    ,"J"
+    ,"K"
+    ,"L"
+    ,"M"
+    ,"N"
+    ,"O"
+    ,"P"
+    ,"Q"
+    ,"R"
+    ,"S"
+    ,"T"
+    ,"U"
+    ,"V"
+    ,"W"
+    ,"X"
+    ,"Y"
+    ,"Z"          // 1D ==  29
+    ,"1"          // 1E ==  30
+    ,"2"
+    ,"3"
+    ,"4"
+    ,"5"
+    ,"6"
+    ,"7"
+    ,"8"
+    ,"9"
+    ,"0"           // 27 ==  39
+    ,"Enter"       // 28 ==  40
+    ,"Escape"      // 29 ==  41
+    ,"Backspace"   // 2a ==  42
+    ,"Tab"         // 2b ==  43
+    ,"Space"       // 2c ==  44
+    ,"-"           // 2d ==  45
+    ,"="           // 2e ==  46
+    ,"["           // 2f ==  47
+    ,"]"           // 30 ==  48
+    ,"\\"          // 31 ==  49
+    ,"UNKNOWN:32"  // 32 ==  50
+    ,";"           // 33 ==  51
+    ,"'"           // 34 ==  52
+    ,"`"           // 35 ==  53
+    ,","           // 36 ==  54
+    ,"."           // 37 ==  55
+    ,"/"           // 38 ==  56
+    ,"UNKNOWN:39"  // 39 ==  57
+    ,"F1"          // 3a ==  58
+    ,"F2"          // 3b ==  59
+    ,"F3"          // 3c ==  60
+    ,"F4"          // 3d ==  61
+    ,"F5"          // 3e ==  62
+    ,"F6"          // 3f ==  63
+    ,"F7"          // 40 ==  64
+    ,"F8"          // 41 ==  65
+    ,"F9"          // 42 ==  66
+    ,"F10"         // 43 ==  67
+    ,"F11"         // 44 ==  68
+    ,"F12"         // 45 ==  69
+    ,"PrintScreen" // 46 ==  70
+    ,"ScrollLock"  // 47 ==  71
+    ,"Pause"       // 48 ==  72
+    ,"Insert"      // 49 ==  73
+    ,"Home"        // 4a ==  74
+    ,"PageUp"      // 4b ==  75
+    ,"Delete"      // 4c ==  76
+    ,"End"         // 4d ==  77
+    ,"PageDown"    // 4e ==  78
+    ,"Right"       // 4f ==  79
+    ,"Left"        // 50 ==  80
+    ,"Down"        // 51 ==  81
+    ,"Up"          // 52 ==  82
+    ,"NumLock"     // 53 ==  83
+    ,"Num/"        // 54 ==  84
+    ,"Num*"        // 55 ==  85
+    ,"Num-"        // 56 ==  86
+    ,"Num+"        // 57 ==  87
+    ,"NumEnter"    // 58 ==  88
+    ,"Num1"        // 59 ==  89
+    ,"Num2"        // 5a ==  90
+    ,"Num3"        // 5b ==  91
+    ,"Num4"        // 5c ==  92
+    ,"Num5"        // 5d ==  93
+    ,"Num6"        // 5e ==  94
+    ,"Num7"        // 5f ==  95
+    ,"Num8"        // 60 ==  96
+    ,"Num9"        // 61 ==  97
+    ,"Num0"        // 62 ==  98
+    ,"Num."        // 63 ==  99
+    ,"UNKNOWN:64"  // 64 == 100
+    ,"Menu"        // 65 == 101
+    ,"UNKNOWN:66"  // 66 == 102
+    ,"UNKNOWN:67"  // 67 == 103
+    ,"UNKNOWN:68"  // 68 == 104
+    ,"UNKNOWN:69"  // 69 == 105
+    ,"UNKNOWN:6a"  // 6a == 106
+    ,"UNKNOWN:6b"  // 6b == 107
+    ,"UNKNOWN:6c"  // 6c == 108
+    ,"UNKNOWN:6d"  // 6d == 109
+    ,"UNKNOWN:6e"  // 6e == 110
+    ,"UNKNOWN:6f"  // 6f == 111
+    ,"UNKNOWN:70"  // 70 == 112
+    ,"UNKNOWN:71"  // 71 == 113
+    ,"UNKNOWN:72"  // 72 == 114
+    ,"UNKNOWN:73"  // 73 == 115
+    ,"UNKNOWN:74"  // 74 == 116
+    ,"UNKNOWN:75"  // 75 == 117
+    ,"UNKNOWN:76"  // 76 == 118
+    ,"UNKNOWN:77"  // 77 == 119
+    ,"UNKNOWN:78"  // 78 == 120
+    ,"UNKNOWN:79"  // 79 == 121
+    ,"UNKNOWN:7a"  // 7a == 122
+    ,"UNKNOWN:7b"  // 7b == 123
+    ,"UNKNOWN:7c"  // 7c == 124
+    ,"UNKNOWN:7d"  // 7d == 125
+    ,"UNKNOWN:7e"  // 7e == 126
+    ,"UNKNOWN:7f"  // 7f == 127
+    ,"UNKNOWN:80"  // 80 == 128
+    ,"UNKNOWN:81"  // 81 == 129
+    ,"UNKNOWN:82"  // 82 == 130
+    ,"UNKNOWN:83"  // 83 == 131
+    ,"UNKNOWN:84"  // 84 == 132
+    ,"UNKNOWN:85"  // 85 == 133
+    ,"UNKNOWN:86"  // 86 == 134
+    ,"UNKNOWN:87"  // 87 == 135
+    ,"UNKNOWN:88"  // 88 == 136
+    ,"UNKNOWN:89"  // 89 == 137
+    ,"UNKNOWN:8a"  // 8a == 138
+    ,"UNKNOWN:8b"  // 8b == 139
+    ,"UNKNOWN:8c"  // 8c == 140
+    ,"UNKNOWN:8d"  // 8d == 141
+    ,"UNKNOWN:8e"  // 8e == 142
+    ,"UNKNOWN:8f"  // 8f == 143
+    ,"UNKNOWN:90"  // 90 == 144
+    ,"UNKNOWN:91"  // 91 == 145
+    ,"UNKNOWN:92"  // 92 == 146
+    ,"UNKNOWN:93"  // 93 == 147
+    ,"UNKNOWN:94"  // 94 == 148
+    ,"UNKNOWN:95"  // 95 == 149
+    ,"UNKNOWN:96"  // 96 == 150
+    ,"UNKNOWN:97"  // 97 == 151
+    ,"UNKNOWN:98"  // 98 == 152
+    ,"UNKNOWN:99"  // 99 == 153
+    ,"UNKNOWN:9a"  // 9a == 154
+    ,"UNKNOWN:9b"  // 9b == 155
+    ,"UNKNOWN:9c"  // 9c == 156
+    ,"UNKNOWN:9d"  // 9d == 157
+    ,"UNKNOWN:9e"  // 9e == 158
+    ,"UNKNOWN:9f"  // 9f == 159
+    ,"UNKNOWN:a0"  // a0 == 160
+    ,"UNKNOWN:a1"  // a1 == 161
+    ,"UNKNOWN:a2"  // a2 == 162
+    ,"UNKNOWN:a3"  // a3 == 163
+    ,"UNKNOWN:a4"  // a4 == 164
+    ,"UNKNOWN:a5"  // a5 == 165
+    ,"UNKNOWN:a6"  // a6 == 166
+    ,"UNKNOWN:a7"  // a7 == 167
+    ,"UNKNOWN:a8"  // a8 == 168
+    ,"UNKNOWN:a9"  // a9 == 169
+    ,"UNKNOWN:aa"  // aa == 170
+    ,"UNKNOWN:ab"  // ab == 171
+    ,"UNKNOWN:ac"  // ac == 172
+    ,"UNKNOWN:ad"  // ad == 173
+    ,"UNKNOWN:ae"  // ae == 174
+    ,"UNKNOWN:af"  // af == 175
+    ,"UNKNOWN:b0"  // b0 == 176
+    ,"UNKNOWN:b1"  // b1 == 177
+    ,"UNKNOWN:b2"  // b2 == 178
+    ,"UNKNOWN:b3"  // b3 == 179
+    ,"UNKNOWN:b4"  // b4 == 180
+    ,"UNKNOWN:b5"  // b5 == 181
+    ,"UNKNOWN:b6"  // b6 == 182
+    ,"UNKNOWN:b7"  // b7 == 183
+    ,"UNKNOWN:b8"  // b8 == 184
+    ,"UNKNOWN:b9"  // b9 == 185
+    ,"UNKNOWN:ba"  // ba == 186
+    ,"UNKNOWN:bb"  // bb == 187
+    ,"UNKNOWN:bc"  // bc == 188
+    ,"UNKNOWN:bd"  // bd == 189
+    ,"UNKNOWN:be"  // be == 190
+    ,"UNKNOWN:bf"  // bf == 191
+    ,"UNKNOWN:c0"  // c0 == 192
+    ,"UNKNOWN:c1"  // c1 == 193
+    ,"UNKNOWN:c2"  // c2 == 194
+    ,"UNKNOWN:c3"  // c3 == 195
+    ,"UNKNOWN:c4"  // c4 == 196
+    ,"UNKNOWN:c5"  // c5 == 197
+    ,"UNKNOWN:c6"  // c6 == 198
+    ,"UNKNOWN:c7"  // c7 == 199
+    ,"UNKNOWN:c8"  // c8 == 200
+    ,"UNKNOWN:c9"  // c9 == 201
+    ,"UNKNOWN:ca"  // ca == 202
+    ,"UNKNOWN:cb"  // cb == 203
+    ,"UNKNOWN:cc"  // cc == 204
+    ,"UNKNOWN:cd"  // cd == 205
+    ,"UNKNOWN:ce"  // ce == 206
+    ,"UNKNOWN:cf"  // cf == 207
+    ,"UNKNOWN:d0"  // d0 == 208
+    ,"UNKNOWN:d1"  // d1 == 209
+    ,"UNKNOWN:d2"  // d2 == 210
+    ,"UNKNOWN:d3"  // d3 == 211
+    ,"UNKNOWN:d4"  // d4 == 212
+    ,"UNKNOWN:d5"  // d5 == 213
+    ,"UNKNOWN:d6"  // d6 == 214
+    ,"UNKNOWN:d7"  // d7 == 215
+    ,"UNKNOWN:d8"  // d8 == 216
+    ,"UNKNOWN:d9"  // d9 == 217
+    ,"UNKNOWN:da"  // da == 218
+    ,"UNKNOWN:db"  // db == 219
+    ,"UNKNOWN:dc"  // dc == 220
+    ,"UNKNOWN:dd"  // dd == 221
+    ,"UNKNOWN:de"  // de == 222
+    ,"UNKNOWN:df"  // df == 223
+    ,"LeftCtrl"    // e0 == 224
+    ,"LeftShift"   // e1 == 225
+    ,"LeftAlt"     // e2 == 226
+    ,"Super_L"     // e3 == 227
+    ,"RightCtrl"   // e4 == 228
+    ,"RightShift"  // e5 == 229
+    ,"RightAlt"    // e6 == 230
+    ,"Super_R"     // e7 == 231
+    ,"UNKNOWN:e8"  // e8 == 232
+    ,"UNKNOWN:e9"  // e9 == 233
+    ,"UNKNOWN:ea"  // ea == 234
+    ,"UNKNOWN:eb"  // eb == 235
+    ,"UNKNOWN:ec"  // ec == 236
+    ,"UNKNOWN:ed"  // ed == 237
+    ,"UNKNOWN:ee"  // ee == 238
+    ,"UNKNOWN:ef"  // ef == 239
+    ,"UNKNOWN:f0"  // f0 == 240
+    ,"UNKNOWN:f1"  // f1 == 241
+    ,"UNKNOWN:f2"  // f2 == 242
+    ,"UNKNOWN:f3"  // f3 == 243
+    ,"UNKNOWN:f4"  // f4 == 244
+    ,"UNKNOWN:f5"  // f5 == 245
+    ,"UNKNOWN:f6"  // f6 == 246
+    ,"UNKNOWN:f7"  // f7 == 247
+    ,"UNKNOWN:f8"  // f8 == 248
+    ,"UNKNOWN:f9"  // f9 == 249
+    ,"UNKNOWN:fa"  // fa == 250
+    ,"UNKNOWN:fb"  // fb == 251
+    ,"UNKNOWN:fc"  // fc == 252
+    ,"UNKNOWN:fd"  // fd == 253
+    ,"UNKNOWN:fe"  // fe == 254
+    ,"UNKNOWN:ff"  // ff == 255
+};
+
 libusb_context                     *usb_ctx        = NULL;
 libusb_device_handle               *usb_dev_handle = NULL;
 libusb_device                      *usb_device     = NULL;
@@ -72,10 +350,12 @@ static void help_usage(void) {
 \n\
 %s: %s -h|--help\n\
        %s -V|--version\n\
+       %s --listkeys\n\
        %s [-s|--select <mode>]\n\
 \n\
 -h|--h[elp]             - %s\n\
 -V|--v[ersion]          - %s %s %s\n\
+--li[stkeys]            - %s\n\
 -s|--s[elect]           - %s\n\
 \n\
 <mode>                  - %s\n\
@@ -86,14 +366,65 @@ static void help_usage(void) {
 
     ,_("Usage"),    BIN_NAME /* -h|--h[elp] */
     ,               BIN_NAME /* -V|--v[ersion] */
+    ,               BIN_NAME /* --listkeys */
     ,               BIN_NAME /* -s|--s[elect] ... */
 
     ,_("Displays this help")
     ,_("Displays"), APP_NAME, _("version")
+    ,_("Lists all possible modifiers, buttons and keys for assignment")
     ,_("Switches to <mode>")
     ,_("A valid mode:          F3, F4 or F5")
     ,_("Example"),  BIN_NAME
     );
+}
+
+static void keylist_print(void) {
+    unsigned char bt;
+
+    printf("\nMODIFIERS:\n");
+
+    // 0xe0 - 0xe7 match modifiers 0x01, 0x02, 0x04 ... 0x80
+    for (bt = 0xe0; bt <= 0xe7; ++bt) {
+        printf("  %s\n", s_keys[bt]);
+    }
+
+    printf("\nBUTTONS/SPECIALS:\n");
+
+    for (bt = 0x00; bt <= 0x0f; ++bt) {
+        printf("  %s\n", s_buttons[bt]);
+    }
+
+    printf("\nKEYS:\n");
+
+    for (bt = 1; bt < 0xff; ++bt) {
+        if (strncmp(s_keys[bt], "UNKNOWN", 7) == 0) continue;
+
+        if (s_keys[bt][0] == 'A') {
+            printf("  A ... Z\n");
+            bt += 25;
+            continue;
+        }
+
+        if (s_keys[bt][0] == '1') {
+            printf("  0 ... 9\n");
+            bt +=  9;
+            continue;
+        }
+
+        if (strncmp(s_keys[bt], "F1", 2) == 0) {
+            printf("  F1 ... F12\n");
+            bt += 11;
+            continue;
+        }
+
+        if (strncmp(s_keys[bt], "Num1", 4) == 0) {
+            printf("  Num0 ... Num9\n");
+            bt +=  9;
+            continue;
+        }
+
+        printf("  %s\n", s_keys[bt]);
+    }
 }
 
 static libusb_context *usb_init(void) {
@@ -357,6 +688,8 @@ int main (int argc, char *argv[]) {
              */
             {"help",        0, 0, 'h'},
             {"version",     0, 0, 'V'},
+            {"listkeys",    0, 0,   0}, /* DON'T REORDER THIS, MUST BE 3rd */
+
             {"select",      1, 0, 's'},
 
             {0,0,0,0}
@@ -403,7 +736,7 @@ int main (int argc, char *argv[]) {
                     continue;
                 }
 
-                printf("Selecting Mode: %s\n", s_mode[mnew]);
+                printf("Mode Selection Specified: %s\n", s_mode[mnew]);
 
                 // Initialise USB
                 usb_init();
@@ -430,8 +763,20 @@ int main (int argc, char *argv[]) {
                     continue;
                 }
 
+                printf("Selecting Mode: %s\n", s_mode[mnew]);
                 change_mode(usb_dev_handle, mnew);
             }
+            break;
+
+            // Long options without val set (if val set, short option will be
+            // provided instead).
+            case 0: {
+                if (option_index == 2 /* listkeys */) {
+                    keylist_print();
+                    exit(0);
+                }
+            }
+
             break;
 
             case '?':

@@ -26,14 +26,18 @@ modes generated the extra mouse buttons I desired, instead generating useless
 and annoying keypress events such as //CTRL-C//, //CTRL-X// and //CTRL-V//.
 
 Worse still, I also discovered that the Windows software only allows you to
-assign mouse buttons 1 through 5 (as in //Left-Click//, //Middle-Click//,
-//Right-Click//, //Mouse Wheel Up// and //Mouse Wheel Down// respectively)!
-Hopefully this is a limitation in the Logitech software and not in the mouse
-itself.
+assign mouse buttons 1 through 7, skipping 4 and 5 (scroll-wheel). These are
+//Left-Click// (1), //Middle-Click// (2), //Right-Click// (3),
+//Browser Back// (6) and ////Browser Forward// (7) respectively! --Hopefully
+//this is a limitation in the Logitech software and not in the mouse itself--
+(see Notes).
 
 == Features ==
 
-* None
+* Bind 9 mouse buttons instead of only the 5 that Logitech's tool offers.
+* Assign mouse clicks or keys to the Left and Right buttons.
+* Freely assign 'Mode Switch' to a mouse button in only one mode/profile.
+* Assign mouse clicks with key modifiers.
 
 == Version History ==
 
@@ -46,5 +50,26 @@ technique for sniffing USB traffic using the //usbmon// kernel module.
 
 Unfortunately it looks like I'll need to create a Windows VM to run the Logitech
 software on :(
+
+=== Logitech Software's Artificial Restrictions ===
+
+After considerable testing, I have found some operations the hardware supports
+that Logitech's management software does not.
+
+Firstly, I can confirm that we can actually set 9 mouse buttons (1, 2, 3, 6, 7,
+8, 9, 10 and 11). This is good news as it was what I originally expected from
+the Logitech G300s in the first place :D
+
+We can also re-assign left and right buttons to different keys/buttons.
+Logitech's software did not allow this, presumably to avoid accidentally
+removing your ability to actually "left-click" anything :P
+
+Once you assigned the 'Mode Switch' to a button in one profile/mode, it was also
+set in the other profiles/modes. This is presumably so you can always change to
+another mode. We shall impose no such limitation.
+
+Lastly, and perhaps rather attractively, we can assign mouse buttons to perform
+mouse clicks WITH modifiers! You can therefore bind Ctrl+Shift+Right-Click to
+the left mouse button if you so desire.
 
 <<< vim:set ts=4 sw=4 tw=80 et cindent ai si syn=creole: >>>
