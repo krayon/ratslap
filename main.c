@@ -45,6 +45,14 @@ typedef enum e_mode {
     ,mode_COUNT
 } t_mode;
 
+// http://www.tldp.org/LDP/abs/html/exitcodes.html
+typedef enum e_exit {
+     exit_none    = 0
+    ,exit_param   = 63
+    ,exit_usberr
+    ,exit_modesel
+} t_exit;
+
 const char *s_mode[] = {
      "F3"
     ,"F4"
@@ -669,6 +677,7 @@ static t_mode change_mode(libusb_device_handle *usb_dev_handle, t_mode mode) {
 }
 
 int main (int argc, char *argv[]) {
+    t_exit ret = exit_none;
     int c;
 
     log_init();
@@ -705,7 +714,7 @@ int main (int argc, char *argv[]) {
             // Help
             case 'h':
                 help_usage();
-                exit(0);
+                exit(ret);
 
             break;
 
@@ -713,7 +722,7 @@ int main (int argc, char *argv[]) {
             case 'V':
                 // Already printed it
 
-                exit(0);
+                exit(ret);
 
             break;
 
@@ -724,6 +733,7 @@ int main (int argc, char *argv[]) {
 
                 if (!optarg) {
                     elog("ERROR: Mode required for select option\n");
+                    ret = exit_param;
                     continue;
                 }
 
@@ -733,6 +743,7 @@ int main (int argc, char *argv[]) {
 
                 if (mnew == mode_COUNT) {
                     elog("ERROR: Invalid mode for select option: %s\n", optarg);
+                    ret = exit_modesel;
                     continue;
                 }
 
@@ -745,6 +756,7 @@ int main (int argc, char *argv[]) {
                 // ID 046d:c246 == Logitech, Inc. Gaming Mouse G300
                 if (!mouse_init(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID, "Logitech G300s")) {
                     // Fall through to the next command
+                    ret = exit_usberr;
                     continue;
                 }
 
@@ -754,17 +766,19 @@ int main (int argc, char *argv[]) {
                 usb_interface_index = 1;
                 if (usb_interface_index < 0) {
                     // Fall through to the next command
+                    ret = exit_usberr;
                     continue;
                 }
 
                 printf("Detaching kernel driver...\n");
                 if (mouse_hid_detach_kernel(usb_interface_index) != 0) {
                     // Fall through to the next command
+                    ret = exit_usberr;
                     continue;
                 }
 
                 printf("Selecting Mode: %s\n", s_mode[mnew]);
-                change_mode(usb_dev_handle, mnew);
+                if (change_mode(usb_dev_handle, mnew) == mode_COUNT) ret = exit_modesel;
             }
             break;
 
@@ -773,17 +787,21 @@ int main (int argc, char *argv[]) {
             case 0: {
                 if (option_index == 2 /* listkeys */) {
                     keylist_print();
-                    exit(0);
+                    exit(ret);
                 }
             }
 
             break;
 
+            // Option provided but missing it's required argument
             case '?':
-                break;
+                ret = exit_param;
+
+            break;
 
             default:
                 printf("?? getopt returned character code 0%o ??\n", c);
+                ret = exit_param;
         } // switch (c)
     } // while (1)
 
@@ -796,6 +814,7 @@ int main (int argc, char *argv[]) {
             po += strlen(po);
         }
         elog("ERROR: Unrecognised options: %s\n", optout);
+        ret = exit_param;
     }
 
 
@@ -811,5 +830,5 @@ int main (int argc, char *argv[]) {
 
     log_end();
 
-    return 0;
+    return ret;
 }
