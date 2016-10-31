@@ -35,13 +35,14 @@
 // Log levels, correspond to DEBUG* defines
 #define LOG                         NULL
 #define LOG_USB                     NULL
+#define LOG_PARSE                   NULL
 
 extern FILE *_logfile;
 
 int log_init(void);
 int log_end(void);
 
-inline void std_output(FILE *strm, const char *srcfile, const int line
+extern void std_output(FILE *strm, const char *srcfile, const int line
     , const char *func, const char *head, const char *text, ...);
 
 #define dlog(LOGLEV, OUTPUT, args...) std_output((LOGLEV), (__FILE__)\

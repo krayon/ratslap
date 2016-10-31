@@ -38,13 +38,6 @@
 #define LOGITECH_G300S_VENDOR_ID   0x046d
 #define LOGITECH_G300S_PRODUCT_ID  0xc246
 
-typedef enum e_mode {
-     mode_f3 = 0
-    ,mode_f4
-    ,mode_f5
-    ,mode_COUNT
-} t_mode;
-
 // http://www.tldp.org/LDP/abs/html/exitcodes.html
 typedef enum e_exit {
      exit_none    = 0
@@ -52,6 +45,25 @@ typedef enum e_exit {
     ,exit_usberr
     ,exit_modesel
 } t_exit;
+
+typedef enum e_mode {
+     mode_f3 = 0
+    ,mode_f4
+    ,mode_f5
+    ,mode_COUNT
+} t_mode;
+
+typedef enum e_colour {
+     colour_black = 0
+    ,colour_red
+    ,colour_green
+    ,colour_yellow
+    ,colour_blue
+    ,colour_magenta
+    ,colour_cyan
+    ,colour_white
+    ,colour_COUNT
+} t_colour;
 
 const char *s_mode[] = {
      "F3"
@@ -338,6 +350,30 @@ const char *s_keys[] = {
     ,"UNKNOWN:ff"  // ff == 255
 };
 
+const char *s_colour[] = {
+     "black"
+    ,"red"
+    ,"green"
+    ,"yellow"
+    ,"blue"
+    ,"magenta"
+    ,"cyan"
+    ,"white"
+    ,"INVALID"
+};
+
+const int report_rate[] = {
+     1000
+    , 125
+    , 250
+    , 500
+};
+const int n_report_rates = 4;
+
+static int dpi_point(int dpip) {
+    return dpip * 250;
+}
+
 libusb_context                     *usb_ctx        = NULL;
 libusb_device_handle               *usb_dev_handle = NULL;
 libusb_device                      *usb_device     = NULL;
@@ -359,16 +395,17 @@ static void help_usage(void) {
 %s: %s -h|--help\n\
        %s -V|--version\n\
        %s --listkeys\n\
-       %s [-s|--select <mode>]\n\
+       %s [-s|--select <mode>] [-p|--print <mode>]\n\
 \n\
 -h|--h[elp]             - %s\n\
 -V|--v[ersion]          - %s %s %s\n\
 --li[stkeys]            - %s\n\
 -s|--s[elect]           - %s\n\
+-p|--p[rint]            - %s\n\
 \n\
 <mode>                  - %s\n\
 \n\
-%s: %s --selec F3\n\
+%s: %s -p f3 --selec F3\n\
 ",
      _(APP_SUMMARY)
 
@@ -381,6 +418,7 @@ static void help_usage(void) {
     ,_("Displays"), APP_NAME, _("version")
     ,_("Lists all possible modifiers, buttons and keys for assignment")
     ,_("Switches to <mode>")
+    ,_("Prints out <mode>'s button configuration")
     ,_("A valid mode:          F3, F4 or F5")
     ,_("Example"),  BIN_NAME
     );
@@ -676,6 +714,147 @@ static t_mode change_mode(libusb_device_handle *usb_dev_handle, t_mode mode) {
     return mode;
 }
 
+// Expected length: 35
+static int mode_load(unsigned char *mode_data, libusb_device_handle *usb_dev_handle, t_mode mode) {
+    const uint16_t exp_len = 35;
+    uint16_t mi;
+    int ret;
+
+    if (!mode_data || !usb_dev_handle || mode >= mode_COUNT) return 0;
+
+    if      (mode == mode_f3) mi = 0xf3;
+    else if (mode == mode_f4) mi = 0xf4;
+    else if (mode == mode_f5) mi = 0xf5;
+    else return 0;
+
+    ret = libusb_control_transfer(
+         usb_dev_handle
+        ,LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_IN
+        ,HID_REQ_GET_REPORT
+        ,0x0300|mi
+        ,0x0001
+        ,mode_data
+        ,exp_len
+        ,1000
+    );
+    usleep(10000);
+
+    if (ret != exp_len) {
+        elog("ERROR: Failed to retrieve current mapping for mode 0x%.2x\n", mi);
+        return 0;
+    }
+
+    int bit;
+    char bitout[255]
+         ,*po = &bitout[0];
+    for (bit = 0; bit < exp_len; ++bit) {
+        sprintf(po, "%.2x", (mode_data)[bit]);
+        if ((bit+1) % 4 == 0) sprintf(po, " ");
+        po += strlen(po);
+    }
+    dlog(LOG_PARSE, "Mode 0x%.2x: %s\n", mi, bitout);
+
+    return exp_len;
+}
+
+static int mode_print(unsigned char *mode_data, int len, t_mode mode) {
+    unsigned char bit = 0;
+    unsigned char but[3] = {0,0,0};
+    int i = 0;
+    int x = 0;
+
+    printf("RAW: ");
+    for (i = 0; i < len; ++i) {
+        printf("%.2x", (mode_data)[i]);
+        if ((i+1) % 4 == 0) printf(" ");
+    }
+    printf("\n");
+
+    i = 0;
+
+    // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+    // ^^
+    //printf("MODE: %s\n", s_mode[mode]);
+    ++i;
+
+    // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+    //   ^^
+    printf("  Colour:              %s\n", s_colour[ (mode_data)[i++] ]);
+
+    // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+    //     ^^
+    bit = (mode_data)[i++];
+    printf("  Report Rate:         %4d\n",
+        bit < n_report_rates
+        ? report_rate[bit]
+        : -1
+    );
+
+    // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+    //       ^^ ^^^^^^
+
+    for (x = 1; x <= 4; ++x) {
+        bit = (mode_data)[i++];
+        printf("  DPI #%d:        %s %4d\n",
+             x
+            ,bit & 0x80 ? "(DEF)" : "     "
+            ,dpi_point(bit & 0x0f)
+            );
+    }
+
+    // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+    //                ^^
+
+    bit = (mode_data)[i++];
+    printf("  DPI Shift:           ");
+    if (bit == 0x40) {
+        printf("NOT SET");
+    } else {
+        printf("%d", dpi_point(bit & 0x0f));
+    }
+    printf("\n");
+
+    // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+    //                   ^^
+
+    for (x = 1; x <= 9; ++x) {
+        but[0] = (mode_data)[i++];
+        but[1] = (mode_data)[i++];
+        but[2] = (mode_data)[i++];
+
+        printf("  %s",
+            x == 1 ? "Left Click (But1):   " :
+            x == 2 ? "Right Click (But2):  " :
+            x == 3 ? "Middle Click (But3): " :
+            "G");
+        if (x > 3) printf("%d:                  ", x);
+
+        // Modifiers (but[1])
+        // 0xe0 - 0xe7 match modifiers 0x01, 0x02, 0x04 ... 0x80
+        {
+            unsigned char ky = 0xe0;
+            int m = 0x00;
+            for (m = 0x01; m <= 0x80; m *= 2) {
+                if (but[1] & m) printf("%s + ", s_keys[ky]);
+                ++ky;
+            }
+        }
+
+        // Buttons   (but[0])
+        if (but[0] & 0x0f) {
+            printf("%s", s_buttons[but[0] & 0x0f]);
+
+            if (but[2] > 0) printf(" + ");
+        }
+
+        // Keys      (but[2])
+        if (but[2] > 0) printf("%s", s_keys[but[2]]);
+        printf("\n");
+    }
+
+    return 1;
+}
+
 int main (int argc, char *argv[]) {
     t_exit ret = exit_none;
     int c;
@@ -700,11 +879,12 @@ int main (int argc, char *argv[]) {
             {"listkeys",    0, 0,   0}, /* DON'T REORDER THIS, MUST BE 3rd */
 
             {"select",      1, 0, 's'},
+            {"print",       1, 0, 'p'},
 
             {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "hVs:",
+        c = getopt_long(argc, argv, "hVs:p:",
                 long_options, &option_index);
 
         if (c == -1)
@@ -779,6 +959,62 @@ int main (int argc, char *argv[]) {
 
                 printf("Selecting Mode: %s\n", s_mode[mnew]);
                 if (change_mode(usb_dev_handle, mnew) == mode_COUNT) ret = exit_modesel;
+            }
+            break;
+
+            // Print mode
+            case 'p':
+            {
+                unsigned char mode_data_p[255];
+                int len = 0;
+                t_mode mnew = mode_COUNT;
+
+                if (!optarg) {
+                    elog("ERROR: Mode required for print option\n");
+                    continue;
+                }
+
+                for (mnew = 0; mnew < mode_COUNT; ++mnew) {
+                    if (strcasecmp(optarg, s_mode[mnew]) == 0) break;
+                }
+
+                if (mnew == mode_COUNT) {
+                    elog("ERROR: Invalid mode for print option: %s\n", optarg);
+                    continue;
+                }
+
+                // Initialise USB
+                usb_init();
+
+                // Initialise mouse
+                // ID 046d:c246 == Logitech, Inc. Gaming Mouse G300
+                if (!mouse_init(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID, "Logitech G300s")) {
+                    // Fall through to the next command
+                    ret = exit_usberr;
+                    continue;
+                }
+
+                display_mouse_hid(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID);
+
+                // FIXME: Get interface index somehow
+                usb_interface_index = 1;
+                if (usb_interface_index < 0) {
+                    // Fall through to the next command
+                    ret = exit_usberr;
+                    continue;
+                }
+
+                printf("Detaching kernel driver...\n");
+                if (mouse_hid_detach_kernel(usb_interface_index) != 0) {
+                    // Fall through to the next command
+                    ret = exit_usberr;
+                    continue;
+                }
+
+                printf("Printing Mode: %s\n", s_mode[mnew]);
+
+                len = mode_load(&mode_data_p[0], usb_dev_handle, mnew);
+                mode_print(&mode_data_p[0], len, mnew);
             }
             break;
 

@@ -89,11 +89,18 @@ BINNAME        = $(shell sed -n 's/^[ \t]*\#define[ \t]*BIN_NAME[ \t]*"\([^"]*\)
 #                 -g6ab5527       == commit starting with g6ab5527
 #                          -dirty == some files are not in the repository
 #APPVER="$(shell grep _APP_VERSION app.h|head -1|cut -d'"' -f2)"
+APPBRANCH = $(shell bash -c \
+	'\
+        ( \
+		  n="$$(git name-rev --always --name-only --no-undefined HEAD)"; \
+		  [ "$${n}" != "master" ] && n="$${n^^}"; echo -n "$${n:0:3}" || true \
+		) \
+	')
 APPVER = $(shell bash -c \
     '\
         git describe          --tags --match="*" --dirty &>/dev/null \
     &&  git describe --always --tags --match="*" --dirty             \
-    ||  (echo -n "0.0.0-"; git describe --always --tags --dirty)     \
+    ||  (echo -n "$(APPBRANCH)-"; git describe --always --tags --dirty)     \
     ')
 
 BUILD_DATE     = $(shell date +'%Y-%m-%d %H:%M:%S%z')
