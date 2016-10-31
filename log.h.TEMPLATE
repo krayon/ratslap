@@ -35,6 +35,7 @@
 // Log levels, correspond to DEBUG* defines
 #define LOG                         NULL
 #define LOG_USB                     NULL
+#define LOG_PARSE                   NULL
 
 extern FILE *_logfile;
 

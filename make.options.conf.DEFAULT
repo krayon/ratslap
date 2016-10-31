@@ -24,3 +24,4 @@
 
 #OPTIONS += DEBUG					# General debugging
 #OPTIONS += DEBUG_USB				# Debug USB activity
+#OPTIONS += DEBUG_PARSE				# Debug parsing of USB data
