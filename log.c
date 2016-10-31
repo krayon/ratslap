@@ -52,7 +52,7 @@ int log_end(void) {
     return 0;
 }
 
-inline void std_output(FILE *strm, const char *srcfile, const int line
+void std_output(FILE *strm, const char *srcfile, const int line
 , const char *func, const char *head, const char *text, ...) {
     static char _logout[4096];
     static char _logtime[32];
