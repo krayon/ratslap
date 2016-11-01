@@ -763,12 +763,14 @@ static int mode_print(unsigned char *mode_data, int len, t_mode mode) {
     int i = 0;
     int x = 0;
 
-    printf("RAW: ");
+    char rawout[255]
+         ,*po = &rawout[0];
     for (i = 0; i < len; ++i) {
-        printf("%.2x", (mode_data)[i]);
-        if ((i+1) % 4 == 0) printf(" ");
+        sprintf(po, "%.2x", (mode_data)[i]);
+        if ((i+1) % 4 == 0) sprintf(po, " ");
+        po += strlen(po);
     }
-    printf("\n");
+    dlog(LOG_PARSE, "RAW: %s\n", rawout);
 
     i = 0;
 
@@ -863,6 +865,40 @@ int main (int argc, char *argv[]) {
 
     help_version();
 
+    // Initialise USB
+    usb_init();
+
+    // Initialise mouse
+    // ID 046d:c246 == Logitech, Inc. Gaming Mouse G300
+    if (!mouse_init(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID, "Logitech G300s")) {
+        // De-initialise USB
+        usb_deinit();
+
+        return exit_usberr;
+    }
+
+    display_mouse_hid(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID);
+
+    // FIXME: Get interface index somehow
+    usb_interface_index = 1;
+    if (usb_interface_index < 0) {
+        // De-initialise USB
+        usb_deinit();
+
+        return exit_usberr;
+    }
+
+    printf("Detaching kernel driver...\n");
+    if (mouse_hid_detach_kernel(usb_interface_index) != 0) {
+        // De-initialise mouse
+        mouse_deinit();
+
+        // De-initialise USB
+        usb_deinit();
+
+        return exit_usberr;
+    }
+
     while (1) {
         int option_index = 0;
         static struct option long_options[] = {
@@ -929,34 +965,6 @@ int main (int argc, char *argv[]) {
 
                 printf("Mode Selection Specified: %s\n", s_mode[mnew]);
 
-                // Initialise USB
-                usb_init();
-
-                // Initialise mouse
-                // ID 046d:c246 == Logitech, Inc. Gaming Mouse G300
-                if (!mouse_init(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID, "Logitech G300s")) {
-                    // Fall through to the next command
-                    ret = exit_usberr;
-                    continue;
-                }
-
-                display_mouse_hid(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID);
-
-                // FIXME: Get interface index somehow
-                usb_interface_index = 1;
-                if (usb_interface_index < 0) {
-                    // Fall through to the next command
-                    ret = exit_usberr;
-                    continue;
-                }
-
-                printf("Detaching kernel driver...\n");
-                if (mouse_hid_detach_kernel(usb_interface_index) != 0) {
-                    // Fall through to the next command
-                    ret = exit_usberr;
-                    continue;
-                }
-
                 printf("Selecting Mode: %s\n", s_mode[mnew]);
                 if (change_mode(usb_dev_handle, mnew) == mode_COUNT) ret = exit_modesel;
             }
@@ -980,34 +988,6 @@ int main (int argc, char *argv[]) {
 
                 if (mnew == mode_COUNT) {
                     elog("ERROR: Invalid mode for print option: %s\n", optarg);
-                    continue;
-                }
-
-                // Initialise USB
-                usb_init();
-
-                // Initialise mouse
-                // ID 046d:c246 == Logitech, Inc. Gaming Mouse G300
-                if (!mouse_init(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID, "Logitech G300s")) {
-                    // Fall through to the next command
-                    ret = exit_usberr;
-                    continue;
-                }
-
-                display_mouse_hid(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID);
-
-                // FIXME: Get interface index somehow
-                usb_interface_index = 1;
-                if (usb_interface_index < 0) {
-                    // Fall through to the next command
-                    ret = exit_usberr;
-                    continue;
-                }
-
-                printf("Detaching kernel driver...\n");
-                if (mouse_hid_detach_kernel(usb_interface_index) != 0) {
-                    // Fall through to the next command
-                    ret = exit_usberr;
                     continue;
                 }
 
@@ -1053,8 +1033,7 @@ int main (int argc, char *argv[]) {
         ret = exit_param;
     }
 
-
-
+    // Re-attach kernel driver
     printf("Attaching kernel driver...\n");
     mouse_hid_attach_kernel(usb_interface_index);
 
