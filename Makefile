@@ -59,9 +59,11 @@ CPU_FLAG       =
 #     -pedantic
 #   Warnings (all)
 #     -Wall
+#   Warnings should be considered errors
+#     -Werror
 #   Debug information (spec for gdb)
 #     -ggdb
-OPT_FLAGS      = -O2 -pipe -Wall -ggdb
+OPT_FLAGS      = -O2 -pipe -Wall -Werror -ggdb
 
 INCDIR         =
 
@@ -73,7 +75,6 @@ PKGS           = libusb-1.0
 LIBS           = $(shell pkg-config --libs $(PKGS))
 
 CFLAGS        += $(CARCH_FLAG) $(CPU_FLAG) $(OPT_FLAGS) $(BUILDOPTS) $(shell pkg-config --cflags $(PKGS)) -DDEBUG -DINFO
-
 
 
 # Application name

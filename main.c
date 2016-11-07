@@ -53,6 +53,13 @@ typedef enum e_mode {
     ,mode_COUNT
 } t_mode;
 
+const char *s_mode[] = {
+     "F3"
+    ,"F4"
+    ,"F5"
+    ,"INVALID"
+};
+
 typedef enum e_colour {
      colour_black = 0
     ,colour_red
@@ -65,10 +72,15 @@ typedef enum e_colour {
     ,colour_COUNT
 } t_colour;
 
-const char *s_mode[] = {
-     "F3"
-    ,"F4"
-    ,"F5"
+const char *s_colour[] = {
+     "black"
+    ,"red"
+    ,"green"
+    ,"yellow"
+    ,"blue"
+    ,"magenta"
+    ,"cyan"
+    ,"white"
     ,"INVALID"
 };
 
@@ -348,18 +360,6 @@ const char *s_keys[] = {
     ,"UNKNOWN:fd"  // fd == 253
     ,"UNKNOWN:fe"  // fe == 254
     ,"UNKNOWN:ff"  // ff == 255
-};
-
-const char *s_colour[] = {
-     "black"
-    ,"red"
-    ,"green"
-    ,"yellow"
-    ,"blue"
-    ,"magenta"
-    ,"cyan"
-    ,"white"
-    ,"INVALID"
 };
 
 const int report_rate[] = {
@@ -864,6 +864,8 @@ int main (int argc, char *argv[]) {
     log_init();
 
     help_version();
+
+    // FIXME: Help and version shouldn't initialise USB
 
     // Initialise USB
     usb_init();
