@@ -396,12 +396,15 @@ static void help_usage(void) {
        %s -V|--version\n\
        %s --listkeys\n\
        %s [-s|--select <mode>] [-p|--print <mode>]\n\
+       [-m|--modify <mode>\n\
+       ] [...]\n\
 \n\
 -h|--h[elp]             - %s\n\
 -V|--v[ersion]          - %s %s %s\n\
 --li[stkeys]            - %s\n\
 -s|--s[elect]           - %s\n\
 -p|--p[rint]            - %s\n\
+-m|--mo[dify]           - %s\n\
 \n\
 <mode>                  - %s\n\
 \n\
@@ -419,6 +422,7 @@ static void help_usage(void) {
     ,_("Lists all possible modifiers, buttons and keys for assignment")
     ,_("Switches to <mode>")
     ,_("Prints out <mode>'s button configuration")
+    ,_("Sets current <mode> to be modified")
     ,_("A valid mode:          F3, F4 or F5")
     ,_("Example"),  BIN_NAME
     );
@@ -757,6 +761,72 @@ static int mode_load(unsigned char *mode_data, libusb_device_handle *usb_dev_han
     return exp_len;
 }
 
+static int mode_save(unsigned char *mode_data, libusb_device_handle *usb_dev_handle, const t_mode mode) {
+    const uint16_t exp_len = 35;
+    uint16_t mi;
+    int ret;
+    int bit;
+    char bitout[255]
+         ,*po = &bitout[0];
+
+    unsigned char cmp[255];
+
+    if (!mode_data || !usb_dev_handle || mode >= mode_COUNT) return 0;
+
+    if      (mode == mode_f3) mi = 0xf3;
+    else if (mode == mode_f4) mi = 0xf4;
+    else if (mode == mode_f5) mi = 0xf5;
+    else return 0;
+
+    ret = libusb_control_transfer(
+         usb_dev_handle
+        ,LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT
+        ,HID_REQ_SET_REPORT
+        ,0x0300|mi
+        ,0x0001
+        ,mode_data
+        ,exp_len
+        ,1000
+    );
+    usleep(500000); // Writes are SLOW
+
+    if (ret != exp_len) {
+        elog("ERROR: Failed to set current mapping for mode 0x%.2x\n", mi);
+        return 0;
+    }
+
+    po = &bitout[0];
+    for (bit = 0; bit < exp_len; ++bit) {
+        sprintf(po, "%.2x", (mode_data)[bit]);
+        if ((bit+1) % 4 == 0) sprintf(po, " ");
+        po += strlen(po);
+    }
+    dlog(LOG_PARSE, "Mode 0x%.2x: %s\n", mi, bitout);
+
+    dlog(LOG_PARSE, "Comparing to stored:\n");
+
+    ret = mode_load(&cmp[0], usb_dev_handle, mode);
+    if (ret != exp_len) {
+        elog("ERROR: Failed to retrieve mapping for mode 0x%.2x\n", mi);
+        return 0;
+    }
+
+    po = &bitout[0];
+    for (bit = 0; bit < exp_len; ++bit) {
+        sprintf(po, "%.2x", (cmp)[bit]);
+        if ((bit+1) % 4 == 0) sprintf(po, " ");
+        po += strlen(po);
+    }
+    dlog(LOG_PARSE, "Mode 0x%.2x: %s\n", mi, bitout);
+
+    if (memcmp(mode_data, cmp, exp_len) != 0) {
+        elog("ERROR: Mapping retrieved not equal to mapping saved for mode 0x%.2x\n", mi);
+        return 0;
+    }
+
+    return exp_len;
+}
+
 static int mode_print(unsigned char *mode_data, int len, t_mode mode) {
     unsigned char bit = 0;
     unsigned char but[3] = {0,0,0};
@@ -857,9 +927,56 @@ static int mode_print(unsigned char *mode_data, int len, t_mode mode) {
     return 1;
 }
 
+static int mouse_editmode(void) {
+    if (!usb_dev_handle) return 0;
+
+    // LAUNCH EDITOR
+    // 2117030035 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0423900
+    // 2117031923 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0423900
+    // 2117033709 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0423900
+    // (only doing one as they're dups)
+    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f0, 0x0001, (unsigned char *)"\xf0\x42\x39\x00", 4, 1000); usleep(50000);
+
+    // 2117041527 S Co:2:039:0 s 21 09 03f2 0001 0002 2 = f24f
+    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f2, 0x0001, (unsigned char *)"\xf2\x4f", 2, 1000); usleep(50000);
+
+    // 2117043288 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0000000
+    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f0, 0x0001, (unsigned char *)"\xf0\x00\x00\x00", 4, 1000); usleep(50000);
+
+    // 2117063607 S Co:2:039:0 s 21 09 03f1 0001 0002 2 = f100
+    // Is this reboot or something? Causes lights to turn off
+    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f1, 0x0001, (unsigned char *)"\xf1\x00", 2, 1000); usleep(50000);
+
+    //DUPS OF ABOVE// // 2117071455 S Co:2:039:0 s 21 09 03f2 0001 0002 2 = f24f
+    //DUPS OF ABOVE// // 2117074118 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0000000
+    //DUPS OF ABOVE// // 2117089459 S Co:2:039:0 s 21 09 03f1 0001 0002 2 = f100
+
+    usleep(500000);
+
+    // START EDIT
+    // 2161557129 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0420000
+    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f0, 0x0001, (unsigned char *)"\xf0\x42\x00\x00", 4, 1000);
+
+    // ALSO SEEN THESE... NO IDEA WHAT THEY ARE?
+    // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0400000
+    // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0404b03
+    // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0420000
+    // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0424b03
+    // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0440000
+    // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0460000
+
+    return 1;
+}
+
 int main (int argc, char *argv[]) {
     t_exit ret = exit_none;
     int c;
+
+    t_mode mode = mode_COUNT;
+
+    // Data structures to store loaded and ready to save mode data
+    unsigned char mode_data_l[255];
+    unsigned char mode_data_s[255];
 
     log_init();
 
@@ -918,11 +1035,12 @@ int main (int argc, char *argv[]) {
 
             {"select",      1, 0, 's'},
             {"print",       1, 0, 'p'},
+            {"modify",      1, 0, 'm'},
 
             {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "hVs:p:",
+        c = getopt_long(argc, argv, "hVs:p:m:",
                 long_options, &option_index);
 
         if (c == -1)
@@ -967,7 +1085,15 @@ int main (int argc, char *argv[]) {
 
                 printf("Mode Selection Specified: %s\n", s_mode[mnew]);
 
+                if (mode != mode_COUNT) {
+                    // They've been editing another mode, so save
+                    printf("Saving Mode: %s\n", s_mode[mode]);
+                    mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                    mode = mode_COUNT;
+                }
+
                 printf("Selecting Mode: %s\n", s_mode[mnew]);
+
                 if (change_mode(usb_dev_handle, mnew) == mode_COUNT) ret = exit_modesel;
             }
             break;
@@ -993,10 +1119,70 @@ int main (int argc, char *argv[]) {
                     continue;
                 }
 
+                if (mode != mode_COUNT) {
+                    // They've been editing another mode, so save
+                    printf("Saving Mode: %s\n", s_mode[mode]);
+                    mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                    mode = mode_COUNT;
+                }
+
                 printf("Printing Mode: %s\n", s_mode[mnew]);
 
                 len = mode_load(&mode_data_p[0], usb_dev_handle, mnew);
                 mode_print(&mode_data_p[0], len, mnew);
+            }
+            break;
+
+            // Modify mode
+            case 'm':
+            {
+                t_mode mnew = mode_COUNT;
+
+                if (!optarg) {
+                    elog("ERROR: Mode required for modify option\n");
+
+                    // For safety we reset mode now
+                    if (mode != mode_COUNT) {
+                        printf("Saving Mode: %s\n", s_mode[mode]);
+                        mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                        mode = mode_COUNT;
+                    }
+
+                    continue;
+                }
+
+                for (mnew = 0; mnew < mode_COUNT; ++mnew) {
+                    if (strcasecmp(optarg, s_mode[mnew]) == 0) break;
+                }
+
+                if (mnew == mode_COUNT) {
+                    elog("ERROR: Invalid mode for modify option: %s\n", optarg);
+
+                    // For safety we reset mode now
+                    if (mode != mode_COUNT) {
+                        printf("Saving Mode: %s\n", s_mode[mode]);
+                        mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                    }
+
+                    mode = mode_COUNT;
+
+                    continue;
+                }
+
+                if (mode != mode_COUNT) {
+                    // They've been editing another mode, so save
+                    printf("Saving Mode: %s\n", s_mode[mode]);
+                    mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                }
+
+                mode = mnew;
+
+                printf("Modifying Mode: %s\n", s_mode[mnew]);
+
+                mouse_editmode();
+
+                mode_load(&mode_data_l[0], usb_dev_handle, mode);
+                memcpy(&mode_data_s, &mode_data_l, 255);
             }
             break;
 
@@ -1034,6 +1220,14 @@ int main (int argc, char *argv[]) {
         elog("ERROR: Unrecognised options: %s\n", optout);
         ret = exit_param;
     }
+
+    if (mode != mode_COUNT) {
+        // They've been editing another mode, so save
+        printf("Saving Mode: %s\n", s_mode[mode]);
+        mode_save(&mode_data_s[0], usb_dev_handle, mode);
+        mode = mode_COUNT;
+    }
+
 
     // Re-attach kernel driver
     printf("Attaching kernel driver...\n");
