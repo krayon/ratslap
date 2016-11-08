@@ -1101,15 +1101,14 @@ int main (int argc, char *argv[]) {
             // Help
             case 'h':
                 help_usage();
-                exit(ret);
+                continue;
 
             break;
 
             // Version
             case 'V':
                 // Already printed it
-
-                exit(ret);
+                continue;
 
             break;
 
