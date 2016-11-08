@@ -168,6 +168,12 @@ this is a limitation in the Logitech software and not in the mouse itself--
 * v0.1.1
 ** Hotfix for GCC 5 compatibility
 ** Print current mode's mapping ( accidental check-in, oops :S )
+* v0.2.0
+** QB#104: Modify mode - change refresh rate
+** QB#105: Modify mode - change mode LED colour
+** QB#106: Modify mode - change button assignment
+** QB#108: kernel driver disconnect after --help/--version
+** QB#109: kernel driver disconnect after --listkeys
 
 == TODO ==
 
