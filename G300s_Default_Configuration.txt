@@ -1,0 +1,55 @@
+$ ratslap --print F3 --print F4 --print F5
+
+Printing Mode: F3
+  Colour:              cyan
+  Report Rate:          500
+  DPI #1:               500
+  DPI #2:        (DEF) 1000
+  DPI #3:              1500
+  DPI #4:              2500
+  DPI Shift:           NOT SET
+  Left Click (But1):   Button1
+  Right Click (But2):  Button2
+  Middle Click (But3): Button3
+  G4:                  Button6
+  G5:                  Button7
+  G6:                  LeftCtrl +
+  G7:                  LeftAlt +
+  G8:                  ModeSwitch
+  G9:                  DPICycle
+
+Printing Mode: F4
+  Colour:              white
+  Report Rate:         1000
+  DPI #1:               500
+  DPI #2:        (DEF) 1000
+  DPI #3:              1500
+  DPI #4:              2500
+  DPI Shift:           500
+  Left Click (But1):   Button1
+  Right Click (But2):  Button2
+  Middle Click (But3): Button3
+  G4:                  Button6
+  G5:                  Button7
+  G6:                  DPIDown
+  G7:                  DPIUp
+  G8:                  ModeSwitch
+  G9:                  DPIShift
+
+Printing Mode: F5
+  Colour:              blue
+  Report Rate:          500
+  DPI #1:        (DEF) 1000
+  DPI #2:              1000
+  DPI #3:              1000
+  DPI #4:              1000
+  DPI Shift:           NOT SET
+  Left Click (But1):   Button1
+  Right Click (But2):  Button2
+  Middle Click (But3): Button3
+  G4:                  Button6
+  G5:                  Button7
+  G6:                  LeftCtrl + C
+  G7:                  LeftCtrl + V
+  G8:                  ModeSwitch
+  G9:                  LeftCtrl + X

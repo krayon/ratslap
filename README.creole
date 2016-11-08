@@ -1,6 +1,6 @@
 = RatSlap =
 
-== Linux configuration tool for Logitech mice (currently only G300S) ==
+== Linux configuration tool for Logitech mice //(currently only G300S)// ==
 
 == Introduction ==
 
@@ -9,10 +9,132 @@ within Linux.
 
 == Availability ==
 
-//RatSlap// is available on [[https://gitlab.com/krayon/ratslap|GitLab]],
+//RatSlap// source is available on [[https://gitlab.com/krayon/ratslap|GitLab]],
 [[https://github.com/krayon/ratslap|GitHub]] and
-[[https://bitbucket.org/krayonx/ratslap|BitBucket]] with the primary repository
-being [[https://gitlab.com/krayon/ratslap|GitLab]].
+[[https://bitbucket.org/krayonx/ratslap|BitBucket]] with the primary (public)
+repository being [[https://gitlab.com/krayon/ratslap|GitLab]].
+
+== Bug Tracker ==
+
+Bugs are tracked on the
+[[https://bugs.qdnx.org/project/5|Quadronyx Bug Tracker]].
+
+== Usage ==
+
+The //Logitech G300s// has 3 button modes. For each of these modes, you can
+assign an LED colour, report rate (speed at which the mouse communicates with
+the computer), DPI setting(s) and button/key combinations.
+
+NOTE: You cannot remap the scrollwheel. These generate button 4 (up) and 5
+(down) and cannot be changed.
+
+The default mapping for F3 on the G300s, for example, is currently:
+{{{
+$ ratslap -pf3
+Printing Mode: F3
+  Colour:              cyan
+  Report Rate:          500
+  DPI #1:               500
+  DPI #2:        (DEF) 1000
+  DPI #3:              1500
+  DPI #4:              2500
+  DPI Shift:           NOT SET
+  Left Click (But1):   Button1
+  Right Click (But2):  Button2
+  Middle Click (But3): Button3
+  G4:                  Button6
+  G5:                  Button7
+  G6:                  LeftCtrl +
+  G7:                  LeftAlt +
+  G8:                  ModeSwitch
+  G9:                  DPICycle
+}}}
+
+=== Remapping to just mouse buttons ===
+
+One usage for //RatSlap// may be to remap the buttons to generate standard mouse
+buttons higher than the 1-3 + scrollwheel (4 and 5).
+
+Above, we see a typical button 1/2/3 configuration for left, right and middle
+respectively. We can also see the G4 button generates mouse button 6 and G5
+generates mouse button 7. Unfortunately, G6-G9 do not generate the desired extra
+
+We can rectify this easily, using //RatSlap//:
+{{{
+$ ratslap --modify F3 --colour Magenta --G6 Button8 --G7 Button9 --G8 Button10 --G9 Button11
+Modifying Mode: F3
+    Setting colour: magenta
+    Setting button 6: Button8
+    Setting button 7: Button9
+    Setting button 8: Button10
+    Setting button 9: Button11
+Saving Mode: F3
+}}}
+
+Now, we have all mouse buttons functioning as mouse buttons! Go figure! And as
+an added bonus, we have a nice Magenta glow.
+{{{
+$ ./ratslap --print F3
+Printing Mode: F3
+  Colour:              magenta
+  Report Rate:          500
+  DPI #1:               500
+  DPI #2:        (DEF) 1000
+  DPI #3:              1500
+  DPI #4:              2500
+  DPI Shift:           NOT SET
+  Left Click (But1):   Button1
+  Right Click (But2):  Button2
+  Middle Click (But3): Button3
+  G4:                  Button6
+  G5:                  Button7
+  G6:                  Button8
+  G7:                  Button9
+  G8:                  Button10
+  G9:                  Button11
+}}}
+
+Finally, we can select the F3 mode (if we're not already using it):
+{{{
+$ ./ratslap --select F3
+Selecting Mode: F3
+}}}
+
+=== Firefox tab switching buttons ===
+
+Another option might be using the buttons behind the wheel (G8 and G9) to switch
+forward and backward (respectively) between tabs in your favourite browser ...
+or Firefox.
+
+So, let's set the buttons to Control-TAB and Control-Shift-TAB, print out our
+config, then switch to that mode:
+{{{
+$ ratslap --modify F3 --G8 LeftCtrl+TAB --G9 LeftCtrl+LeftShift+TAB --print F3 --select F3
+Modifying Mode: F3
+    Setting button 8: LeftCtrl+TAB
+    Setting button 9: LeftCtrl+LeftShift+TAB
+Saving Mode: F3
+
+Printing Mode: F3
+  Colour:              magenta
+  Report Rate:          250
+  DPI #1:               500
+  DPI #2:        (DEF) 1000
+  DPI #3:              1500
+  DPI #4:              2500
+  DPI Shift:           NOT SET
+  Left Click (But1):   Button1
+  Right Click (But2):  Button2
+  Middle Click (But3): Button3
+  G4:                  Button6
+  G5:                  Button7
+  G6:                  Button8
+  G7:                  Button9
+  G8:                  LeftCtrl + Tab
+  G9:                  LeftCtrl + LeftShift + Tab
+
+Selecting Mode: F3
+}}}
 
 == History ==
 
@@ -41,8 +163,24 @@ this is a limitation in the Logitech software and not in the mouse itself--
 
 == Version History ==
 
-v0.1.0    - First version, ability to select mode
-v0.1.1    - Hotfix for GCC 5 compatibility
+* v0.1.0
+** First version, ability to select mode
+* v0.1.1
+** Hotfix for GCC 5 compatibility
+** Print current mode's mapping ( accidental check-in, oops :S )
+* v0.2.0
+** QB#104: Modify mode - change refresh rate
+** QB#105: Modify mode - change mode LED colour
+** QB#106: Modify mode - change button assignment
+** QB#108: kernel driver disconnect after --help/--version
+** QB#109: kernel driver disconnect after --listkeys
+
+== TODO ==
+
+* Modify DPI settings.
+* Add factory reset option to return mouse to (Logitech's idea of) sane button
+assignment.
+* Save/Load profiles?
 
 == Notes ==
 

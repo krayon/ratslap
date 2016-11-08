@@ -53,6 +53,13 @@ typedef enum e_mode {
     ,mode_COUNT
 } t_mode;
 
+const char *s_mode[] = {
+     "F3"
+    ,"F4"
+    ,"F5"
+    ,"INVALID"
+};
+
 typedef enum e_colour {
      colour_black = 0
     ,colour_red
@@ -65,11 +72,32 @@ typedef enum e_colour {
     ,colour_COUNT
 } t_colour;
 
-const char *s_mode[] = {
-     "F3"
-    ,"F4"
-    ,"F5"
+const char *s_colour[] = {
+     "black"
+    ,"red"
+    ,"green"
+    ,"yellow"
+    ,"blue"
+    ,"magenta"
+    ,"cyan"
+    ,"white"
     ,"INVALID"
+};
+
+// F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+// ^                 ^     ^      ^      ^      ^      ^      ^      ^      ^
+// 0                 8    11     14     17     20     23     26     29     32
+const unsigned char offsets_buttons[] = {
+      0
+    , 8
+    ,11
+    ,14
+    ,17
+    ,20
+    ,23
+    ,26
+    ,29
+    ,32
 };
 
 const char *s_buttons[] = {
@@ -350,18 +378,6 @@ const char *s_keys[] = {
     ,"UNKNOWN:ff"  // ff == 255
 };
 
-const char *s_colour[] = {
-     "black"
-    ,"red"
-    ,"green"
-    ,"yellow"
-    ,"blue"
-    ,"magenta"
-    ,"cyan"
-    ,"white"
-    ,"INVALID"
-};
-
 const int report_rate[] = {
      1000
     , 125
@@ -396,16 +412,45 @@ static void help_usage(void) {
        %s -V|--version\n\
        %s --listkeys\n\
        %s [-s|--select <mode>] [-p|--print <mode>]\n\
+       [-m|--modify <mode>\n\
+           [-r|--rate           <rate>]\n\
+           [-c|--colour|--color <colour>]\n\
+           [-1|--left           <keys>]\n\
+           [-2|--right          <keys>]\n\
+           [-3|--middle         <keys>]\n\
+           [-4|--g4|--G4        <keys>]\n\
+           [-5|--g5|--G5        <keys>]\n\
+           [-6|--g6|--G6        <keys>]\n\
+           [-7|--g7|--G7        <keys>]\n\
+           [-8|--g8|--G8        <keys>]\n\
+           [-9|--g9|--G9        <keys>]\n\
+       ] [...]\n\
 \n\
 -h|--h[elp]             - %s\n\
 -V|--v[ersion]          - %s %s %s\n\
 --li[stkeys]            - %s\n\
 -s|--s[elect]           - %s\n\
 -p|--p[rint]            - %s\n\
+-m|--mo[dify]           - %s\n\
+-r|--ra[te]             - %s\n\
+-c|--c[olour]|--c[olor] - %s\n\
+-1|--le[ft]             - %s\n\
+-2|--ri[ght]            - %s\n\
+-3|--mi[ddle]           - %s\n\
+-4|--g4|--G4            - %s\n\
+-5|--g5|--G5            - %s\n\
+-6|--g6|--G6            - %s\n\
+-7|--g7|--G7            - %s\n\
+-8|--g8|--G8            - %s\n\
+-9|--g9|--G9            - %s\n\
 \n\
 <mode>                  - %s\n\
+<rate>                  - %s\n\
+<colour>                - %s\n\
+<keys>                  - %s\n\
+                          %s\n\
 \n\
-%s: %s -p f3 --selec F3\n\
+%s: %s -p f3 -pF4 --selec F3 -m F4 -c bLuE -9LeftCtrl+V\n\
 ",
      _(APP_SUMMARY)
 
@@ -419,7 +464,23 @@ static void help_usage(void) {
     ,_("Lists all possible modifiers, buttons and keys for assignment")
     ,_("Switches to <mode>")
     ,_("Prints out <mode>'s button configuration")
+    ,_("Sets current <mode> to be modified")
+    ,_("Sets report <rate> of <mode> currently being modified")
+    ,_("Sets <colour> of <mode> currently being modified")
+    ,_("Assigns <keys> to button 1 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 2 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 3 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 4 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 5 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 6 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 7 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 8 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 9 of <mode> currently being modified")
     ,_("A valid mode:          F3, F4 or F5")
+    ,_("A valid rate:          125, 250, 500, 1000")
+    ,_("A valid colour:        black, red, green, yellow, blue, magenta, cyan, white")
+    ,_("A valid combo of keys: Any button or key combo, eg. LeftCtrl+LeftAlt+PageUp")
+    ,_("Run with --listkeys to see the complete list")
     ,_("Example"),  BIN_NAME
     );
 }
@@ -521,22 +582,22 @@ static libusb_device_handle *mouse_init(const uint16_t vendor_id, const uint16_t
             return NULL;
         }
 
-        printf("Found %s (%.4x:%.4x) @ 0x%p\n", product_name, vendor_id, product_id, usb_dev_handle);
+        printf("Found %s (%.4x:%.4x) @ %p\n", product_name, vendor_id, product_id, usb_dev_handle);
     }
 
     if (!usb_device) {
         usb_device = libusb_get_device(usb_dev_handle);
         if (!usb_device) {
-            elog("ERROR: Failed to retrieve usb_device info @ 0x%p\n", usb_dev_handle);
+            elog("ERROR: Failed to retrieve usb_device info @ %p\n", usb_dev_handle);
             return NULL;
         }
     }
 
     // Get usb_device descriptor
     if (libusb_get_device_descriptor(usb_device, &usb_desc) != 0) {
-        elog("WARNING: Failed to retrieve usb_device descriptor @ 0x%p\n", usb_dev_handle);
+        elog("WARNING: Failed to retrieve usb_device descriptor @ %p\n", usb_dev_handle);
     } else {
-        dlog(LOG_USB, "USB Device (%.4x:%.4x @ 0x%p) Descriptor:\n", vendor_id, product_id, usb_dev_handle);
+        dlog(LOG_USB, "USB Device (%.4x:%.4x @ %p) Descriptor:\n", vendor_id, product_id, usb_dev_handle);
         dlog(LOG_USB, "  bLength:            %d\n",     usb_desc.bLength           );
         dlog(LOG_USB, "  bDescriptorType:    %d\n",     usb_desc.bDescriptorType   );
         dlog(LOG_USB, "  bcdUSB:             0x%.4x\n", usb_desc.bcdUSB            );
@@ -582,7 +643,7 @@ static void display_mouse_hid(const uint16_t vendor_id, const uint16_t product_i
 
         libusb_get_config_descriptor(usb_device, config_index, &config);
 
-        dlog(LOG_USB, "USB Device @ 0x%p : Config %d:\n", usb_dev_handle, config_index);
+        dlog(LOG_USB, "USB Device @ %p : Config %d:\n", usb_dev_handle, config_index);
         dlog(LOG_USB, "  bLength:         %d\n", config->bLength);
         dlog(LOG_USB, "  bDescriptorType: %d\n", config->bDescriptorType);
         dlog(LOG_USB, "  wTotalLength:    %d\n", config->wTotalLength);
@@ -757,18 +818,86 @@ static int mode_load(unsigned char *mode_data, libusb_device_handle *usb_dev_han
     return exp_len;
 }
 
+static int mode_save(unsigned char *mode_data, libusb_device_handle *usb_dev_handle, const t_mode mode) {
+    const uint16_t exp_len = 35;
+    uint16_t mi;
+    int ret;
+    int bit;
+    char bitout[255]
+         ,*po = &bitout[0];
+
+    unsigned char cmp[255];
+
+    if (!mode_data || !usb_dev_handle || mode >= mode_COUNT) return 0;
+
+    if      (mode == mode_f3) mi = 0xf3;
+    else if (mode == mode_f4) mi = 0xf4;
+    else if (mode == mode_f5) mi = 0xf5;
+    else return 0;
+
+    ret = libusb_control_transfer(
+         usb_dev_handle
+        ,LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT
+        ,HID_REQ_SET_REPORT
+        ,0x0300|mi
+        ,0x0001
+        ,mode_data
+        ,exp_len
+        ,1000
+    );
+    usleep(500000); // Writes are SLOW
+
+    if (ret != exp_len) {
+        elog("ERROR: Failed to set current mapping for mode 0x%.2x\n", mi);
+        return 0;
+    }
+
+    po = &bitout[0];
+    for (bit = 0; bit < exp_len; ++bit) {
+        sprintf(po, "%.2x", (mode_data)[bit]);
+        if ((bit+1) % 4 == 0) sprintf(po, " ");
+        po += strlen(po);
+    }
+    dlog(LOG_PARSE, "Mode 0x%.2x: %s\n", mi, bitout);
+
+    dlog(LOG_PARSE, "Comparing to stored:\n");
+
+    ret = mode_load(&cmp[0], usb_dev_handle, mode);
+    if (ret != exp_len) {
+        elog("ERROR: Failed to retrieve mapping for mode 0x%.2x\n", mi);
+        return 0;
+    }
+
+    po = &bitout[0];
+    for (bit = 0; bit < exp_len; ++bit) {
+        sprintf(po, "%.2x", (cmp)[bit]);
+        if ((bit+1) % 4 == 0) sprintf(po, " ");
+        po += strlen(po);
+    }
+    dlog(LOG_PARSE, "Mode 0x%.2x: %s\n", mi, bitout);
+
+    if (memcmp(mode_data, cmp, exp_len) != 0) {
+        elog("ERROR: Mapping retrieved not equal to mapping saved for mode 0x%.2x\n", mi);
+        return 0;
+    }
+
+    return exp_len;
+}
+
 static int mode_print(unsigned char *mode_data, int len, t_mode mode) {
     unsigned char bit = 0;
     unsigned char but[3] = {0,0,0};
     int i = 0;
     int x = 0;
 
-    printf("RAW: ");
+    char rawout[255]
+         ,*po = &rawout[0];
     for (i = 0; i < len; ++i) {
-        printf("%.2x", (mode_data)[i]);
-        if ((i+1) % 4 == 0) printf(" ");
+        sprintf(po, "%.2x", (mode_data)[i]);
+        if ((i+1) % 4 == 0) sprintf(po, " ");
+        po += strlen(po);
     }
-    printf("\n");
+    dlog(LOG_PARSE, "RAW: %s\n", rawout);
 
     i = 0;
 
@@ -855,13 +984,250 @@ static int mode_print(unsigned char *mode_data, int len, t_mode mode) {
     return 1;
 }
 
+static int set_mode_rate(unsigned char *mode_data, const int rate) {
+    int i;
+
+    if (!mode_data || rate == 0) return 0;
+
+    for (i = 0; i < n_report_rates; ++i) {
+        if (rate == report_rate[i]) {
+            // Valid rate
+
+            printf("    Setting report rate: %d\n", report_rate[i]);
+
+            // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+            //     ^^
+            (mode_data)[2] = i;
+            return rate;
+        }
+    }
+
+    return 0;
+}
+
+static unsigned char set_mode_colour(unsigned char *mode_data, const t_colour colour) {
+    unsigned char oldcol;
+
+    if (!mode_data || colour >= colour_COUNT) return 0;
+
+    printf("    Setting colour: %s\n", s_colour[colour]);
+
+    // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+    //   ^^
+    oldcol = (mode_data)[1];
+    (mode_data)[1] = colour;
+
+    return oldcol;
+}
+
+static int set_mode_button(unsigned char *mode_data, const unsigned char button, const char *keys) {
+    unsigned char newkeys[3] = {0, 0, 0};
+    unsigned char bt;
+    char modkey[32];
+    int mki = 0;
+    const char *kptrprev = keys;
+    const char *kptr     = keys;
+
+    modkey[0] = '\0';
+
+    if (button < 1 || button > 9) return 0;
+
+    if (!keys) {
+        printf("    Setting button %2d: %s\n", button, s_buttons[0]);
+        (mode_data)[offsets_buttons[button]    ] = 0x00;
+        (mode_data)[offsets_buttons[button] + 1] = 0x00;
+        (mode_data)[offsets_buttons[button] + 2] = 0x00;
+        return 1;
+    }
+
+    if (*keys == '+' && *(keys+1)) {
+        // keys starts with '+' and then contains more info
+        elog("ERROR: Invalid keys specified (starting with '+'): %s\n", keys);
+        return 0;
+    }
+
+    printf("    Setting button %d: %s\n", button, keys);
+
+    do {
+        dlog(LOG_KEY, "    > %c\n", *kptr ? *kptr : ' ');
+
+        if (mki < 31) {
+            modkey[mki++] = *kptr;
+            modkey[mki  ] = '\0';
+        }
+
+        // Is the next char a '+' or the end of our string?
+        //   - We allow end of string to fall through here so that if the last
+        //   token is a modifier it gets applied as BOTH a modifier and the key
+        if (*kptr == '+' || *kptr == '\0') {
+            // keys is:
+            //     "<something>+..."
+            // or:
+            //     "<something>\0"
+
+            unsigned char ky = 0xe0;
+            int m;
+
+            if (mki > 0) modkey[--mki] = '\0';
+
+            dlog(LOG_KEY, "Checking for Modifier: %s\n", modkey);
+
+            for (m = 0x01; m <= 0x80; m *= 2) {
+                dlog(LOG_KEY, "    %s == %s?\n", s_keys[ky], modkey);
+                if (strcasecmp(s_keys[ky], modkey) == 0) {
+                    // Match!
+                    newkeys[1] |= m;
+                    dlog(LOG_KEY, "MATCH: %s (+%d == %d)\n", s_keys[ky], m, newkeys[1]);
+                    break;
+                }
+
+                ++ky;
+            }
+
+            // If it's not the last element...
+            if (*kptr) {
+                // And didn't match a modifier, BAD!
+                if (m > 0x80) {
+                    elog("ERROR: Invalid modifier (%s) specified: %s\n", modkey, keys);
+                    return 0;
+                }
+
+                mki = 0;
+                modkey[mki] = '\0';
+
+                kptrprev = kptr+1;
+            }
+        }
+
+        if (!*kptr) break;
+
+        ++kptr;
+    } while (1);
+
+    // kptrprev now contains remaining key or button
+
+    // Special button?
+    dlog(LOG_KEY, "Checking for Specials...\n");
+    for (bt = 0x00; bt <= 0x0f; ++bt) {
+        if (strcasecmp(s_buttons[bt], kptrprev) == 0) {
+            // Button found
+            dlog(LOG_KEY, "MATCH SPECIAL: %s (%2x)\n", s_buttons[bt], bt);
+            newkeys[0] = bt;
+            break;
+        }
+    }
+
+    // Key
+    dlog(LOG_KEY, "Checking for Keys...\n");
+    if (!newkeys[0]) {
+        for (bt = 0; bt < 0xff; ++bt) {
+            if (strcasecmp(s_keys[bt], kptrprev) == 0) {
+                // Key found
+                dlog(LOG_KEY, "MATCH KEY: %s (%2x)\n", s_keys[bt], bt);
+                newkeys[2] = bt;
+                break;
+            }
+        }
+    }
+
+    dlog(LOG_KEY, "FINAL: %.2x%.2x%.2x\n", newkeys[0], newkeys[1], newkeys[2]);
+
+    (mode_data)[offsets_buttons[button]    ] = newkeys[0];
+    (mode_data)[offsets_buttons[button] + 1] = newkeys[1];
+    (mode_data)[offsets_buttons[button] + 2] = newkeys[2];
+
+    return 1;
+}
+static int mouse_editmode(void) {
+    if (!usb_dev_handle) return 0;
+
+    // LAUNCH EDITOR
+    // 2117030035 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0423900
+    // 2117031923 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0423900
+    // 2117033709 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0423900
+    // (only doing one as they're dups)
+    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f0, 0x0001, (unsigned char *)"\xf0\x42\x39\x00", 4, 1000); usleep(50000);
+
+    // 2117041527 S Co:2:039:0 s 21 09 03f2 0001 0002 2 = f24f
+    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f2, 0x0001, (unsigned char *)"\xf2\x4f", 2, 1000); usleep(50000);
+
+    // 2117043288 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0000000
+    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f0, 0x0001, (unsigned char *)"\xf0\x00\x00\x00", 4, 1000); usleep(50000);
+
+    // 2117063607 S Co:2:039:0 s 21 09 03f1 0001 0002 2 = f100
+    // Is this reboot or something? Causes lights to turn off
+    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f1, 0x0001, (unsigned char *)"\xf1\x00", 2, 1000); usleep(50000);
+
+    //DUPS OF ABOVE// // 2117071455 S Co:2:039:0 s 21 09 03f2 0001 0002 2 = f24f
+    //DUPS OF ABOVE// // 2117074118 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0000000
+    //DUPS OF ABOVE// // 2117089459 S Co:2:039:0 s 21 09 03f1 0001 0002 2 = f100
+
+    usleep(500000);
+
+    // START EDIT
+    // 2161557129 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0420000
+    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f0, 0x0001, (unsigned char *)"\xf0\x42\x00\x00", 4, 1000);
+
+    // ALSO SEEN THESE... NO IDEA WHAT THEY ARE?
+    // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0400000
+    // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0404b03
+    // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0420000
+    // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0424b03
+    // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0440000
+    // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0460000
+
+    return 1;
+}
+
 int main (int argc, char *argv[]) {
     t_exit ret = exit_none;
     int c;
 
+    t_mode mode = mode_COUNT;
+
+    // Data structures to store loaded and ready to save mode data
+    unsigned char mode_data_l[255];
+    unsigned char mode_data_s[255];
+
     log_init();
 
     help_version();
+
+    // FIXME: Help and version shouldn't initialise USB
+
+    // Initialise USB
+    usb_init();
+
+    // Initialise mouse
+    // ID 046d:c246 == Logitech, Inc. Gaming Mouse G300
+    if (!mouse_init(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID, "Logitech G300s")) {
+        // De-initialise USB
+        usb_deinit();
+
+        return exit_usberr;
+    }
+
+    display_mouse_hid(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID);
+
+    // FIXME: Get interface index somehow
+    usb_interface_index = 1;
+    if (usb_interface_index < 0) {
+        // De-initialise USB
+        usb_deinit();
+
+        return exit_usberr;
+    }
+
+    printf("Detaching kernel driver...\n");
+    if (mouse_hid_detach_kernel(usb_interface_index) != 0) {
+        // De-initialise mouse
+        mouse_deinit();
+
+        // De-initialise USB
+        usb_deinit();
+
+        return exit_usberr;
+    }
 
     while (1) {
         int option_index = 0;
@@ -880,11 +1246,33 @@ int main (int argc, char *argv[]) {
 
             {"select",      1, 0, 's'},
             {"print",       1, 0, 'p'},
+            {"modify",      1, 0, 'm'},
+
+            {"rate",        1, 0, 'r'},
+
+            {"colour",      1, 0, 'c'},
+            {"color",       1, 0, 'c'},
+
+            {"left",        1, 0, '1'},
+            {"right",       1, 0, '2'},
+            {"middle",      1, 0, '3'},
+            {"g4",          1, 0, '4'},
+            {"G4",          1, 0, '4'},
+            {"g5",          1, 0, '5'},
+            {"G5",          1, 0, '5'},
+            {"g6",          1, 0, '6'},
+            {"G6",          1, 0, '6'},
+            {"g7",          1, 0, '7'},
+            {"G7",          1, 0, '7'},
+            {"g8",          1, 0, '8'},
+            {"G8",          1, 0, '8'},
+            {"g9",          1, 0, '9'},
+            {"G9",          1, 0, '9'},
 
             {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "hVs:p:",
+        c = getopt_long(argc, argv, "hVs:p:m:r:c:1:2:3:4:5:6:7:8:9:",
                 long_options, &option_index);
 
         if (c == -1)
@@ -894,15 +1282,14 @@ int main (int argc, char *argv[]) {
             // Help
             case 'h':
                 help_usage();
-                exit(ret);
+                continue;
 
             break;
 
             // Version
             case 'V':
                 // Already printed it
-
-                exit(ret);
+                continue;
 
             break;
 
@@ -929,35 +1316,15 @@ int main (int argc, char *argv[]) {
 
                 printf("Mode Selection Specified: %s\n", s_mode[mnew]);
 
-                // Initialise USB
-                usb_init();
-
-                // Initialise mouse
-                // ID 046d:c246 == Logitech, Inc. Gaming Mouse G300
-                if (!mouse_init(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID, "Logitech G300s")) {
-                    // Fall through to the next command
-                    ret = exit_usberr;
-                    continue;
-                }
-
-                display_mouse_hid(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID);
-
-                // FIXME: Get interface index somehow
-                usb_interface_index = 1;
-                if (usb_interface_index < 0) {
-                    // Fall through to the next command
-                    ret = exit_usberr;
-                    continue;
-                }
-
-                printf("Detaching kernel driver...\n");
-                if (mouse_hid_detach_kernel(usb_interface_index) != 0) {
-                    // Fall through to the next command
-                    ret = exit_usberr;
-                    continue;
+                if (mode != mode_COUNT) {
+                    // They've been editing another mode, so save
+                    printf("Saving Mode: %s\n", s_mode[mode]);
+                    mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                    mode = mode_COUNT;
                 }
 
                 printf("Selecting Mode: %s\n", s_mode[mnew]);
+
                 if (change_mode(usb_dev_handle, mnew) == mode_COUNT) ret = exit_modesel;
             }
             break;
@@ -983,32 +1350,11 @@ int main (int argc, char *argv[]) {
                     continue;
                 }
 
-                // Initialise USB
-                usb_init();
-
-                // Initialise mouse
-                // ID 046d:c246 == Logitech, Inc. Gaming Mouse G300
-                if (!mouse_init(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID, "Logitech G300s")) {
-                    // Fall through to the next command
-                    ret = exit_usberr;
-                    continue;
-                }
-
-                display_mouse_hid(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID);
-
-                // FIXME: Get interface index somehow
-                usb_interface_index = 1;
-                if (usb_interface_index < 0) {
-                    // Fall through to the next command
-                    ret = exit_usberr;
-                    continue;
-                }
-
-                printf("Detaching kernel driver...\n");
-                if (mouse_hid_detach_kernel(usb_interface_index) != 0) {
-                    // Fall through to the next command
-                    ret = exit_usberr;
-                    continue;
+                if (mode != mode_COUNT) {
+                    // They've been editing another mode, so save
+                    printf("Saving Mode: %s\n", s_mode[mode]);
+                    mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                    mode = mode_COUNT;
                 }
 
                 printf("Printing Mode: %s\n", s_mode[mnew]);
@@ -1018,12 +1364,138 @@ int main (int argc, char *argv[]) {
             }
             break;
 
+            // Modify mode
+            case 'm':
+            {
+                t_mode mnew = mode_COUNT;
+
+                if (!optarg) {
+                    elog("ERROR: Mode required for modify option\n");
+
+                    // For safety we reset mode now
+                    if (mode != mode_COUNT) {
+                        printf("Saving Mode: %s\n", s_mode[mode]);
+                        mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                        mode = mode_COUNT;
+                    }
+
+                    continue;
+                }
+
+                for (mnew = 0; mnew < mode_COUNT; ++mnew) {
+                    if (strcasecmp(optarg, s_mode[mnew]) == 0) break;
+                }
+
+                if (mnew == mode_COUNT) {
+                    elog("ERROR: Invalid mode for modify option: %s\n", optarg);
+
+                    // For safety we reset mode now
+                    if (mode != mode_COUNT) {
+                        printf("Saving Mode: %s\n", s_mode[mode]);
+                        mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                    }
+
+                    mode = mode_COUNT;
+
+                    continue;
+                }
+
+                if (mode != mode_COUNT) {
+                    // They've been editing another mode, so save
+                    printf("Saving Mode: %s\n", s_mode[mode]);
+                    mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                }
+
+                mode = mnew;
+
+                printf("Modifying Mode: %s\n", s_mode[mnew]);
+
+                mouse_editmode();
+
+                mode_load(&mode_data_l[0], usb_dev_handle, mode);
+                memcpy(&mode_data_s, &mode_data_l, 255);
+            }
+            break;
+
+            // Report Rate
+            case 'r':
+                if (!optarg) {
+                    elog("ERROR: Report Rate (per s) required for rate setting\n");
+                    continue;
+                }
+
+                if (mode == mode_COUNT) {
+                    elog("ERROR: Mode not specified before rate setting\n");
+                    continue;
+                }
+
+                if (!set_mode_rate(&mode_data_s[0], atoi(optarg))) {
+                    // Failed
+                    elog("ERROR: Invalid rate: %s\n", optarg);
+                    continue;
+                }
+            break;
+
+            // Colour/Color
+            case 'c':
+            {
+                t_colour col = colour_COUNT;
+
+                if (!optarg) {
+                    elog("ERROR: Colour required for colour setting\n");
+                    continue;
+                }
+
+                if (mode == mode_COUNT) {
+                    elog("ERROR: Mode not specified before colour setting\n");
+                    continue;
+                }
+
+                for (col = 0; col < colour_COUNT; ++col) {
+                    if (strcasecmp(s_colour[col], optarg) == 0) {
+                        // Found valid colour
+                        set_mode_colour(&mode_data_s[0], col);
+                        break;
+                    }
+                }
+
+                if (col == colour_COUNT) {
+                    elog("ERROR: Invalid colour: %s\n", optarg);
+                    continue;
+                }
+            }
+            break;
+
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+            {
+                if (!optarg) {
+                    elog("ERROR: Key(s) required for assignment setting\n");
+                    continue;
+                }
+
+                if (mode == mode_COUNT) {
+                    elog("ERROR: Mode not specified before button assignment\n");
+                    continue;
+                }
+
+                set_mode_button(&mode_data_s[0], c - '0', optarg);
+            }
+            break;
+
             // Long options without val set (if val set, short option will be
             // provided instead).
             case 0: {
                 if (option_index == 2 /* listkeys */) {
                     keylist_print();
-                    exit(ret);
+                    continue;
                 }
             }
 
@@ -1053,8 +1525,15 @@ int main (int argc, char *argv[]) {
         ret = exit_param;
     }
 
+    if (mode != mode_COUNT) {
+        // They've been editing another mode, so save
+        printf("Saving Mode: %s\n", s_mode[mode]);
+        mode_save(&mode_data_s[0], usb_dev_handle, mode);
+        mode = mode_COUNT;
+    }
 
 
+    // Re-attach kernel driver
     printf("Attaching kernel driver...\n");
     mouse_hid_attach_kernel(usb_interface_index);
 
