@@ -398,6 +398,7 @@ static void help_usage(void) {
        %s [-s|--select <mode>] [-p|--print <mode>]\n\
        [-m|--modify <mode>\n\
            [-r|--rate           <rate>]\n\
+           [-c|--colour|--color <colour>]\n\
        ] [...]\n\
 \n\
 -h|--h[elp]             - %s\n\
@@ -407,11 +408,13 @@ static void help_usage(void) {
 -p|--p[rint]            - %s\n\
 -m|--mo[dify]           - %s\n\
 -r|--ra[te]             - %s\n\
+-c|--c[olour]|--c[olor] - %s\n\
 \n\
 <mode>                  - %s\n\
 <rate>                  - %s\n\
+<colour>                - %s\n\
 \n\
-%s: %s -p f3 --selec F3\n\
+%s: %s -p f3 -pF4 --selec F3 -m F4 -c bLuE\n\
 ",
      _(APP_SUMMARY)
 
@@ -427,8 +430,10 @@ static void help_usage(void) {
     ,_("Prints out <mode>'s button configuration")
     ,_("Sets current <mode> to be modified")
     ,_("Sets report <rate> of <mode> currently being modified")
+    ,_("Sets <colour> of <mode> currently being modified")
     ,_("A valid mode:          F3, F4 or F5")
     ,_("A valid rate:          125, 250, 500, 1000")
+    ,_("A valid colour:        black, red, green, yellow, blue, magenta, cyan, white")
     ,_("Example"),  BIN_NAME
     );
 }
@@ -530,22 +535,22 @@ static libusb_device_handle *mouse_init(const uint16_t vendor_id, const uint16_t
             return NULL;
         }
 
-        printf("Found %s (%.4x:%.4x) @ 0x%p\n", product_name, vendor_id, product_id, usb_dev_handle);
+        printf("Found %s (%.4x:%.4x) @ %p\n", product_name, vendor_id, product_id, usb_dev_handle);
     }
 
     if (!usb_device) {
         usb_device = libusb_get_device(usb_dev_handle);
         if (!usb_device) {
-            elog("ERROR: Failed to retrieve usb_device info @ 0x%p\n", usb_dev_handle);
+            elog("ERROR: Failed to retrieve usb_device info @ %p\n", usb_dev_handle);
             return NULL;
         }
     }
 
     // Get usb_device descriptor
     if (libusb_get_device_descriptor(usb_device, &usb_desc) != 0) {
-        elog("WARNING: Failed to retrieve usb_device descriptor @ 0x%p\n", usb_dev_handle);
+        elog("WARNING: Failed to retrieve usb_device descriptor @ %p\n", usb_dev_handle);
     } else {
-        dlog(LOG_USB, "USB Device (%.4x:%.4x @ 0x%p) Descriptor:\n", vendor_id, product_id, usb_dev_handle);
+        dlog(LOG_USB, "USB Device (%.4x:%.4x @ %p) Descriptor:\n", vendor_id, product_id, usb_dev_handle);
         dlog(LOG_USB, "  bLength:            %d\n",     usb_desc.bLength           );
         dlog(LOG_USB, "  bDescriptorType:    %d\n",     usb_desc.bDescriptorType   );
         dlog(LOG_USB, "  bcdUSB:             0x%.4x\n", usb_desc.bcdUSB            );
@@ -591,7 +596,7 @@ static void display_mouse_hid(const uint16_t vendor_id, const uint16_t product_i
 
         libusb_get_config_descriptor(usb_device, config_index, &config);
 
-        dlog(LOG_USB, "USB Device @ 0x%p : Config %d:\n", usb_dev_handle, config_index);
+        dlog(LOG_USB, "USB Device @ %p : Config %d:\n", usb_dev_handle, config_index);
         dlog(LOG_USB, "  bLength:         %d\n", config->bLength);
         dlog(LOG_USB, "  bDescriptorType: %d\n", config->bDescriptorType);
         dlog(LOG_USB, "  wTotalLength:    %d\n", config->wTotalLength);
@@ -953,6 +958,21 @@ static int set_mode_rate(unsigned char *mode_data, const int rate) {
     return 0;
 }
 
+static unsigned char set_mode_colour(unsigned char *mode_data, const t_colour colour) {
+    unsigned char oldcol;
+
+    if (!mode_data || colour >= colour_COUNT) return 0;
+
+    printf("    Setting colour: %s\n", s_colour[colour]);
+
+    // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+    //   ^^
+    oldcol = (mode_data)[1];
+    (mode_data)[1] = colour;
+
+    return oldcol;
+}
+
 static int mouse_editmode(void) {
     if (!usb_dev_handle) return 0;
 
@@ -1065,10 +1085,13 @@ int main (int argc, char *argv[]) {
 
             {"rate",        1, 0, 'r'},
 
+            {"colour",      1, 0, 'c'},
+            {"color",       1, 0, 'c'},
+
             {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "hVs:p:m:r:",
+        c = getopt_long(argc, argv, "hVs:p:m:r:c:",
                 long_options, &option_index);
 
         if (c == -1)
@@ -1231,6 +1254,36 @@ int main (int argc, char *argv[]) {
                     elog("ERROR: Invalid rate: %s\n", optarg);
                     continue;
                 }
+            break;
+
+            // Colour/Color
+            case 'c':
+            {
+                t_colour col = colour_COUNT;
+
+                if (!optarg) {
+                    elog("ERROR: Colour required for colour setting\n");
+                    continue;
+                }
+
+                if (mode == mode_COUNT) {
+                    elog("ERROR: Mode not specified before colour setting\n");
+                    continue;
+                }
+
+                for (col = 0; col < colour_COUNT; ++col) {
+                    if (strcasecmp(s_colour[col], optarg) == 0) {
+                        // Found valid colour
+                        set_mode_colour(&mode_data_s[0], col);
+                        break;
+                    }
+                }
+
+                if (col == colour_COUNT) {
+                    elog("ERROR: Invalid colour: %s\n", optarg);
+                    continue;
+                }
+            }
             break;
 
             // Long options without val set (if val set, short option will be
