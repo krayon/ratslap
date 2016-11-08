@@ -397,6 +397,7 @@ static void help_usage(void) {
        %s --listkeys\n\
        %s [-s|--select <mode>] [-p|--print <mode>]\n\
        [-m|--modify <mode>\n\
+           [-r|--rate           <rate>]\n\
        ] [...]\n\
 \n\
 -h|--h[elp]             - %s\n\
@@ -405,8 +406,10 @@ static void help_usage(void) {
 -s|--s[elect]           - %s\n\
 -p|--p[rint]            - %s\n\
 -m|--mo[dify]           - %s\n\
+-r|--ra[te]             - %s\n\
 \n\
 <mode>                  - %s\n\
+<rate>                  - %s\n\
 \n\
 %s: %s -p f3 --selec F3\n\
 ",
@@ -423,7 +426,9 @@ static void help_usage(void) {
     ,_("Switches to <mode>")
     ,_("Prints out <mode>'s button configuration")
     ,_("Sets current <mode> to be modified")
+    ,_("Sets report <rate> of <mode> currently being modified")
     ,_("A valid mode:          F3, F4 or F5")
+    ,_("A valid rate:          125, 250, 500, 1000")
     ,_("Example"),  BIN_NAME
     );
 }
@@ -927,6 +932,27 @@ static int mode_print(unsigned char *mode_data, int len, t_mode mode) {
     return 1;
 }
 
+static int set_mode_rate(unsigned char *mode_data, const int rate) {
+    int i;
+
+    if (!mode_data || rate == 0) return 0;
+
+    for (i = 0; i < n_report_rates; ++i) {
+        if (rate == report_rate[i]) {
+            // Valid rate
+
+            printf("    Setting report rate: %d\n", report_rate[i]);
+
+            // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+            //     ^^
+            (mode_data)[2] = i;
+            return rate;
+        }
+    }
+
+    return 0;
+}
+
 static int mouse_editmode(void) {
     if (!usb_dev_handle) return 0;
 
@@ -1037,10 +1063,12 @@ int main (int argc, char *argv[]) {
             {"print",       1, 0, 'p'},
             {"modify",      1, 0, 'm'},
 
+            {"rate",        1, 0, 'r'},
+
             {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "hVs:p:m:",
+        c = getopt_long(argc, argv, "hVs:p:m:r:",
                 long_options, &option_index);
 
         if (c == -1)
@@ -1184,6 +1212,25 @@ int main (int argc, char *argv[]) {
                 mode_load(&mode_data_l[0], usb_dev_handle, mode);
                 memcpy(&mode_data_s, &mode_data_l, 255);
             }
+            break;
+
+            // Report Rate
+            case 'r':
+                if (!optarg) {
+                    elog("ERROR: Report Rate (per s) required for rate setting\n");
+                    continue;
+                }
+
+                if (mode == mode_COUNT) {
+                    elog("ERROR: Mode not specified before rate setting\n");
+                    continue;
+                }
+
+                if (!set_mode_rate(&mode_data_s[0], atoi(optarg))) {
+                    // Failed
+                    elog("ERROR: Invalid rate: %s\n", optarg);
+                    continue;
+                }
             break;
 
             // Long options without val set (if val set, short option will be
