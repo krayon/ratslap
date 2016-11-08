@@ -84,6 +84,22 @@ const char *s_colour[] = {
     ,"INVALID"
 };
 
+// F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+// ^                 ^     ^      ^      ^      ^      ^      ^      ^      ^
+// 0                 8    11     14     17     20     23     26     29     32
+const unsigned char offsets_buttons[] = {
+      0
+    , 8
+    ,11
+    ,14
+    ,17
+    ,20
+    ,23
+    ,26
+    ,29
+    ,32
+};
+
 const char *s_buttons[] = {
      "NONE"
     ,"Button1"
@@ -399,6 +415,15 @@ static void help_usage(void) {
        [-m|--modify <mode>\n\
            [-r|--rate           <rate>]\n\
            [-c|--colour|--color <colour>]\n\
+           [-1|--left           <keys>]\n\
+           [-2|--right          <keys>]\n\
+           [-3|--middle         <keys>]\n\
+           [-4|--g4|--G4        <keys>]\n\
+           [-5|--g5|--G5        <keys>]\n\
+           [-6|--g6|--G6        <keys>]\n\
+           [-7|--g7|--G7        <keys>]\n\
+           [-8|--g8|--G8        <keys>]\n\
+           [-9|--g9|--G9        <keys>]\n\
        ] [...]\n\
 \n\
 -h|--h[elp]             - %s\n\
@@ -409,12 +434,23 @@ static void help_usage(void) {
 -m|--mo[dify]           - %s\n\
 -r|--ra[te]             - %s\n\
 -c|--c[olour]|--c[olor] - %s\n\
+-1|--le[ft]             - %s\n\
+-2|--ri[ght]            - %s\n\
+-3|--mi[ddle]           - %s\n\
+-4|--g4|--G4            - %s\n\
+-5|--g5|--G5            - %s\n\
+-6|--g6|--G6            - %s\n\
+-7|--g7|--G7            - %s\n\
+-8|--g8|--G8            - %s\n\
+-9|--g9|--G9            - %s\n\
 \n\
 <mode>                  - %s\n\
 <rate>                  - %s\n\
 <colour>                - %s\n\
+<keys>                  - %s\n\
+                          %s\n\
 \n\
-%s: %s -p f3 -pF4 --selec F3 -m F4 -c bLuE\n\
+%s: %s -p f3 -pF4 --selec F3 -m F4 -c bLuE -9LeftCtrl+V\n\
 ",
      _(APP_SUMMARY)
 
@@ -431,9 +467,20 @@ static void help_usage(void) {
     ,_("Sets current <mode> to be modified")
     ,_("Sets report <rate> of <mode> currently being modified")
     ,_("Sets <colour> of <mode> currently being modified")
+    ,_("Assigns <keys> to button 1 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 2 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 3 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 4 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 5 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 6 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 7 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 8 of <mode> currently being modified")
+    ,_("Assigns <keys> to button 9 of <mode> currently being modified")
     ,_("A valid mode:          F3, F4 or F5")
     ,_("A valid rate:          125, 250, 500, 1000")
     ,_("A valid colour:        black, red, green, yellow, blue, magenta, cyan, white")
+    ,_("A valid combo of keys: Any button or key combo, eg. LeftCtrl+LeftAlt+PageUp")
+    ,_("Run with --listkeys to see the complete list")
     ,_("Example"),  BIN_NAME
     );
 }
@@ -973,6 +1020,124 @@ static unsigned char set_mode_colour(unsigned char *mode_data, const t_colour co
     return oldcol;
 }
 
+static int set_mode_button(unsigned char *mode_data, const unsigned char button, const char *keys) {
+    unsigned char newkeys[3] = {0, 0, 0};
+    unsigned char bt;
+    char modkey[32];
+    int mki = 0;
+    const char *kptrprev = keys;
+    const char *kptr     = keys;
+
+    modkey[0] = '\0';
+
+    if (button < 1 || button > 9) return 0;
+
+    if (!keys) {
+        printf("    Setting button %2d: %s\n", button, s_buttons[0]);
+        (mode_data)[offsets_buttons[button]    ] = 0x00;
+        (mode_data)[offsets_buttons[button] + 1] = 0x00;
+        (mode_data)[offsets_buttons[button] + 2] = 0x00;
+        return 1;
+    }
+
+    if (*keys == '+' && *(keys+1)) {
+        // keys starts with '+' and then contains more info
+        elog("ERROR: Invalid keys specified (starting with '+'): %s\n", keys);
+        return 0;
+    }
+
+    printf("    Setting button %d: %s\n", button, keys);
+
+    do {
+        dlog(LOG_KEY, "    > %c\n", *kptr ? *kptr : ' ');
+
+        if (mki < 31) {
+            modkey[mki++] = *kptr;
+            modkey[mki  ] = '\0';
+        }
+
+        // Is the next char a '+' or the end of our string?
+        //   - We allow end of string to fall through here so that if the last
+        //   token is a modifier it gets applied as BOTH a modifier and the key
+        if (*kptr == '+' || *kptr == '\0') {
+            // keys is:
+            //     "<something>+..."
+            // or:
+            //     "<something>\0"
+
+            unsigned char ky = 0xe0;
+            int m;
+
+            if (mki > 0) modkey[--mki] = '\0';
+
+            dlog(LOG_KEY, "Checking for Modifier: %s\n", modkey);
+
+            for (m = 0x01; m <= 0x80; m *= 2) {
+                dlog(LOG_KEY, "    %s == %s?\n", s_keys[ky], modkey);
+                if (strcasecmp(s_keys[ky], modkey) == 0) {
+                    // Match!
+                    newkeys[1] |= m;
+                    dlog(LOG_KEY, "MATCH: %s (+%d == %d)\n", s_keys[ky], m, newkeys[1]);
+                    break;
+                }
+
+                ++ky;
+            }
+
+            // If it's not the last element...
+            if (*kptr) {
+                // And didn't match a modifier, BAD!
+                if (m > 0x80) {
+                    elog("ERROR: Invalid modifier (%s) specified: %s\n", modkey, keys);
+                    return 0;
+                }
+
+                mki = 0;
+                modkey[mki] = '\0';
+
+                kptrprev = kptr+1;
+            }
+        }
+
+        if (!*kptr) break;
+
+        ++kptr;
+    } while (1);
+
+    // kptrprev now contains remaining key or button
+
+    // Special button?
+    dlog(LOG_KEY, "Checking for Specials...\n");
+    for (bt = 0x00; bt <= 0x0f; ++bt) {
+        if (strcasecmp(s_buttons[bt], kptrprev) == 0) {
+            // Button found
+            dlog(LOG_KEY, "MATCH SPECIAL: %s (%2x)\n", s_buttons[bt], bt);
+            newkeys[0] = bt;
+            break;
+        }
+    }
+
+    // Key
+    dlog(LOG_KEY, "Checking for Keys...\n");
+    if (!newkeys[0]) {
+        for (bt = 0; bt < 0xff; ++bt) {
+            if (strcasecmp(s_keys[bt], kptrprev) == 0) {
+                // Key found
+                dlog(LOG_KEY, "MATCH KEY: %s (%2x)\n", s_keys[bt], bt);
+                newkeys[2] = bt;
+                break;
+            }
+        }
+    }
+
+    dlog(LOG_KEY, "FINAL: %.2x%.2x%.2x\n", newkeys[0], newkeys[1], newkeys[2]);
+
+    (mode_data)[offsets_buttons[button]    ] = newkeys[0];
+    (mode_data)[offsets_buttons[button] + 1] = newkeys[1];
+    (mode_data)[offsets_buttons[button] + 2] = newkeys[2];
+
+    return 1;
+}
 static int mouse_editmode(void) {
     if (!usb_dev_handle) return 0;
 
@@ -1088,10 +1253,26 @@ int main (int argc, char *argv[]) {
             {"colour",      1, 0, 'c'},
             {"color",       1, 0, 'c'},
 
+            {"left",        1, 0, '1'},
+            {"right",       1, 0, '2'},
+            {"middle",      1, 0, '3'},
+            {"g4",          1, 0, '4'},
+            {"G4",          1, 0, '4'},
+            {"g5",          1, 0, '5'},
+            {"G5",          1, 0, '5'},
+            {"g6",          1, 0, '6'},
+            {"G6",          1, 0, '6'},
+            {"g7",          1, 0, '7'},
+            {"G7",          1, 0, '7'},
+            {"g8",          1, 0, '8'},
+            {"G8",          1, 0, '8'},
+            {"g9",          1, 0, '9'},
+            {"G9",          1, 0, '9'},
+
             {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "hVs:p:m:r:c:",
+        c = getopt_long(argc, argv, "hVs:p:m:r:c:1:2:3:4:5:6:7:8:9:",
                 long_options, &option_index);
 
         if (c == -1)
@@ -1282,6 +1463,30 @@ int main (int argc, char *argv[]) {
                     elog("ERROR: Invalid colour: %s\n", optarg);
                     continue;
                 }
+            }
+            break;
+
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+            {
+                if (!optarg) {
+                    elog("ERROR: Key(s) required for assignment setting\n");
+                    continue;
+                }
+
+                if (mode == mode_COUNT) {
+                    elog("ERROR: Mode not specified before button assignment\n");
+                    continue;
+                }
+
+                set_mode_button(&mode_data_s[0], c - '0', optarg);
             }
             break;
 

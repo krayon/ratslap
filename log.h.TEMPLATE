@@ -36,6 +36,7 @@
 #define LOG                         NULL
 #define LOG_USB                     NULL
 #define LOG_PARSE                   NULL
+#define LOG_KEY                     NULL
 
 extern FILE *_logfile;
 
