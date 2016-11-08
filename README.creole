@@ -100,6 +100,42 @@ $ ./ratslap --select F3
 Selecting Mode: F3
 }}}
 
+=== Firefox tab switching buttons ===
+
+Another option might be using the buttons behind the wheel (G8 and G9) to switch
+forward and backward (respectively) between tabs in your favourite browser ...
+or Firefox.
+
+So, let's set the buttons to Control-TAB and Control-Shift-TAB, print out our
+config, then switch to that mode:
+{{{
+$ ratslap --modify F3 --G8 LeftCtrl+TAB --G9 LeftCtrl+LeftShift+TAB --print F3 --select F3
+Modifying Mode: F3
+    Setting button 8: LeftCtrl+TAB
+    Setting button 9: LeftCtrl+LeftShift+TAB
+Saving Mode: F3
+
+Printing Mode: F3
+  Colour:              magenta
+  Report Rate:          250
+  DPI #1:               500
+  DPI #2:        (DEF) 1000
+  DPI #3:              1500
+  DPI #4:              2500
+  DPI Shift:           NOT SET
+  Left Click (But1):   Button1
+  Right Click (But2):  Button2
+  Middle Click (But3): Button3
+  G4:                  Button6
+  G5:                  Button7
+  G6:                  Button8
+  G7:                  Button9
+  G8:                  LeftCtrl + Tab
+  G9:                  LeftCtrl + LeftShift + Tab
+
+Selecting Mode: F3
+}}}
+
 == History ==
 
 I recently (October 2016) purchased a Logitech G300S due mainly to the many
@@ -132,6 +168,13 @@ this is a limitation in the Logitech software and not in the mouse itself--
 * v0.1.1
 ** Hotfix for GCC 5 compatibility
 ** Print current mode's mapping ( accidental check-in, oops :S )
+
+== TODO ==
+
+* Modify DPI settings.
+* Add factory reset option to return mouse to (Logitech's idea of) sane button
+assignment.
+* Save/Load profiles?
 
 == Notes ==
 
