@@ -1290,7 +1290,7 @@ int main (int argc, char *argv[]) {
             case 0: {
                 if (option_index == 2 /* listkeys */) {
                     keylist_print();
-                    exit(ret);
+                    continue;
                 }
             }
 
