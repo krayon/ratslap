@@ -1,6 +1,6 @@
 = RatSlap =
 
-== Linux configuration tool for Logitech mice (currently only G300S) ==
+== Linux configuration tool for Logitech mice //(currently only G300S)// ==
 
 == Introduction ==
 
@@ -9,10 +9,15 @@ within Linux.
 
 == Availability ==
 
-//RatSlap// is available on [[https://gitlab.com/krayon/ratslap|GitLab]],
+//RatSlap// source is available on [[https://gitlab.com/krayon/ratslap|GitLab]],
 [[https://github.com/krayon/ratslap|GitHub]] and
-[[https://bitbucket.org/krayonx/ratslap|BitBucket]] with the primary repository
-being [[https://gitlab.com/krayon/ratslap|GitLab]].
+[[https://bitbucket.org/krayonx/ratslap|BitBucket]] with the primary (public)
+repository being [[https://gitlab.com/krayon/ratslap|GitLab]].
+
+== Bug Tracker ==
+
+Bugs are tracked on the
+[[https://bugs.qdnx.org/project/5|Quadronyx Bug Tracker]].
 
 == History ==
 
