@@ -194,17 +194,17 @@ $(BINNAME): git.h log.h $(OBJS)
 
 dist: gitup $(DIST_FILES)
 	@echo "Making $(ARCHIVE_FILE)..."
-
+	
 	@if [ -d "$(ARCHIVE_NAME)" ]; then \
 		echo "Directory '$(ARCHIVE_NAME)' exists"; \
 		exit 1; \
 	fi
-
+	
 	@if [ -f "$(ARCHIVE_FILE)" ]; then \
 		echo "Archive '$(ARCHIVE_FILE)' exists"; \
 		exit 2; \
 	fi
-
+	
 	@mkdir "$(ARCHIVE_NAME)"
 	
 	@cp -a $(DIST_FILES) "$(ARCHIVE_NAME)/"
