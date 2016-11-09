@@ -19,6 +19,7 @@
                                                                    ##
                                                                     ##
 }}}
+= RatSlap =
 
 == Linux configuration tool for Logitech mice //(currently only G300S)// ==
 
@@ -33,6 +34,10 @@ within Linux.
 [[https://github.com/krayon/ratslap|GitHub]] and
 [[https://bitbucket.org/krayonx/ratslap|BitBucket]] with the primary (public)
 repository being [[https://gitlab.com/krayon/ratslap|GitLab]].
+
+//RatSlap// binary and archive should be signed with my GPG key (
+[[http://pgp.mit.edu/pks/lookup?op=get&search=0x231A94F481ECF212|
+231A 94F4 81EC F212]]
 
 == Bug Tracker ==
 

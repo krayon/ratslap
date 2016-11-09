@@ -127,7 +127,7 @@ _PHONY: all
 
 
 
-all: tags Changelog $(OPTIONS_FILE) $(PROGS) done
+all: tags Changelog $(OPTIONS_FILE) $(PROGS) $(PROGS:=.asc) done
 
 
 
@@ -187,12 +187,12 @@ $(OPTIONS_FILE): $(OPTIONS_FILE).DEFAULT
 	@rm "$@" &>/dev/null || true
 	gpg -o $@ --local-user $(GPG_KEY) --armor --detach-sign $<
 
-$(BINNAME): git.h log.h $(OBJS)
+$(BINNAME): gitup git.h log.h $(OBJS)
 	@echo "Linking $(BINNAME)..."
 	
 	$(LINK) "$(BINNAME)" $(CFLAGS) $(LIBDIR) $(OBJS) $(LIBS)
 
-dist: gitup $(DIST_FILES)
+$(ARCHIVE_FILE): $(DIST_FILES)
 	@echo "Making $(ARCHIVE_FILE)..."
 	
 	@if [ -d "$(ARCHIVE_NAME)" ]; then \
@@ -209,6 +209,8 @@ dist: gitup $(DIST_FILES)
 	
 	@cp -a $(DIST_FILES) "$(ARCHIVE_NAME)/"
 	@$(ARCHIVER) "$(ARCHIVE_FILE)" "$(ARCHIVE_NAME)/"
+
+dist: $(ARCHIVE_FILE) $(ARCHIVE_FILE).asc
 
 clean:
 	@echo "Cleaning up..."
@@ -247,11 +249,6 @@ clean:
 distclean: clean
 	@echo "Cleaning (for distribution)..."
 	
-	@if [ -f "$(ARCHIVE_FILE)" ]; then \
-		echo "  deleting: $(ARCHIVE_FILE)"; \
-		rm "$(ARCHIVE_FILE)"; \
-	fi
-	
-	@for f in $(PROGS:=.asc) $(PROGS); do \
+	@for f in $(ARCHIVE_FILE).asc $(ARCHIVE_FILE) $(PROGS:=.asc) $(PROGS); do \
 		[ -f "$${f}" ] && echo "  deleting: $${f}" && rm "$${f}" || true; \
 	done
