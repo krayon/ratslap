@@ -36,8 +36,8 @@ within Linux.
 repository being [[https://gitlab.com/krayon/ratslap|GitLab]].
 
 //RatSlap// binary and archive should be signed with my GPG key (
-[[http://pgp.mit.edu/pks/lookup?op=get&search=0x231A94F481ECF212|
-231A 94F4 81EC F212]]
+[[http://pgp.mit.edu/pks/lookup?op=get&search=0x231A94F481ECF212|231A 94F4 81EC F212]]
+).
 
 == Bug Tracker ==
 
