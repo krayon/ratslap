@@ -27,6 +27,9 @@ OPTIONS_FILE   = make.options.conf
 -include $(OPTIONS_FILE)
 BUILDOPTS      = $(foreach BO, $(OPTIONS), -D$(BO))
 
+# Krayon's GPG code signing key
+GPG_KEY        = 81ECF212
+
 # Programs
 CC             = gcc
 LINK           = gcc -o
@@ -113,7 +116,7 @@ ARCHIVE_FILE   = $(ARCHIVE_NAME).$(ARCHIVE_EXT)
 PROGS          = $(BINNAME)
 
 # Files to distribute
-DIST_FILES     = $(PROGS) LICENSE README.creole Changelog
+DIST_FILES     = $(PROGS) $(PROGS:=.asc) LICENSE README.creole Changelog
 
 # Object files to build
 OBJS           = log.o main.o
@@ -178,6 +181,11 @@ $(OPTIONS_FILE): $(OPTIONS_FILE).DEFAULT
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $*.o
+
+%.asc: %
+	@echo "Signing: $${f}..."
+	@rm "$@" &>/dev/null || true
+	gpg -o $@ --local-user $(GPG_KEY) --armor --detach-sign $<
 
 $(BINNAME): git.h log.h $(OBJS)
 	@echo "Linking $(BINNAME)..."
@@ -244,6 +252,6 @@ distclean: clean
 		rm "$(ARCHIVE_FILE)"; \
 	fi
 	
-	@for f in $(PROGS); do \
+	@for f in $(PROGS:=.asc) $(PROGS); do \
 		[ -f "$${f}" ] && echo "  deleting: $${f}" && rm "$${f}" || true; \
 	done
