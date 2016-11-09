@@ -169,18 +169,17 @@ this is a limitation in the Logitech software and not in the mouse itself--
 ** Hotfix for GCC 5 compatibility
 ** Print current mode's mapping ( accidental check-in, oops :S )
 * v0.2.0
-** QB#104: Modify mode - change refresh rate
-** QB#105: Modify mode - change mode LED colour
-** QB#106: Modify mode - change button assignment
-** QB#108: kernel driver disconnect after --help/--version
-** QB#109: kernel driver disconnect after --listkeys
+** [[https://bugs.qdnx.org/bug/104|QB#104 - Modify mode - change refresh rate]]
+** [[https://bugs.qdnx.org/bug/105|QB#105 - Modify mode - change mode LED colour]]
+** [[https://bugs.qdnx.org/bug/106|QB#106 - Modify mode - change button assignment]]
+** [[https://bugs.qdnx.org/bug/108|QB#108 - kernel driver disconnect after --help/--version]]
+** [[https://bugs.qdnx.org/bug/109|QB#109 - kernel driver disconnect after --listkeys]]
 
 == TODO ==
 
-* Modify DPI settings.
-* Add factory reset option to return mouse to (Logitech's idea of) sane button
-assignment.
-* Save/Load profiles?
+* [[https://bugs.qdnx.org/bug/113|QB#113 - Configure DPI #[1-4], DPI Default and * DPI Shift values]]
+* [[https://bugs.qdnx.org/bug/114|QB#114 - Factory reset option]]
+* [[https://bugs.qdnx.org/bug/115|QB#115 - Ability to save/load profiles]]
 
 == Notes ==
 
