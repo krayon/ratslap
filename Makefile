@@ -107,6 +107,7 @@ APPVER = $(shell bash -c \
 BUILD_DATE     = $(shell date +'%Y-%m-%d %H:%M:%S%z')
 
 ARCHIVE_NAME   = $(BINNAME)-$(APPVER)
+ARCHIVE_FILE   = $(ARCHIVE_NAME).$(ARCHIVE_EXT)
 
 # Default binary(s) to build
 PROGS          = $(BINNAME)
@@ -175,7 +176,7 @@ tags: ctags
 $(OPTIONS_FILE): $(OPTIONS_FILE).DEFAULT
 	@cp $(OPTIONS_FILE).DEFAULT $(OPTIONS_FILE)
 
-.c.o:
+%.o: %.c
 	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $*.o
 
 $(BINNAME): git.h log.h $(OBJS)
@@ -184,22 +185,22 @@ $(BINNAME): git.h log.h $(OBJS)
 	$(LINK) "$(BINNAME)" $(CFLAGS) $(LIBDIR) $(OBJS) $(LIBS)
 
 dist: gitup $(DIST_FILES)
-	@echo "Making $(ARCHIVE_NAME).$(ARCHIVE_EXT)..."
+	@echo "Making $(ARCHIVE_FILE)..."
 
 	@if [ -d "$(ARCHIVE_NAME)" ]; then \
 		echo "Directory '$(ARCHIVE_NAME)' exists"; \
 		exit 1; \
 	fi
 
-	@if [ -f "$(ARCHIVE_NAME).$(ARCHIVE_EXT)" ]; then \
-		echo "Archive '$(ARCHIVE_NAME).$(ARCHIVE_EXT)' exists"; \
+	@if [ -f "$(ARCHIVE_FILE)" ]; then \
+		echo "Archive '$(ARCHIVE_FILE)' exists"; \
 		exit 2; \
 	fi
 
 	@mkdir "$(ARCHIVE_NAME)"
 	
 	@cp -a $(DIST_FILES) "$(ARCHIVE_NAME)/"
-	@$(ARCHIVER) "$(ARCHIVE_NAME).$(ARCHIVE_EXT)" "$(ARCHIVE_NAME)/"
+	@$(ARCHIVER) "$(ARCHIVE_FILE)" "$(ARCHIVE_NAME)/"
 
 clean:
 	@echo "Cleaning up..."
@@ -238,11 +239,11 @@ clean:
 distclean: clean
 	@echo "Cleaning (for distribution)..."
 	
-	@if [ -f "$(ARCHIVE_NAME).$(ARCHIVE_EXT)" ]; then \
-		echo "  deleting: $(ARCHIVE_NAME).$(ARCHIVE_EXT)"; \
-		rm "$(ARCHIVE_NAME).$(ARCHIVE_EXT)"; \
+	@if [ -f "$(ARCHIVE_FILE)" ]; then \
+		echo "  deleting: $(ARCHIVE_FILE)"; \
+		rm "$(ARCHIVE_FILE)"; \
 	fi
 	
 	@for f in $(PROGS); do \
-		[ -f "$${f}" ] && echo "  deleting: $$f" && rm "$${f}" || true; \
+		[ -f "$${f}" ] && echo "  deleting: $${f}" && rm "$${f}" || true; \
 	done
