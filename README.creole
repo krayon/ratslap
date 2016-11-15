@@ -46,9 +46,10 @@ Bugs are tracked on the
 
 == Usage ==
 
-The //Logitech G300s// has 3 button modes. For each of these modes, you can
-assign an LED colour, report rate (speed at which the mouse communicates with
-the computer), DPI setting(s) and button/key combinations.
+The //Logitech G300s// has 3 button modes, affectionately known as F3, F4 and
+F5. For each of these modes, you can assign an LED colour, report rate (speed at
+which the mouse communicates with the computer), DPI setting(s) and button/key
+combinations.
 
 NOTE: You cannot remap the scrollwheel. These generate button 4 (up) and 5
 (down) and cannot be changed.
@@ -175,16 +176,20 @@ and annoying keypress events such as //CTRL-C//, //CTRL-X// and //CTRL-V//.
 Worse still, I also discovered that the Windows software only allows you to
 assign mouse buttons 1 through 7, skipping 4 and 5 (scroll-wheel). These are
 //Left-Click// (1), //Middle-Click// (2), //Right-Click// (3),
-//Browser Back// (6) and //Browser Forward// (7) respectively! --Hopefully
-this is a limitation in the Logitech software and not in the mouse itself--
-(see Notes).
+//Browser Back// (6) and //Browser Forward// (7) respectively! Therefore,
+Logitech provides no way of generating higher mouse button events, button 8 for
+example. --Hopefully this is a limitation in the Logitech software and not in
+the mouse itself-- (see Notes).
 
 == Features ==
 
-* Bind 9 mouse buttons instead of only the 5 that Logitech's tool offers.
-* Assign mouse clicks or keys to the Left and Right buttons.
+* Configure the mouse options, same as the Logitech Windows only software.
+* Bind all buttons, except the scroll wheel up and down, a total of 9 (Logitech
+tool only allows 5).
+* Assign mouse clicks or keys to the Left and Right buttons (which the Logitech
+tool cannot do).
 * Freely assign 'Mode Switch' to a mouse button in only one mode/profile.
-* Assign mouse clicks with key modifiers.
+* Assign mouse clicks with key modifiers (which Logitech doesn't offer).
 
 == Version History ==
 
