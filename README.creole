@@ -162,6 +162,40 @@ Printing Mode: F3
 Selecting Mode: F3
 }}}
 
+=== ERROR: libusbx: error [_get_usbfs_fd] libusbx... ===
+
+When you try to run //RatSlap//, you may receive an error similar to the
+following:
+{{{
+libusbx: error [_get_usbfs_fd] libusbx couldn't open USB device /dev/bus/usb/002/090: Permission denied
+libusbx: error [_get_usbfs_fd] libusbx requires write access to USB device nodes.
+20161115T002046+1100 [E]           main.c:00581:mouse_init      Failed to find Logitech G300s (046d:c246)
+}}}
+
+This is caused, as the error suggests, by the fact that you do not have write
+access to the mouse (/dev/bus/usb/002/090 in the example above).
+
+There are two possible ways around this issue:
+# (NOT RECOMMENDED) Run ratslap as root;
+# Grant permissions to the device for your user account.
+
+The later is the preferred option here. To do this, simply ensure you have write
+permissions to the device. One such way is to make it group-writable, change the
+group ownership and place yourself in the newly owning group, eg:
+{{{
+$ ls -lah /dev/bus/usb/002/090
+crw-r--r-- 1 root root 189, 217 2016-11-14 19:22 /dev/bus/usb/002/090
+
+$ groups
+adm dialout cdrom sudo audio dip video plugdev netdev fuse lpadmin scanner
+sambashare vboxsf vboxusers nonet
+
+$ sudo chgrp adm /dev/bus/usb/002/090
+[sudo] password for krayon:
+
+$ sudo chmod g+w /dev/bus/usb/002/090
+}}}
+
 == History ==
 
 I recently (October 2016) purchased a Logitech G300S due mainly to the many
