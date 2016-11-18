@@ -38,6 +38,11 @@
 #define LOGITECH_G300S_VENDOR_ID   0x046d
 #define LOGITECH_G300S_PRODUCT_ID  0xc246
 
+// QB#111 - Older version (eg 1.0.14) didn't support libusb_strerror
+#ifndef libusb_strerror
+#define libusb_strerror libusb_error_name
+#endif
+
 // http://www.tldp.org/LDP/abs/html/exitcodes.html
 typedef enum e_exit {
      exit_none    = 0
