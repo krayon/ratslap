@@ -21,7 +21,7 @@
 }}}
 = RatSlap =
 
-== Linux configuration tool for Logitech mice //(currently only G300S)// ==
+== Linux configuration tool for Logitech mice //(currently only G300/G300S)// ==
 
 == Introduction ==
 
@@ -46,15 +46,18 @@ Bugs are tracked on the
 
 == Usage ==
 
-The //Logitech G300s// has 3 button modes, affectionately known as F3, F4 and
-F5. For each of these modes, you can assign an LED colour, report rate (speed at
-which the mouse communicates with the computer), DPI setting(s) and button/key
-combinations.
+NOTE: The //Logitech G300// and //G300s// differ only by name and physical
+appearance, otherwise they are functionally (and USB VID:PID) identical.
+
+The //Logitech G300/G300s// has 3 button modes, affectionately known as F3, F4
+and F5. For each of these modes, you can assign an LED colour, report rate
+(speed at which the mouse communicates with the computer), DPI setting(s) and
+button/key combinations.
 
 NOTE: You cannot remap the scrollwheel. These generate button 4 (up) and 5
 (down) and cannot be changed.
 
-The default mapping for F3 on the G300s, for example, is currently:
+The default mapping for F3 on the G300/G300s, for example, is currently:
 {{{
 $ ratslap -pf3
 Printing Mode: F3
