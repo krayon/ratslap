@@ -127,7 +127,7 @@ _PHONY: all
 
 
 
-all: tags Changelog $(OPTIONS_FILE) $(PROGS) $(PROGS:=.asc) done
+all: tags Changelog $(OPTIONS_FILE) $(PROGS) done
 
 
 
@@ -169,6 +169,9 @@ err:
 done:
 	@echo "BUILD COMPLETE: $(APPNAME) ($(BINNAME)) v$(APPVER)"
 
+# Sign
+sign: $(PROGS:=.asc)
+
 # Tags
 ctags:
 	@# Generate CTags
@@ -184,7 +187,7 @@ $(OPTIONS_FILE): $(OPTIONS_FILE).DEFAULT
 
 %.asc: %
 	@echo "Signing: $${f}..."
-	@rm "$@" &>/dev/null || true
+	@rm "$@" 2>/dev/null || true
 	gpg -o $@ --local-user $(GPG_KEY) --armor --detach-sign $<
 
 $(BINNAME): gitup git.h log.h $(OBJS)
