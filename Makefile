@@ -140,8 +140,7 @@ gitup:
 Changelog: gitup
 	@# Generate Changelog
 	@echo "Generating Changelog..."
-	@#git log --pretty=tformat:"%C(auto)[%ci] %h %s" >Changelog
-	@git log >Changelog
+	@git log --color=never --pretty=tformat:"%ai %an <%aE>%n%w(76,4,4)%h %s%n%+b" >Changelog
 
 git.h: gitup git.h.TEMPLATE
 	@# Generating GIT header
