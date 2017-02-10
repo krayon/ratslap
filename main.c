@@ -84,6 +84,16 @@ const char *s_colour[] = {
     ,"INVALID"
 };
 
+typedef enum e_dpi_bank {
+	invalid_bank = 0
+	,dpi1
+	,dpi2
+	,dpi3
+	,dpi4
+	,all_banks
+	,dpi_COUNT
+} t_dpi_bank;
+
 // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
 // ^                 ^     ^      ^      ^      ^      ^      ^      ^      ^
 // 0                 8    11     14     17     20     23     26     29     32
@@ -413,6 +423,9 @@ static void help_usage(void) {
        %s --listkeys\n\
        %s [-s|--select <mode>] [-p|--print <mode>]\n\
        [-m|--modify <mode>\n\
+	   [-b]--bank		<bank>]\n\
+	   [-d]--dpi		<dpi>]\n\
+	   [-D]--default        <bank>]\n\
            [-r|--rate           <rate>]\n\
            [-c|--colour|--color <colour>]\n\
            [-1|--left           <keys>]\n\
@@ -432,6 +445,9 @@ static void help_usage(void) {
 -s|--s[elect]           - %s\n\
 -p|--p[rint]            - %s\n\
 -m|--mo[dify]           - %s\n\
+-b|--b[ank]             - %s\n\
+-d|--d[pi]		- %s\n\
+-D|--D[efault]		- %s\n\
 -r|--ra[te]             - %s\n\
 -c|--c[olour]|--c[olor] - %s\n\
 -1|--le[ft]             - %s\n\
@@ -445,8 +461,10 @@ static void help_usage(void) {
 -9|--g9|--G9            - %s\n\
 \n\
 <mode>                  - %s\n\
+<bank>			- %s\n\
 <rate>                  - %s\n\
 <colour>                - %s\n\
+<dpi>			- %s\n\
 <keys>                  - %s\n\
                           %s\n\
 \n\
@@ -465,6 +483,9 @@ static void help_usage(void) {
     ,_("Switches to <mode>")
     ,_("Prints out <mode>'s button configuration")
     ,_("Sets current <mode> to be modified")
+    ,_("Selects a DPI bank or all 4 from current <mode>")
+    ,_("Sets DPI rate on currently selected <mode> and <bank>")
+    ,_("Sets <bank> as default on current <mode>")
     ,_("Sets report <rate> of <mode> currently being modified")
     ,_("Sets <colour> of <mode> currently being modified")
     ,_("Assigns <keys> to button 1 of <mode> currently being modified")
@@ -477,8 +498,10 @@ static void help_usage(void) {
     ,_("Assigns <keys> to button 8 of <mode> currently being modified")
     ,_("Assigns <keys> to button 9 of <mode> currently being modified")
     ,_("A valid mode:          F3, F4 or F5")
+    ,_("A valid bank:          1,2,3,4 or 0 for all 4")
     ,_("A valid rate:          125, 250, 500, 1000")
     ,_("A valid colour:        black, red, green, yellow, blue, magenta, cyan, white")
+    ,_("A valid dpi:           1-10")
     ,_("A valid combo of keys: Any button or key combo, eg. LeftCtrl+LeftAlt+PageUp")
     ,_("Run with --listkeys to see the complete list")
     ,_("Example"),  BIN_NAME
@@ -1005,6 +1028,61 @@ static int set_mode_rate(unsigned char *mode_data, const int rate) {
     return 0;
 }
 
+static int select_dpi_bank(t_dpi_bank *selected_bank, int new_bank) {
+    if (new_bank < 1 || new_bank > 6) return 0;
+
+    if (new_bank != 5) {
+        printf("    Selecting DPI bank #%d.\n", new_bank);
+    } else  {
+        printf("    Selecting all 4 DPI banks.\n");
+    }
+
+    *selected_bank = new_bank;
+
+    return new_bank;
+}
+
+// Set dpi rate on current mode
+static int set_dpi_rate(unsigned char *mode_data, int dpi, t_dpi_bank dpi_bank) {
+		
+    if (!mode_data || dpi < 1 || dpi > 10 || dpi_bank == dpi_COUNT) return 0;
+	
+    if (dpi_bank == 5) {
+	for (int i = 1;i < 5;i++) {
+	    set_dpi_rate(mode_data, dpi, i);
+	    }
+        return dpi;
+
+	}
+        else if (dpi_bank > 0 && dpi_bank < 5) {
+	    printf("	Setting DPI bank %d to : %d\n", dpi_bank, dpi_point(dpi));
+
+		//Keep default
+	    if (mode_data[dpi_bank + 2] > 11) dpi += 128;
+
+  	    mode_data[dpi_bank + 2] = dpi;
+
+	    return dpi;
+	    }
+        return 0;
+}
+
+static int set_default_dpi_bank(unsigned char *mode_data, int new_default_bank) {
+
+        if (!mode_data ||  new_default_bank < 1 || new_default_bank > 4) return 0;
+
+	for(int i = 1; i < 5; i++) {
+		if (mode_data[i + 2] > 128 && i != new_default_bank) {
+			mode_data[i + 2] -= 128;
+		}
+		if (i == new_default_bank && mode_data[i + 2] < 11) {
+			printf("    Setting new default DPI: #%d\n", new_default_bank);
+			mode_data[i + 2] += 128;
+		}
+	}
+return new_default_bank;
+}
+
 static unsigned char set_mode_colour(unsigned char *mode_data, const t_colour colour) {
     unsigned char oldcol;
 
@@ -1185,6 +1263,8 @@ int main (int argc, char *argv[]) {
 
     t_mode mode = mode_COUNT;
 
+    t_dpi_bank dpi_bank = dpi_COUNT;
+
     // Data structures to store loaded and ready to save mode data
     unsigned char mode_data_l[255];
     unsigned char mode_data_s[255];
@@ -1247,11 +1327,14 @@ int main (int argc, char *argv[]) {
             {"select",      1, 0, 's'},
             {"print",       1, 0, 'p'},
             {"modify",      1, 0, 'm'},
+	    {"DPI bank",    1, 0, 'b'},
+	    {"Default DPI", 1, 0, 'D'},
 
             {"rate",        1, 0, 'r'},
 
             {"colour",      1, 0, 'c'},
             {"color",       1, 0, 'c'},
+	    {"dpi",	    1, 0, 'd'},
 
             {"left",        1, 0, '1'},
             {"right",       1, 0, '2'},
@@ -1272,7 +1355,7 @@ int main (int argc, char *argv[]) {
             {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "hVs:p:m:r:c:1:2:3:4:5:6:7:8:9:",
+        c = getopt_long(argc, argv, "hVs:p:m:b:r:c:d:D:1:2:3:4:5:6:7:8:9:",
                 long_options, &option_index);
 
         if (c == -1)
@@ -1417,6 +1500,22 @@ int main (int argc, char *argv[]) {
             }
             break;
 
+	    //Select DPI bank 1-4, 5 for all
+	    case 'b':
+		if (!optarg) {
+			elog("ERROR: Valid DPI Bank number required (1-4 or 5 for all)\n");
+			continue;
+		}
+		if (mode == mode_COUNT) {
+                    elog("ERROR: Mode not specified before bank selection\n");
+                    continue;
+                }
+		if (!select_dpi_bank(&dpi_bank, atoi(optarg))) {
+		        elog("ERROR: Valid DPI Bank number required (1-4 or 5 for all)\n");
+			continue;
+		}
+		break;
+
             // Report Rate
             case 'r':
                 if (!optarg) {
@@ -1465,6 +1564,52 @@ int main (int argc, char *argv[]) {
                 }
             }
             break;
+            
+            //DPI rate on selected mode and bank
+            case 'd':
+            {
+            	if (!optarg) {
+            		elog("ERROR: DPI rate (1-10) required for DPI setting\n");
+            		continue;
+            	}
+
+		if (dpi_bank == dpi_COUNT) {
+			elog("ERROR: No DPI bank selected\n ");
+			continue;
+		}
+
+            	if (mode == mode_COUNT) {
+            		elog("ERROR: Mode not specified before DPI setting");
+            		continue;
+            	}
+            	if(!set_dpi_rate(&mode_data_s[0], atoi(optarg), dpi_bank)) {
+            		//Failed
+            		elog("ERROR: Invalid dpi rate\n");
+            		continue;
+            	}
+            }
+            break;
+
+	//Set dpi-bank given as parameter as default
+	case 'D':
+	{
+		if (!optarg) {
+			elog("ERROR: DPI bank number (1-4) required to set default\n");
+			continue;
+                }
+
+                if (mode == mode_COUNT) {
+                        elog("ERROR: Mode not specified before setting default DPI bank");
+                        continue;
+                }
+		
+		if (!set_default_dpi_bank(&mode_data_s[0], atoi(optarg))) {
+			//Failed
+			elog("ERROR: New default DPI bank (1-4) required\n");
+			continue;
+		}
+	}
+	break;
 
             case '1':
             case '2':
