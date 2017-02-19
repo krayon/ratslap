@@ -1025,7 +1025,7 @@ static int set_mode_rate(unsigned char *mode_data, const int rate) {
         }
     }
 
-    return 0;
+return 0;
 }
 
 static int select_dpi_bank(t_dpi_bank *selected_bank, int new_bank) {
@@ -1044,43 +1044,43 @@ static int select_dpi_bank(t_dpi_bank *selected_bank, int new_bank) {
 
 // Set dpi rate on current mode
 static int set_dpi_rate(unsigned char *mode_data, int dpi, t_dpi_bank dpi_bank) {
-		
+
     if (!mode_data || dpi < 1 || dpi > 10 || dpi_bank == dpi_COUNT) return 0;
-	
+
     if (dpi_bank == 5) {
 	for (int i = 1;i < 5;i++) {
 	    set_dpi_rate(mode_data, dpi, i);
-	    }
-        return dpi;
-
 	}
-        else if (dpi_bank > 0 && dpi_bank < 5) {
-	    printf("	Setting DPI bank %d to : %d\n", dpi_bank, dpi_point(dpi));
+    return dpi;
 
-		//Keep default
-	    if (mode_data[dpi_bank + 2] > 11) dpi += 128;
+    } else if (dpi_bank > 0 && dpi_bank < 5) {
+	printf("	Setting DPI bank %d to : %d\n", dpi_bank, dpi_point(dpi));
 
-  	    mode_data[dpi_bank + 2] = dpi;
+	//Keep default
+	if (mode_data[dpi_bank + 2] > 128 && mode_data[dpi_bank + 2] < 139) dpi += 128;
 
-	    return dpi;
-	    }
-        return 0;
+  	mode_data[dpi_bank + 2] = dpi;
+
+	return dpi;
+    }
+return 0;
 }
 
 static int set_default_dpi_bank(unsigned char *mode_data, int new_default_bank) {
 
-        if (!mode_data ||  new_default_bank < 1 || new_default_bank > 4) return 0;
+    if (!mode_data ||  new_default_bank < 1 || new_default_bank > 4) return 0;
 
-	for(int i = 1; i < 5; i++) {
-		if (mode_data[i + 2] > 128 && i != new_default_bank) {
-			mode_data[i + 2] -= 128;
-		}
-		if (i == new_default_bank && mode_data[i + 2] < 11) {
+    for(int i = 1; i < 5; i++) {
+
+        if (mode_data[i + 2] > 128 && i != new_default_bank) mode_data[i + 2] -= 128;
+
+	if (i == new_default_bank && mode_data[i + 2] < 11) {
 			printf("    Setting new default DPI: #%d\n", new_default_bank);
 			mode_data[i + 2] += 128;
-		}
 	}
-return new_default_bank;
+    }
+
+    return new_default_bank;
 }
 
 static unsigned char set_mode_colour(unsigned char *mode_data, const t_colour colour) {
@@ -1564,7 +1564,7 @@ int main (int argc, char *argv[]) {
                 }
             }
             break;
-            
+
             //DPI rate on selected mode and bank
             case 'd':
             {
@@ -1590,9 +1590,9 @@ int main (int argc, char *argv[]) {
             }
             break;
 
-	//Set dpi-bank given as parameter as default
-	case 'D':
-	{
+ 	    //Set dpi-bank given as parameter as default
+	    case 'D':
+	    {
 		if (!optarg) {
 			elog("ERROR: DPI bank number (1-4) required to set default\n");
 			continue;
@@ -1602,14 +1602,14 @@ int main (int argc, char *argv[]) {
                         elog("ERROR: Mode not specified before setting default DPI bank");
                         continue;
                 }
-		
+
 		if (!set_default_dpi_bank(&mode_data_s[0], atoi(optarg))) {
 			//Failed
 			elog("ERROR: New default DPI bank (1-4) required\n");
 			continue;
 		}
-	}
-	break;
+	    }
+	    break;
 
             case '1':
             case '2':
