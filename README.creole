@@ -19,8 +19,9 @@
                                                                    ##
                                                                     ##
 }}}
+= RatSlap =
 
-== Linux configuration tool for Logitech mice //(currently only G300S)// ==
+== Linux configuration tool for Logitech mice //(currently only G300/G300S)// ==
 
 == Introduction ==
 
@@ -34,6 +35,10 @@ within Linux.
 [[https://bitbucket.org/krayonx/ratslap|BitBucket]] with the primary (public)
 repository being [[https://gitlab.com/krayon/ratslap|GitLab]].
 
+//RatSlap// binary and archive should be signed with my GPG key (
+[[http://pgp.mit.edu/pks/lookup?op=get&search=0x231A94F481ECF212|231A 94F4 81EC F212]]
+).
+
 == Bug Tracker ==
 
 Bugs are tracked on the
@@ -41,14 +46,18 @@ Bugs are tracked on the
 
 == Usage ==
 
-The //Logitech G300s// has 3 button modes. For each of these modes, you can
-assign an LED colour, report rate (speed at which the mouse communicates with
-the computer), DPI setting(s) and button/key combinations.
+NOTE: The //Logitech G300// and //G300s// differ only by name and physical
+appearance, otherwise they are functionally (and USB VID:PID) identical.
+
+The //Logitech G300/G300s// has 3 button modes, affectionately known as F3, F4
+and F5. For each of these modes, you can assign an LED colour, report rate
+(speed at which the mouse communicates with the computer), DPI setting(s) and
+button/key combinations.
 
 NOTE: You cannot remap the scrollwheel. These generate button 4 (up) and 5
 (down) and cannot be changed.
 
-The default mapping for F3 on the G300s, for example, is currently:
+The default mapping for F3 on the G300/G300s, for example, is currently:
 {{{
 $ ratslap -pf3
 Printing Mode: F3
@@ -156,6 +165,40 @@ Printing Mode: F3
 Selecting Mode: F3
 }}}
 
+=== ERROR: libusbx: error [_get_usbfs_fd] libusbx... ===
+
+When you try to run //RatSlap//, you may receive an error similar to the
+following:
+{{{
+libusbx: error [_get_usbfs_fd] libusbx couldn't open USB device /dev/bus/usb/002/090: Permission denied
+libusbx: error [_get_usbfs_fd] libusbx requires write access to USB device nodes.
+20161115T002046+1100 [E]           main.c:00581:mouse_init      Failed to find Logitech G300s (046d:c246)
+}}}
+
+This is caused, as the error suggests, by the fact that you do not have write
+access to the mouse (/dev/bus/usb/002/090 in the example above).
+
+There are two possible ways around this issue:
+# (NOT RECOMMENDED) Run ratslap as root;
+# Grant permissions to the device for your user account.
+
+The later is the preferred option here. To do this, simply ensure you have write
+permissions to the device. One such way is to make it group-writable, change the
+group ownership and place yourself in the newly owning group, eg:
+{{{
+$ ls -lah /dev/bus/usb/002/090
+crw-r--r-- 1 root root 189, 217 2016-11-14 19:22 /dev/bus/usb/002/090
+
+$ groups
+adm dialout cdrom sudo audio dip video plugdev netdev fuse lpadmin scanner
+sambashare vboxsf vboxusers nonet
+
+$ sudo chgrp adm /dev/bus/usb/002/090
+[sudo] password for krayon:
+
+$ sudo chmod g+w /dev/bus/usb/002/090
+}}}
+
 == History ==
 
 I recently (October 2016) purchased a Logitech G300S due mainly to the many
@@ -170,16 +213,20 @@ and annoying keypress events such as //CTRL-C//, //CTRL-X// and //CTRL-V//.
 Worse still, I also discovered that the Windows software only allows you to
 assign mouse buttons 1 through 7, skipping 4 and 5 (scroll-wheel). These are
 //Left-Click// (1), //Middle-Click// (2), //Right-Click// (3),
-//Browser Back// (6) and //Browser Forward// (7) respectively! --Hopefully
-this is a limitation in the Logitech software and not in the mouse itself--
-(see Notes).
+//Browser Back// (6) and //Browser Forward// (7) respectively! Therefore,
+Logitech provides no way of generating higher mouse button events, button 8 for
+example. --Hopefully this is a limitation in the Logitech software and not in
+the mouse itself-- (see Notes).
 
 == Features ==
 
-* Bind 9 mouse buttons instead of only the 5 that Logitech's tool offers.
-* Assign mouse clicks or keys to the Left and Right buttons.
+* Configure the mouse options, same as the Logitech Windows only software.
+* Bind all buttons, except the scroll wheel up and down, a total of 9 (Logitech
+tool only allows 5).
+* Assign mouse clicks or keys to the Left and Right buttons (which the Logitech
+tool cannot do).
 * Freely assign 'Mode Switch' to a mouse button in only one mode/profile.
-* Assign mouse clicks with key modifiers.
+* Assign mouse clicks with key modifiers (which Logitech doesn't offer).
 
 == Version History ==
 
@@ -194,6 +241,11 @@ this is a limitation in the Logitech software and not in the mouse itself--
 ** [[https://bugs.qdnx.org/bug/106|QB#106 - Modify mode - change button assignment]]
 ** [[https://bugs.qdnx.org/bug/108|QB#108 - kernel driver disconnect after --help/--version]]
 ** [[https://bugs.qdnx.org/bug/109|QB#109 - kernel driver disconnect after --listkeys]]
+* v0.2.1
+** [[https://bugs.qdnx.org/bug/111|QB#111 - missing libusb_strerror function
+** [[https://bugs.qdnx.org/bug/117|QB#117 - Compile fails when ctags missing
+** Prettier Changelog
+** Added man page
 
 == TODO ==
 

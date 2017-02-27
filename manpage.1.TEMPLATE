@@ -1,0 +1,322 @@
+.\" (C) Copyright 2014-%%BUILD_YEAR%% Todd Harbour <krayon.git@qdnx.org>
+.
+.TH RATSLAP "1" "%%BUILD_MONTH%% %%BUILD_YEAR%%" "ratslap %%APP_VERSION%%" "User Commands"
+.
+.
+.
+.\" Some roff macros, for reference:
+.\" .nh        disable hyphenation
+.\" .hy        enable hyphenation
+.\" .ad l      left justify
+.\" .ad b      justify to both left and right margins
+.\" .nf        disable filling
+.\" .fi        enable filling
+.\" .br        insert line break
+.\" .sp <n>    insert n+1 empty lines
+.\" for manpage-specific macros, see man(7)
+.
+.
+.
+.SH NAME
+ratslap \- configuration tool for Logitech mice (currently only G300/G300S)
+.
+.
+.
+.SH SYNOPSIS
+.B ratslap \-h|\-\-help
+.br
+.B ratslap \-V|\-\-version
+.br
+.B ratslap \-\-listkeys
+.br
+.B ratslap \-s|\-\-select
+.I MODE
+.br
+.B ratslap \-p|\-\-print
+.I MODE
+.br
+.B ratslap \-m|\-\-modify
+.IR MODIFY_OPTIONS ...
+.
+.
+.
+.SH DESCRIPTION
+.I RatSlap
+aims to provide a way to configure configurable Logitech mice from within
+Linux.
+.PP
+The Logitech G300/G300s has 3 button modes. For each of these modes, you can
+assign an LED colour, report rate (speed at which the mouse communicates with
+the computer), DPI setting(s) and button/key combinations.
+.PP
+For a list of available keys and buttons you can bind each mouse button to, run
+.I ratslap
+with the
+.B \-\-listkeys
+option.
+.PP
+NOTE: You cannot remap the scrollwheel. These generate button 4 (up) and 5
+(down) and cannot be changed.
+.PP
+Most
+.I OPTIONS
+below can be chained, such as:
+.RS
+.PP
+.B ratslap \-p
+F3
+.B \-m
+F4
+.B \-c
+blue
+.B \-s
+F4
+.RE
+.PP
+The above command would print out
+.BR F3 ;
+select
+.B F4
+for modification and change it's LED colour to
+.BR blue ;
+then select
+.B F4
+as the current mode.
+.PP
+This is most useful when you want to configure more than one mode at once, such
+as restoring a specific state for the entire mouse.
+.
+.
+.
+.SH OPTIONS
+.I RatSlap
+more or less follows the usual GNU command line syntax, with long options
+starting with two dashes (`\-'), and short with one.
+.
+.TP
+.PD 0
+.B \-h
+.TP
+.PD
+.B \-\-help
+Show summary of options.
+.
+.TP
+.PD 0
+.B \-V
+.TP
+.PD
+.B \-\-version
+Show version of program.
+.
+.TP
+.B \-\-listkeys
+Lists all possible modifiers, buttons and keys for assignment.
+.
+.TP
+.PD 0
+.BI \-s " MODE"
+.TP
+.PD
+.BI \-\-select " MODE"
+Switches to
+.IR MODE .
+Valid
+.IR MODE s
+are "F3", "F4" and "F5" (case insensative).
+.
+.TP
+.PD 0
+.BI \-p " MODE"
+.TP
+.PD
+.BI \-\-print " MODE"
+Prints out
+.IR MODE 's
+current button mapping.
+.
+.TP
+.PD 0
+.BI \-m " MODE"
+.TP
+.PD
+.BI \-\-modify " MODE"
+Modifies
+.I MODE
+using
+.I MODIFY_OPTIONS
+(see below)
+.
+.
+.
+.SH MODIFY_OPTIONS
+The following options modify the current
+.I MODE
+selected for modification (using
+\fB\-m\fR|\fB\-\-modify\fR, see above)
+.
+.TP
+.PD 0
+.BI \-r      " RATE"
+.TP
+.PD
+.BI \-\-rate " RATE"
+Set the report rate of the mouse to
+.IR RATE .
+Valid
+.IR RATE s
+are "125", "250", "500", "1000", measured in hertz (times per second).
+.
+.
+.
+.TP
+.PD 0
+.BI \-c        " COLOUR"
+.TP
+.PD 0
+.BI \-\-colour " COLOUR"
+.TP
+.PD
+.BI \-\-color  " COLOUR"
+Set the colour of the mouse to
+.IR COLOUR .
+Valid
+.IR COLOUR s
+are "BLACK" (off), "RED", "GREEN", "YELLOW", "BLUE", "MAGENTA", "CYAN" and
+"WHITE" (case insensative).
+.
+.
+.
+.TP
+.PD 0
+.BI \-1        " KEYS"
+.TP
+.PD
+.BI \-\-left   " KEYS"
+Binds mouse button 1 (the left mouse button) to
+.IR KEYS .
+.br
+For a list of valid modifiers, keys and buttons that can be assigned, use the
+.B \-\-listkeys
+option.
+.
+.
+.
+.TP
+.PD 0
+.BI \-2        " KEYS"
+.TP
+.PD
+.BI \-\-right  " KEYS"
+Binds mouse button 2 (the right mouse button) to
+.IR KEYS .
+.br
+For a list of valid modifiers, keys and buttons that can be assigned, use the
+.B \-\-listkeys
+option.
+.
+.
+.
+.TP
+.PD 0
+.BI \-3        " KEYS"
+.TP
+.PD
+.BI \-\-middle " KEYS"
+Binds mouse button 3 (the middle mouse button) to
+.IR KEYS .
+.br
+For a list of valid modifiers, keys and buttons that can be assigned, use the
+.B \-\-listkeys
+option.
+.
+.
+.
+.TP
+.PD 0
+.BI \-4        " KEYS"
+.TP
+.PD
+.BI \-\-G4     " KEYS"
+Binds mouse button 4 (the G4 mouse button) to
+.IR KEYS .
+.br
+For a list of valid modifiers, keys and buttons that can be assigned, use the
+.B \-\-listkeys
+option.
+.
+.
+.
+.TP
+.PD 0
+.BI \-5        " KEYS"
+.TP
+.PD
+.BI \-\-G5     " KEYS"
+Binds mouse button 5 (the G5 mouse button) to
+.IR KEYS .
+.br
+For a list of valid modifiers, keys and buttons that can be assigned, use the
+.B \-\-listkeys
+option.
+.
+.
+.
+.TP
+.PD 0
+.BI \-6        " KEYS"
+.TP
+.PD
+.BI \-\-G6     " KEYS"
+Binds mouse button 6 (the G6 mouse button) to
+.IR KEYS .
+.br
+For a list of valid modifiers, keys and buttons that can be assigned, use the
+.B \-\-listkeys
+option.
+.
+.
+.
+.TP
+.PD 0
+.BI \-7        " KEYS"
+.TP
+.PD
+.BI \-\-G7     " KEYS"
+Binds mouse button 7 (the G7 mouse button) to
+.IR KEYS .
+.br
+For a list of valid modifiers, keys and buttons that can be assigned, use the
+.B \-\-listkeys
+option.
+.
+.
+.
+.TP
+.PD 0
+.BI \-8        " KEYS"
+.TP
+.PD
+.BI \-\-G8     " KEYS"
+Binds mouse button 8 (the G8 mouse button) to
+.IR KEYS .
+.br
+For a list of valid modifiers, keys and buttons that can be assigned, use the
+.B \-\-listkeys
+option.
+.
+.
+.
+.TP
+.PD 0
+.BI \-9        " KEYS"
+.TP
+.PD
+.BI \-\-G9     " KEYS"
+Binds mouse button 9 (the G9 mouse button) to
+.IR KEYS .
+.br
+For a list of valid modifiers, keys and buttons that can be assigned, use the
+.B \-\-listkeys
+option.
+

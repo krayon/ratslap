@@ -38,6 +38,11 @@
 #define LOGITECH_G300S_VENDOR_ID   0x046d
 #define LOGITECH_G300S_PRODUCT_ID  0xc246
 
+// QB#111 - Older version (eg 1.0.14) didn't support libusb_strerror
+#ifndef libusb_strerror
+#define libusb_strerror libusb_error_name
+#endif
+
 // http://www.tldp.org/LDP/abs/html/exitcodes.html
 typedef enum e_exit {
      exit_none    = 0
@@ -884,7 +889,7 @@ static int mode_save(unsigned char *mode_data, libusb_device_handle *usb_dev_han
     return exp_len;
 }
 
-static int mode_print(unsigned char *mode_data, int len, t_mode mode) {
+static int mode_print(unsigned char *mode_data, int len) {
     unsigned char bit = 0;
     unsigned char but[3] = {0,0,0};
     int i = 0;
@@ -1360,7 +1365,7 @@ int main (int argc, char *argv[]) {
                 printf("Printing Mode: %s\n", s_mode[mnew]);
 
                 len = mode_load(&mode_data_p[0], usb_dev_handle, mnew);
-                mode_print(&mode_data_p[0], len, mnew);
+                mode_print(&mode_data_p[0], len);
             }
             break;
 

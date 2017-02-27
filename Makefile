@@ -27,6 +27,9 @@ OPTIONS_FILE   = make.options.conf
 -include $(OPTIONS_FILE)
 BUILDOPTS      = $(foreach BO, $(OPTIONS), -D$(BO))
 
+# Krayon's GPG code signing key
+GPG_KEY        = 81ECF212
+
 # Programs
 CC             = gcc
 LINK           = gcc -o
@@ -94,7 +97,7 @@ APPBRANCH = $(shell bash -c \
 	'\
         ( \
 		  n="$$(git name-rev --always --name-only --no-undefined HEAD)"; \
-		  [ "$${n}" != "master" ] && n="$${n^^}"; echo -n "$${n:0:3}" || true \
+		  [ "$${n}" != "master" ] && echo -n "$${n}" || true \
 		) \
 	')
 APPVER = $(shell bash -c \
@@ -105,14 +108,17 @@ APPVER = $(shell bash -c \
     ')
 
 BUILD_DATE     = $(shell date +'%Y-%m-%d %H:%M:%S%z')
+BUILD_MONTH    = $(shell date +'%B')
+BUILD_YEAR     = $(shell date +'%Y')
 
 ARCHIVE_NAME   = $(BINNAME)-$(APPVER)
+ARCHIVE_FILE   = $(ARCHIVE_NAME).$(ARCHIVE_EXT)
 
 # Default binary(s) to build
 PROGS          = $(BINNAME)
 
 # Files to distribute
-DIST_FILES     = $(PROGS) LICENSE README.creole Changelog
+DIST_FILES     = $(PROGS) $(PROGS:=.asc) LICENSE README.creole Changelog
 
 # Object files to build
 OBJS           = log.o main.o
@@ -123,7 +129,7 @@ _PHONY: all
 
 
 
-all: tags Changelog $(OPTIONS_FILE) $(PROGS) done
+all: tags Changelog manpage.1 $(OPTIONS_FILE) $(PROGS) done
 
 
 
@@ -136,8 +142,7 @@ gitup:
 Changelog: gitup
 	@# Generate Changelog
 	@echo "Generating Changelog..."
-	@#git log --pretty=tformat:"%C(auto)[%ci] %h %s" >Changelog
-	@git log >Changelog
+	@git log --color=never --pretty=tformat:"%ai %an <%aE>%n%w(76,4,4)%h %s%n%+b" >Changelog
 
 git.h: gitup git.h.TEMPLATE
 	@# Generating GIT header
@@ -155,6 +160,14 @@ log.h: log.h.TEMPLATE
 	    sed -i 's/\(#define '$${o}' *\)NULL.*$$/\1_logfile/' log.h; \
 	done
 
+manpage.1: manpage.1.TEMPLATE
+	@# Generating manpage
+	@echo "Generating man page file..."
+	@cat manpage.1.TEMPLATE >manpage.1
+	@sed -i 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  manpage.1
+	@sed -i 's#\%\%BUILD_MONTH\%\%#$(BUILD_MONTH)#'                             manpage.1
+	@sed -i 's#\%\%BUILD_YEAR\%\%#$(BUILD_YEAR)#'                               manpage.1
+
 
 
 # Error
@@ -165,41 +178,51 @@ err:
 done:
 	@echo "BUILD COMPLETE: $(APPNAME) ($(BINNAME)) v$(APPVER)"
 
+# Sign
+sign: $(PROGS:=.asc)
+
 # Tags
 ctags:
 	@# Generate CTags
 	@echo "Generating tags file..."
-	@$(CTAGS) *
+	@$(CTAGS) -R --fields=+lS . || echo "No ctags found, skipping tags file..."
 tags: ctags
 
 $(OPTIONS_FILE): $(OPTIONS_FILE).DEFAULT
 	@cp $(OPTIONS_FILE).DEFAULT $(OPTIONS_FILE)
 
-.c.o:
+%.o: %.c
 	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $*.o
 
-$(BINNAME): git.h log.h $(OBJS)
+%.asc: %
+	@echo "Signing: $${f}..."
+	@rm "$@" 2>/dev/null || true
+	gpg -o $@ --local-user $(GPG_KEY) --armor --detach-sign $<
+
+$(BINNAME): gitup git.h log.h $(OBJS)
 	@echo "Linking $(BINNAME)..."
 	
 	$(LINK) "$(BINNAME)" $(CFLAGS) $(LIBDIR) $(OBJS) $(LIBS)
 
-dist: gitup $(DIST_FILES)
-	@echo "Making $(ARCHIVE_NAME).$(ARCHIVE_EXT)..."
-
+$(ARCHIVE_FILE): $(DIST_FILES)
+	@echo "Making $(ARCHIVE_FILE)..."
+	
 	@if [ -d "$(ARCHIVE_NAME)" ]; then \
 		echo "Directory '$(ARCHIVE_NAME)' exists"; \
 		exit 1; \
 	fi
-
-	@if [ -f "$(ARCHIVE_NAME).$(ARCHIVE_EXT)" ]; then \
-		echo "Archive '$(ARCHIVE_NAME).$(ARCHIVE_EXT)' exists"; \
+	
+	@if [ -f "$(ARCHIVE_FILE)" ]; then \
+		echo "Archive '$(ARCHIVE_FILE)' exists"; \
 		exit 2; \
 	fi
-
+	
 	@mkdir "$(ARCHIVE_NAME)"
 	
 	@cp -a $(DIST_FILES) "$(ARCHIVE_NAME)/"
-	@$(ARCHIVER) "$(ARCHIVE_NAME).$(ARCHIVE_EXT)" "$(ARCHIVE_NAME)/"
+	@$(ARCHIVER) "$(ARCHIVE_FILE)" "$(ARCHIVE_NAME)/"
+
+dist: $(ARCHIVE_FILE) $(ARCHIVE_FILE).asc
 
 clean:
 	@echo "Cleaning up..."
@@ -211,6 +234,9 @@ clean:
 	
 	@echo "  deleting: Changelog";
 	@rm -f Changelog;
+	
+	@echo "  deleting: manpage.1";
+	@rm -f manpage.1;
 	
 	@echo "  deleting: tags";
 	@rm -f tags;
@@ -238,11 +264,6 @@ clean:
 distclean: clean
 	@echo "Cleaning (for distribution)..."
 	
-	@if [ -f "$(ARCHIVE_NAME).$(ARCHIVE_EXT)" ]; then \
-		echo "  deleting: $(ARCHIVE_NAME).$(ARCHIVE_EXT)"; \
-		rm "$(ARCHIVE_NAME).$(ARCHIVE_EXT)"; \
-	fi
-	
-	@for f in $(PROGS); do \
-		[ -f "$${f}" ] && echo "  deleting: $$f" && rm "$${f}" || true; \
+	@for f in $(ARCHIVE_FILE).asc $(ARCHIVE_FILE) $(PROGS:=.asc) $(PROGS); do \
+		[ -f "$${f}" ] && echo "  deleting: $${f}" && rm "$${f}" || true; \
 	done
