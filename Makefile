@@ -175,7 +175,7 @@ sign: $(PROGS:=.asc)
 ctags:
 	@# Generate CTags
 	@echo "Generating tags file..."
-	@$(CTAGS) *
+	@$(CTAGS) -R --fields=+lS . 
 tags: ctags
 
 $(OPTIONS_FILE): $(OPTIONS_FILE).DEFAULT
