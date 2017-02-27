@@ -97,7 +97,7 @@ APPBRANCH = $(shell bash -c \
 	'\
         ( \
 		  n="$$(git name-rev --always --name-only --no-undefined HEAD)"; \
-		  [ "$${n}" != "master" ] && n="$${n^^}"; echo -n "$${n:0:3}" || true \
+		  [ "$${n}" != "master" ] && echo -n "$${n}" || true \
 		) \
 	')
 APPVER = $(shell bash -c \
