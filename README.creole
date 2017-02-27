@@ -241,6 +241,11 @@ tool cannot do).
 ** [[https://bugs.qdnx.org/bug/106|QB#106 - Modify mode - change button assignment]]
 ** [[https://bugs.qdnx.org/bug/108|QB#108 - kernel driver disconnect after --help/--version]]
 ** [[https://bugs.qdnx.org/bug/109|QB#109 - kernel driver disconnect after --listkeys]]
+* v0.2.1
+** [[https://bugs.qdnx.org/bug/111|QB#111 - missing libusb_strerror function
+** [[https://bugs.qdnx.org/bug/117|QB#117 - Compile fails when ctags missing
+** Prettier Changelog
+** Added man page
 
 == TODO ==
 
