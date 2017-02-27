@@ -108,6 +108,8 @@ APPVER = $(shell bash -c \
     ')
 
 BUILD_DATE     = $(shell date +'%Y-%m-%d %H:%M:%S%z')
+BUILD_MONTH    = $(shell date +'%B')
+BUILD_YEAR     = $(shell date +'%Y')
 
 ARCHIVE_NAME   = $(BINNAME)-$(APPVER)
 ARCHIVE_FILE   = $(ARCHIVE_NAME).$(ARCHIVE_EXT)
@@ -127,7 +129,7 @@ _PHONY: all
 
 
 
-all: tags Changelog $(OPTIONS_FILE) $(PROGS) done
+all: tags Changelog manpage.1 $(OPTIONS_FILE) $(PROGS) done
 
 
 
@@ -157,6 +159,14 @@ log.h: log.h.TEMPLATE
 	@for o in $(OPTIONS:DEBUG%=LOG%); do \
 	    sed -i 's/\(#define '$${o}' *\)NULL.*$$/\1_logfile/' log.h; \
 	done
+
+manpage.1: manpage.1.TEMPLATE
+	@# Generating manpage
+	@echo "Generating man page file..."
+	@cat manpage.1.TEMPLATE >manpage.1
+	@sed -i 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  manpage.1
+	@sed -i 's#\%\%BUILD_MONTH\%\%#$(BUILD_MONTH)#'                             manpage.1
+	@sed -i 's#\%\%BUILD_YEAR\%\%#$(BUILD_YEAR)#'                               manpage.1
 
 
 
@@ -224,6 +234,9 @@ clean:
 	
 	@echo "  deleting: Changelog";
 	@rm -f Changelog;
+	
+	@echo "  deleting: manpage.1";
+	@rm -f manpage.1;
 	
 	@echo "  deleting: tags";
 	@rm -f tags;

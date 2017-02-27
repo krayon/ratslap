@@ -1,6 +1,6 @@
-.\" (C) Copyright 2016 Todd Harbour <krayon.git@qdnx.org>
+.\" (C) Copyright 2014-%%BUILD_YEAR%% Todd Harbour <krayon.git@qdnx.org>
 .
-.TH RATSLAP "1" "December 2016" "ratslap 0.2.0" "User Commands"
+.TH RATSLAP "1" "%%BUILD_MONTH%% %%BUILD_YEAR%%" "ratslap %%APP_VERSION%%" "User Commands"
 .
 .
 .
