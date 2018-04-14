@@ -551,7 +551,12 @@ static libusb_context *usb_init(void) {
     }
 
     // FIXME: Set debug?
+    
+#if LIBUSBX_API_VERSION < 0x01000106
     libusb_set_debug(usb_ctx, 3);
+#else
+    libusb_set_option(usb_ctx, LIBUSB_OPTION_LOG_LEVEL, 3);
+#endif
 
     return usb_ctx;
 }
