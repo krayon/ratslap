@@ -110,6 +110,7 @@ APPVER = $(shell bash -c \
 BUILD_DATE     = $(shell date +'%Y-%m-%d %H:%M:%S%z')
 BUILD_MONTH    = $(shell date +'%B')
 BUILD_YEAR     = $(shell date +'%Y')
+BUILD_COMMIT   = $(shell git rev-parse --verify 'HEAD^{commit}')
 
 ARCHIVE_NAME   = $(BINNAME)-$(APPVER)
 ARCHIVE_FILE   = $(ARCHIVE_NAME).$(ARCHIVE_EXT)
@@ -151,6 +152,7 @@ git.h: gitup git.h.TEMPLATE
 	@sed -i 's#//SOURCE//#// WARNING // Auto-generated file, DO NOT MODIFY //#' git.h
 	@sed -i 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  git.h
 	@sed -i 's#\%\%BUILD_DATE\%\%#$(BUILD_DATE)#'                               git.h
+	@sed -i 's#\%\%BUILD_COMMIT\%\%#$(BUILD_COMMIT)#'                           git.h
 
 log.h: log.h.TEMPLATE
 	@# Generating log header
