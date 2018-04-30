@@ -30,7 +30,8 @@
 #define   GIT_H
 
 // SemVer ( Semantic Versioning - http://semver.org/ )
-#define APP_VERSION "%%APP_VERSION%%"
-#define BUILD_DATE  "%%BUILD_DATE%%"
+#define APP_VERSION  "%%APP_VERSION%%"
+#define BUILD_DATE   "%%BUILD_DATE%%"
+#define BUILD_COMMIT "%%BUILD_COMMIT%%"
 
 #endif /* GIT_H */

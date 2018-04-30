@@ -26,7 +26,14 @@
 == Introduction ==
 
 //RatSlap// aims to provide a way to configure configurable Logitech mice from
-within Linux.
+within Linux. It is licensed under the GNU GPL version 2. For more information,
+see [[LICENSE]] / [[COPYING]] .
+
+For a list of authors and contributors, see [[AUTHORS.creole]] /
+[[CONTRIBUTORS.creole]] .
+
+For more information on contributing (new feature, bug fix, pull request etc),
+please see [[CONTRIBUTING.creole]] .
 
 == Availability ==
 
@@ -246,6 +253,9 @@ tool cannot do).
 ** [[https://bugs.qdnx.org/bug/117|QB#117 - Compile fails when ctags missing]]
 ** Prettier Changelog
 ** Added man page
+* v0.2.2
+** [[https://bugs.qdnx.org/121|QB#121 - set_debug is deprecated, use libusb_set_option instead]]
+** Added some documentation: AUTHORS, CONTRIBUTING
 
 == TODO ==
 

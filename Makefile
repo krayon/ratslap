@@ -84,32 +84,35 @@ CFLAGS        += $(CARCH_FLAG) $(CPU_FLAG) $(OPT_FLAGS) $(BUILDOPTS) $(shell pkg
 APPNAME        = $(shell sed -n 's/^[ \t]*\#define[ \t]*APP_NAME[ \t]*"\([^"]*\)".*$$/\1/p'    app.h)
 BINNAME        = $(shell sed -n 's/^[ \t]*\#define[ \t]*BIN_NAME[ \t]*"\([^"]*\)".*$$/\1/p'    app.h)
 
-# Retrieve version
+# Retrieve version from git
 #     This is something like:
-#         1.10.5-3-g6ab5527-dirty
+#         1.10.5-3-g6ab5527-dirty-ft-cool
 #     Where:
-#         1.10.5                  == tag
-#               -3                == 3 commits ahead of tag
-#                 -g6ab5527       == commit starting with g6ab5527
-#                          -dirty == some files are not in the repository
-#APPVER="$(shell grep _APP_VERSION app.h|head -1|cut -d'"' -f2)"
+#         1.10.5                          == tag / major version
+#               -3                        == 3 commits ahead of tag
+#                 -g6ab5527               == 'g'it commit starting with 6ab5527
+#                          -dirty         == some files here changed or not in repository
+#                                -ft-cool == ft-cool branch
+MAJVER = $(shell bash -c \
+	'\
+	  echo -n "$$(git describe --always --tags --match="*" --dirty)" \
+	')
+
 APPBRANCH = $(shell bash -c \
 	'\
-        ( \
-		  n="$$(git name-rev --always --name-only --no-undefined HEAD)"; \
-		  [ "$${n}" != "master" ] && echo -n "$${n}" || true \
-		) \
+	  git name-rev --always --name-only --no-undefined HEAD|sed "s@feature/@ft-@;s@hotfix/\(.*\)@\1.HF@;s@release/\(.*\)@\1.PRE@"\
 	')
+#APPVER="$(shell grep _APP_VERSION app.h|head -1|cut -d'"' -f2)"
 APPVER = $(shell bash -c \
-    '\
-        git describe          --tags --match="*" --dirty &>/dev/null \
-    &&  git describe --always --tags --match="*" --dirty             \
-    ||  (echo -n "$(APPBRANCH)-"; git describe --always --tags --dirty)     \
-    ')
+	'\
+	  echo -n "$(MAJVER)"; \
+	  [ ! -z "$(APPBRANCH)" ] && [ "$(APPBRANCH)" != "master" ] && [ "$(APPBRANCH)" != "$(MAJVER)" ] && echo -n "-$(APPBRANCH)" \
+	')
 
 BUILD_DATE     = $(shell date +'%Y-%m-%d %H:%M:%S%z')
 BUILD_MONTH    = $(shell date +'%B')
 BUILD_YEAR     = $(shell date +'%Y')
+BUILD_COMMIT   = $(shell git rev-parse --verify 'HEAD^{commit}')
 
 ARCHIVE_NAME   = $(BINNAME)-$(APPVER)
 ARCHIVE_FILE   = $(ARCHIVE_NAME).$(ARCHIVE_EXT)
@@ -151,6 +154,7 @@ git.h: gitup git.h.TEMPLATE
 	@sed -i 's#//SOURCE//#// WARNING // Auto-generated file, DO NOT MODIFY //#' git.h
 	@sed -i 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  git.h
 	@sed -i 's#\%\%BUILD_DATE\%\%#$(BUILD_DATE)#'                               git.h
+	@sed -i 's#\%\%BUILD_COMMIT\%\%#$(BUILD_COMMIT)#'                           git.h
 
 log.h: log.h.TEMPLATE
 	@# Generating log header

@@ -1,0 +1,14 @@
+= Contributing =
+
+== Pull Requests ==
+
+If you have a pull request (PR) for a change or a fix, please try to base your
+changes off develop unless it's a serious security issue with a specific release
+in which case base it off that.
+
+Don't be too concerned if you can't deside, an incorrectly targeted PR is better
+than no PR :D
+
+... and Thank you.
+
+<<< vim:set ts=4 sw=4 tw=80 et cindent ai si syn=creole: >>>
