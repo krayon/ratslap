@@ -1,0 +1,9 @@
+= RatSlap Authors =
+
+[[ http://www.qdnx.org/krayon/ | Krayon (Todd Harbour) ]]
+
+== RatSlap Contributors ==
+
+-
+
+<<< vim:set ts=4 sw=4 tw=80 et cindent ai si syn=creole: >>>

@@ -26,7 +26,14 @@
 == Introduction ==
 
 //RatSlap// aims to provide a way to configure configurable Logitech mice from
-within Linux.
+within Linux. It is licensed under the GNU GPL version 2. For more information,
+see [[LICENSE]] / [[COPYING]] .
+
+For a list of authors and contributors, see [[AUTHORS.creole]] /
+[[CONTRIBUTORS.creole]] .
+
+For more information on contributing (new feature, bug fix, pull request etc),
+please see [[CONTRIBUTING.creole]] .
 
 == Availability ==
 
