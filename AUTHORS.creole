@@ -4,6 +4,7 @@
 
 == RatSlap Contributors ==
 
--
+[[ https://github.com/captn3m0 | Nemo ]]
+* [[ https://github.com/krayon/ratslap/pull/14 | GitHub PR #14 ]]
 
 <<< vim:set ts=4 sw=4 tw=80 et cindent ai si syn=creole: >>>
