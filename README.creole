@@ -32,6 +32,9 @@ see [[LICENSE]] / [[COPYING]] .
 For a list of authors and contributors, see [[AUTHORS.creole]] /
 [[CONTRIBUTORS.creole]] .
 
+For more information on contributing (new feature, bug fix, pull request etc),
+please see [[CONTRIBUTING.creole]] .
+
 == Availability ==
 
 //RatSlap// source is available on [[https://gitlab.com/krayon/ratslap|GitLab]],
