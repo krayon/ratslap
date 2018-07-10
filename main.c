@@ -1312,8 +1312,8 @@ int main (int argc, char *argv[]) {
         c = getopt_long(argc, argv, "hVs:p:m:r:c:1:2:3:4:5:6:7:8:9:",
                 long_options, &option_index);
 
-        if (c == -1)
-            break;
+        // If we've had a previous error, or there's not more options, break
+        if (ret != exit_none || c == -1) break;
 
         switch (c) {
             // Help
@@ -1552,7 +1552,7 @@ int main (int argc, char *argv[]) {
         } // switch (c)
     } // while (1)
 
-    if (optind < argc) {
+    if (ret == exit_none && optind < argc) {
         char optout[255]
              ,*po = &optout[0];
 
