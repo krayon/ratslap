@@ -1396,8 +1396,9 @@ int main (int argc, char *argv[]) {
 
                 printf("Printing Mode: %s\n", s_mode[mnew]);
 
-                len = mode_load(&mode_data_p[0], usb_dev_handle, mnew);
-                mode_print(&mode_data_p[0], len);
+                if ((len = mode_load(&mode_data_p[0], usb_dev_handle, mnew)) > 0) {
+                    mode_print(&mode_data_p[0], len);
+                }
             }
             break;
 
@@ -1449,8 +1450,9 @@ int main (int argc, char *argv[]) {
 
                 mouse_editmode();
 
-                mode_load(&mode_data_l[0], usb_dev_handle, mode);
-                memcpy(&mode_data_s, &mode_data_l, 255);
+                if (mode_load(&mode_data_l[0], usb_dev_handle, mode) > 0) {
+                    memcpy(&mode_data_s, &mode_data_l, 255);
+                }
             }
             break;
 
