@@ -398,6 +398,7 @@ libusb_device_handle               *usb_dev_handle = NULL;
 libusb_device                      *usb_device     = NULL;
 struct libusb_device_descriptor    usb_desc;
 int usb_interface_index = -1;
+int mouse_primed = 0;
 
 
 
@@ -420,6 +421,8 @@ static int set_mode_rate(unsigned char *mode_data, const int rate);
 static unsigned char set_mode_colour(unsigned char *mode_data, const t_colour colour);
 static int set_mode_button(unsigned char *mode_data, const unsigned char button, const char *keys);
 static int mouse_editmode(void);
+int mouse_prime(void);
+int mouse_unprime(void);
 
 
 
@@ -766,7 +769,7 @@ static t_mode change_mode(libusb_device_handle *usb_dev_handle, t_mode mode) {
 
     int ret;
 
-    if (!usb_dev_handle || mode >= mode_COUNT) return mode_COUNT;
+    if (!mouse_primed || !usb_dev_handle || mode >= mode_COUNT) return mode_COUNT;
 
     if (mode == mode_f3) {
         // Top Mode
@@ -817,7 +820,7 @@ static int mode_load(unsigned char *mode_data, libusb_device_handle *usb_dev_han
     uint16_t mi;
     int ret;
 
-    if (!mode_data || !usb_dev_handle || mode >= mode_COUNT) return 0;
+    if (!mouse_primed || !mode_data || !usb_dev_handle || mode >= mode_COUNT) return 0;
 
     if      (mode == mode_f3) mi = 0xf3;
     else if (mode == mode_f4) mi = 0xf4;
@@ -864,7 +867,7 @@ static int mode_save(unsigned char *mode_data, libusb_device_handle *usb_dev_han
 
     unsigned char cmp[255];
 
-    if (!mode_data || !usb_dev_handle || mode >= mode_COUNT) return 0;
+    if (!mouse_primed || !mode_data || !usb_dev_handle || mode >= mode_COUNT) return 0;
 
     if      (mode == mode_f3) mi = 0xf3;
     else if (mode == mode_f4) mi = 0xf4;
@@ -1176,7 +1179,7 @@ static int set_mode_button(unsigned char *mode_data, const unsigned char button,
 }
 
 static int mouse_editmode(void) {
-    if (!usb_dev_handle) return 0;
+    if (!mouse_primed || !usb_dev_handle) return 0;
 
     // LAUNCH EDITOR
     // 2117030035 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0423900
@@ -1216,21 +1219,8 @@ static int mouse_editmode(void) {
     return 1;
 }
 
-int main (int argc, char *argv[]) {
-    t_exit ret = exit_none;
-    int c;
-
-    t_mode mode = mode_COUNT;
-
-    // Data structures to store loaded and ready to save mode data
-    unsigned char mode_data_l[255];
-    unsigned char mode_data_s[255];
-
-    log_init();
-
-    help_version();
-
-    // FIXME: Help and version shouldn't initialise USB
+int mouse_prime(void) {
+    if (mouse_primed) return exit_none;
 
     // Initialise USB
     usb_init();
@@ -1265,6 +1255,43 @@ int main (int argc, char *argv[]) {
 
         return exit_usberr;
     }
+
+    mouse_primed = 1;
+
+    return exit_none;
+}
+
+int mouse_unprime(void) {
+    if (!mouse_primed) return exit_none;
+
+    // Re-attach kernel driver
+    printf("Attaching kernel driver...\n");
+    mouse_hid_attach_kernel(usb_interface_index);
+
+    // De-initialise mouse
+    mouse_deinit();
+
+    // De-initialise USB
+    usb_deinit();
+
+    mouse_primed = 0;
+
+    return exit_none;
+}
+
+int main (int argc, char *argv[]) {
+    t_exit ret = exit_none;
+    int c;
+
+    t_mode mode = mode_COUNT;
+
+    // Data structures to store loaded and ready to save mode data
+    unsigned char mode_data_l[255];
+    unsigned char mode_data_s[255];
+
+    log_init();
+
+    help_version();
 
     while (1) {
         int option_index = 0;
@@ -1353,6 +1380,10 @@ int main (int argc, char *argv[]) {
 
                 printf("Mode Selection Specified: %s\n", s_mode[mnew]);
 
+                // Initialise USB and mouse, detach kernel driver (if necessary)
+                // If we cannot, abort (caught at start of loop)
+                if ((ret = mouse_prime())) continue;
+
                 if (mode != mode_COUNT) {
                     // They've been editing another mode, so save
                     printf("Saving Mode: %s\n", s_mode[mode]);
@@ -1387,6 +1418,10 @@ int main (int argc, char *argv[]) {
                     continue;
                 }
 
+                // Initialise USB and mouse, detach kernel driver (if necessary)
+                // If we cannot, abort (caught at start of loop)
+                if ((ret = mouse_prime())) continue;
+
                 if (mode != mode_COUNT) {
                     // They've been editing another mode, so save
                     printf("Saving Mode: %s\n", s_mode[mode]);
@@ -1406,6 +1441,10 @@ int main (int argc, char *argv[]) {
             case 'm':
             {
                 t_mode mnew = mode_COUNT;
+
+                // Initialise USB and mouse, detach kernel driver (if necessary)
+                // If we cannot, abort (caught at start of loop)
+                if ((ret = mouse_prime())) continue;
 
                 if (!optarg) {
                     elog("ERROR: Mode required for modify option\n");
@@ -1571,15 +1610,8 @@ int main (int argc, char *argv[]) {
         mode = mode_COUNT;
     }
 
-    // Re-attach kernel driver
-    printf("Attaching kernel driver...\n");
-    mouse_hid_attach_kernel(usb_interface_index);
-
-    // De-initialise mouse
-    mouse_deinit();
-
-    // De-initialise USB
-    usb_deinit();
+    // Re-attach kernel driver, de-initialise mouse and USB (if necessary)
+    mouse_unprime();
 
     log_end();
 
