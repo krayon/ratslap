@@ -391,15 +391,41 @@ const int report_rate[] = {
 };
 const int n_report_rates = 4;
 
-static int dpi_point(int dpip) {
-    return dpip * 250;
-}
+
 
 libusb_context                     *usb_ctx        = NULL;
 libusb_device_handle               *usb_dev_handle = NULL;
 libusb_device                      *usb_device     = NULL;
 struct libusb_device_descriptor    usb_desc;
 int usb_interface_index = -1;
+
+
+
+static int dpi_point(int dpip);
+static void help_version(void);
+static void help_usage(void);
+static void keylist_print(void);
+static libusb_context *usb_init(void);
+static int usb_deinit(void);
+static libusb_device_handle *mouse_init(const uint16_t vendor_id, const uint16_t product_id, const char* product_name);
+static int mouse_deinit(void);
+static void display_mouse_hid(const uint16_t vendor_id, const uint16_t product_id);
+int mouse_hid_detach_kernel(int iface);
+int mouse_hid_attach_kernel(int iface);
+static t_mode change_mode(libusb_device_handle *usb_dev_handle, t_mode mode);
+static int mode_load(unsigned char *mode_data, libusb_device_handle *usb_dev_handle, t_mode mode);
+static int mode_save(unsigned char *mode_data, libusb_device_handle *usb_dev_handle, const t_mode mode);
+static int mode_print(unsigned char *mode_data, int len);
+static int set_mode_rate(unsigned char *mode_data, const int rate);
+static unsigned char set_mode_colour(unsigned char *mode_data, const t_colour colour);
+static int set_mode_button(unsigned char *mode_data, const unsigned char button, const char *keys);
+static int mouse_editmode(void);
+
+
+
+static int dpi_point(int dpip) {
+    return dpip * 250;
+}
 
 static void help_version(void) {
     printf("%s v%s (BUILT: %s)\n", (APP_NAME), (APP_VERSION), (BUILD_DATE));
@@ -1148,6 +1174,7 @@ static int set_mode_button(unsigned char *mode_data, const unsigned char button,
 
     return 1;
 }
+
 static int mouse_editmode(void) {
     if (!usb_dev_handle) return 0;
 
@@ -1541,7 +1568,6 @@ int main (int argc, char *argv[]) {
         mode_save(&mode_data_s[0], usb_dev_handle, mode);
         mode = mode_COUNT;
     }
-
 
     // Re-attach kernel driver
     printf("Attaching kernel driver...\n");
