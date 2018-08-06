@@ -254,14 +254,15 @@ tool cannot do).
 ** Prettier Changelog
 ** Added man page
 * v0.2.2
-** [[https://bugs.qdnx.org/121|QB#121 - set_debug is deprecated, use libusb_set_option instead]]
+** [[https://bugs.qdnx.org/bug/121|QB#121 - set_debug is deprecated, use libusb_set_option instead]]
 ** Added some documentation: AUTHORS, CONTRIBUTING
 
 == TODO ==
 
-* [[https://bugs.qdnx.org/bug/113|QB#113 - Configure DPI #[1-4], DPI Default and * DPI Shift values]]
-* [[https://bugs.qdnx.org/bug/114|QB#114 - Factory reset option]]
-* [[https://bugs.qdnx.org/bug/115|QB#115 - Ability to save/load profiles]]
+* BUG:     [[https://bugs.qdnx.org/bug/125|QB#125 - Error assigning Num+]]
+* FEATURE: [[https://bugs.qdnx.org/bug/113|QB#113 - Configure DPI #[1-4], DPI Default and * DPI Shift values]]
+* FEATURE: [[https://bugs.qdnx.org/bug/114|QB#114 - Factory reset option]]
+* FEATURE: [[https://bugs.qdnx.org/bug/115|QB#115 - Ability to save/load profiles]]
 
 == Notes ==
 

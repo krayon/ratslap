@@ -1123,6 +1123,8 @@ static int set_mode_button(unsigned char *mode_data, const unsigned char button,
                 ++ky;
             }
 
+            // FIXME: QB#125 - Handle Keys containing '+' (currently only "Num+")
+
             // If it's not the last element...
             if (*kptr) {
                 // And didn't match a modifier, BAD!
