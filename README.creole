@@ -37,10 +37,10 @@ please see [[CONTRIBUTING.creole]] .
 
 == Availability ==
 
-The most current release is v0.2.2 and is available from:
+The most current release is v0.2.3 and is available from:
 
-* [[https://gitlab.com/krayon/ratslap/tags/0.2.2|GitLab (RELEASE v0.2.2)]]
-* [[https://github.com/krayon/ratslap/releases/tag/0.2.2|GitHub (RELEASE v0.2.2)]]
+* [[https://gitlab.com/krayon/ratslap/tags/0.2.3|GitLab (RELEASE v0.2.3)]]
+* [[https://github.com/krayon/ratslap/releases/tag/0.2.3|GitHub (RELEASE v0.2.3)]]
 
 //RatSlap// binary and archive should be signed with my GPG key (
 [[http://pgp.mit.edu/pks/lookup?op=get&search=0x231A94F481ECF212|231A 94F4 81EC F212]]
@@ -285,6 +285,10 @@ tool cannot do).
 * v0.2.2
 ** [[https://bugs.qdnx.org/bug/121|QB#121 - set_debug is deprecated, use libusb_set_option instead]]
 ** Added some documentation: AUTHORS, CONTRIBUTING
+* v0.2.3
+** [[https://bugs.qdnx.org/bug/122|QB#122 - Help shouldn't require USB permissions]]
+** [[https://bugs.qdnx.org/bug/123|QB#123 - Check mode_load() return code]]
+** [[https://bugs.qdnx.org/bug/124|QB#124 - Failed operations don't abort execution]]
 
 == TODO ==
 
