@@ -37,14 +37,43 @@ please see [[CONTRIBUTING.creole]] .
 
 == Availability ==
 
-//RatSlap// source is available on [[https://gitlab.com/krayon/ratslap|GitLab]],
-[[https://github.com/krayon/ratslap|GitHub]] and
-[[https://bitbucket.org/krayonx/ratslap|BitBucket]] with the primary (public)
-repository being [[https://gitlab.com/krayon/ratslap|GitLab]].
+The most current release is v0.2.2 and is available from:
+
+* [[https://gitlab.com/krayon/ratslap/tags/0.2.2|GitLab (RELEASE v0.2.2)]]
+* [[https://github.com/krayon/ratslap/releases/tag/0.2.2|GitHub (RELEASE v0.2.2)]]
 
 //RatSlap// binary and archive should be signed with my GPG key (
 [[http://pgp.mit.edu/pks/lookup?op=get&search=0x231A94F481ECF212|231A 94F4 81EC F212]]
 ).
+
+Binary signature files end in .asc and can be verified using
+[[https://www.gnupg.org/|gpg/gpg2]] thus:
+{{{
+gpg --verify ratslap-0.2.2.x86_64.tar.gz.asc
+    gpg: assuming signed data in `ratslap-0.2.2.x86_64.tar.gz'
+    gpg: Signature made 2018-05-01T01:00:52 AEST using RSA key ID 81ECF212
+    gpg: Good signature from "Krayon (Code Signing Key) <krayon.git@qdnx.org>"
+    gpg: WARNING: This key is not certified with a trusted signature!
+    gpg:          There is no indication that the signature belongs to the owner.
+    Primary key fingerprint: CDEC 1051 0874 06FB 8323  46DC 231A 94F4 81EC F212
+}}}
+
+You may first need to retrieve my public key if you haven't already done so:
+{{{
+gpg --recv-keys 81ECF212
+    gpg: keyring `/home/krayon//.gnupg/secring.gpg' created
+    gpg: requesting key 81ECF212 from hkp server keys.gnupg.net
+    gpg: /home/krayon//.gnupg/trustdb.gpg: trustdb created
+    gpg: key 81ECF212: public key "Krayon (Code Signing Key) <krayon.git@qdnx.org>" imported
+    gpg: no ultimately trusted keys found
+    gpg: Total number processed: 1
+    gpg:               imported: 1  (RSA: 1)
+}}}
+
+//RatSlap// source is available on [[https://gitlab.com/krayon/ratslap|GitLab]],
+[[https://github.com/krayon/ratslap|GitHub]] and
+[[https://bitbucket.org/krayonx/ratslap|BitBucket]] with the primary (public)
+repository being [[https://gitlab.com/krayon/ratslap|GitLab]].
 
 == Bug Tracker ==
 
