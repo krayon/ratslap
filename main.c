@@ -418,6 +418,11 @@ static int mode_load(unsigned char *mode_data, libusb_device_handle *usb_dev_han
 static int mode_save(unsigned char *mode_data, libusb_device_handle *usb_dev_handle, const t_mode mode);
 static int mode_print(unsigned char *mode_data, int len);
 static int set_mode_rate(unsigned char *mode_data, const int rate);
+static int set_mode_dpi(unsigned char *mode_data, const int idx, const int dpi);
+static int set_mode_defdpi(unsigned char *mode_data, const int idx);
+static int set_mode_enabledpishift(unsigned char *mode_data);
+static int set_mode_dpishift(unsigned char *mode_data, const int dpi);
+static int set_mode_nodpishift(unsigned char *mode_data);
 static unsigned char set_mode_colour(unsigned char *mode_data, const t_colour colour);
 static int set_mode_button(unsigned char *mode_data, const unsigned char button, const char *keys);
 static int mouse_editmode(void);
@@ -427,7 +432,7 @@ int mouse_unprime(void);
 
 
 static int dpi_point(int dpip) {
-    return dpip * 250;
+    return (!dpip) ? 4000 : dpip * 250;
 }
 
 static void help_version(void) {
@@ -448,6 +453,13 @@ static void help_usage(void) {
        %s [-s|--select <mode>] [-p|--print <mode>]\n\
        [-m|--modify <mode>\n\
            [-r|--rate           <rate>]\n\
+           [-A|--d1|--D1        <dpi>]\n\
+           [-B|--d2|--D2        <dpi>]\n\
+           [-C|--d3|--D3        <dpi>]\n\
+           [-D|--d4|--D4        <dpi>]\n\
+           [-F|--default-dpi    <level>]\n\
+           [-S|--dpishift       [<dpi>]]\n\
+           [-U|--no-dpishift]\n\
            [-c|--colour|--color <colour>]\n\
            [-1|--left           <keys>]\n\
            [-2|--right          <keys>]\n\
@@ -467,6 +479,10 @@ static void help_usage(void) {
 -p|--p[rint]            - %s\n\
 -m|--mo[dify]           - %s\n\
 -r|--ra[te]             - %s\n\
+-A|--d1 ... -D|--d4     - %s\n\
+-F|--de[fault-dpi]      - %s\n\
+-S|--dp[ishift]         - %s\n\
+-U|--n[o-dpishift]      - %s\n\
 -c|--c[olour]|--c[olor] - %s\n\
 -1|--le[ft]             - %s\n\
 -2|--ri[ght]            - %s\n\
@@ -480,6 +496,8 @@ static void help_usage(void) {
 \n\
 <mode>                  - %s\n\
 <rate>                  - %s\n\
+<dpi>                   - %s\n\
+<level>                 - %s\n\
 <colour>                - %s\n\
 <keys>                  - %s\n\
                           %s\n\
@@ -500,6 +518,10 @@ static void help_usage(void) {
     ,_("Prints out <mode>'s button configuration")
     ,_("Sets current <mode> to be modified")
     ,_("Sets report <rate> of <mode> currently being modified")
+    ,_("Sets DPI sensitivity level 1, 2, 3, or 4")
+    ,_("Sets which DPI sensitivity level is the default")
+    ,_("Enables DPI shift function; with argument, sets the DPI")
+    ,_("Disables DPI shift function")
     ,_("Sets <colour> of <mode> currently being modified")
     ,_("Assigns <keys> to button 1 of <mode> currently being modified")
     ,_("Assigns <keys> to button 2 of <mode> currently being modified")
@@ -512,6 +534,8 @@ static void help_usage(void) {
     ,_("Assigns <keys> to button 9 of <mode> currently being modified")
     ,_("A valid mode:          F3, F4 or F5")
     ,_("A valid rate:          125, 250, 500, 1000")
+    ,_("A valid DPI:           250, 500, 750, ..., 3500, 3750, 4000")
+    ,_("A valid DPI level:     1, 2, 3, 4")
     ,_("A valid colour:        black, red, green, yellow, blue, magenta, cyan, white")
     ,_("A valid combo of keys: Any button or key combo, eg. LeftCtrl+LeftAlt+PageUp")
     ,_("Run with --listkeys to see the complete list")
@@ -849,6 +873,7 @@ static int mode_load(unsigned char *mode_data, libusb_device_handle *usb_dev_han
          ,*po = &bitout[0];
     for (bit = 0; bit < exp_len; ++bit) {
         sprintf(po, "%.2x", (mode_data)[bit]);
+        po += strlen(po);
         if ((bit+1) % 4 == 0) sprintf(po, " ");
         po += strlen(po);
     }
@@ -894,6 +919,7 @@ static int mode_save(unsigned char *mode_data, libusb_device_handle *usb_dev_han
     po = &bitout[0];
     for (bit = 0; bit < exp_len; ++bit) {
         sprintf(po, "%.2x", (mode_data)[bit]);
+        po += strlen(po);
         if ((bit+1) % 4 == 0) sprintf(po, " ");
         po += strlen(po);
     }
@@ -910,6 +936,7 @@ static int mode_save(unsigned char *mode_data, libusb_device_handle *usb_dev_han
     po = &bitout[0];
     for (bit = 0; bit < exp_len; ++bit) {
         sprintf(po, "%.2x", (cmp)[bit]);
+        po += strlen(po);
         if ((bit+1) % 4 == 0) sprintf(po, " ");
         po += strlen(po);
     }
@@ -933,6 +960,7 @@ static int mode_print(unsigned char *mode_data, int len) {
          ,*po = &rawout[0];
     for (i = 0; i < len; ++i) {
         sprintf(po, "%.2x", (mode_data)[i]);
+        po += strlen(po);
         if ((i+1) % 4 == 0) sprintf(po, " ");
         po += strlen(po);
     }
@@ -975,11 +1003,8 @@ static int mode_print(unsigned char *mode_data, int len) {
 
     bit = (mode_data)[i++];
     printf("  DPI Shift:           ");
-    if (bit == 0x40) {
-        printf("NOT SET");
-    } else {
-        printf("%d", dpi_point(bit & 0x0f));
-    }
+    printf("%d", dpi_point(bit & 0x0f));
+    if (bit & 0x40) printf(" [DISABLED]");
     printf("\n");
 
     // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
@@ -1042,6 +1067,71 @@ static int set_mode_rate(unsigned char *mode_data, const int rate) {
     }
 
     return 0;
+}
+
+static int set_mode_dpi(unsigned char *mode_data, const int idx, const int dpi) {
+    int dpi_val = dpi >= 4000 ? 0 : (dpi/250)&0xf;
+    int real_dpi = !dpi_val ? 4000 : dpi_val*250;
+
+    if (!mode_data || idx < 0 || idx > 3 || dpi < 250) return 0;
+
+    printf("    Setting DPI #%d: %d\n", idx + 1, real_dpi);
+
+    // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+    //       ^^ ^^^^^^
+    (mode_data)[3+idx] = ((mode_data)[3+idx] & 0x80) | dpi_val;
+    return real_dpi;
+}
+
+static int set_mode_defdpi(unsigned char *mode_data, const int idx) {
+    int i;
+
+    if (!mode_data || idx < 0 || idx > 3) return 0;
+
+    printf("    Setting DPI #%d as default\n", idx + 1);
+
+    // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+    //       ^^ ^^^^^^
+    for (i = 3; i <= 6; i++)
+        (mode_data)[i] &= 0x3f;
+    (mode_data)[3+idx] |= 0x80;
+    return 1;
+}
+
+static int set_mode_enabledpishift(unsigned char *mode_data) {
+    if (!mode_data) return 0;
+
+    printf("    Enabling DPI shift\n");
+
+    // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+    //                ^^
+    (mode_data)[7] &= 0xbf;
+    return 1;
+}
+
+static int set_mode_dpishift(unsigned char *mode_data, const int dpi) {
+    int dpi_val = dpi >= 4000 ? 0 : (dpi/250)&0xf;
+    int real_dpi = !dpi_val ? 4000 : dpi_val*250;
+
+    if (!mode_data || dpi < 250) return 0;
+
+    printf("    Setting DPI Shift: %d\n", real_dpi);
+
+    // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+    //                ^^
+    (mode_data)[7] = dpi_val;
+    return real_dpi;
+}
+
+static int set_mode_nodpishift(unsigned char *mode_data) {
+    if (!mode_data) return 0;
+
+    printf("    Disabling DPI shift\n");
+
+    // F5040302 84060844 01000002 00000300 00040000 05000006 00000700 00080000 090000
+    //                ^^
+    (mode_data)[7] |= 0x40;
+    return 1;
 }
 
 static unsigned char set_mode_colour(unsigned char *mode_data, const t_colour colour) {
@@ -1315,6 +1405,17 @@ int main (int argc, char *argv[]) {
             {"modify",      1, 0, 'm'},
 
             {"rate",        1, 0, 'r'},
+            {"d1",          1, 0, 'A'},
+            {"D1",          1, 0, 'A'},
+            {"d2",          1, 0, 'B'},
+            {"D2",          1, 0, 'B'},
+            {"d3",          1, 0, 'C'},
+            {"D3",          1, 0, 'C'},
+            {"d4",          1, 0, 'D'},
+            {"D4",          1, 0, 'D'},
+            {"default-dpi", 1, 0, 'F'},
+            {"dpishift",    2, 0, 'S'},
+            {"no-dpishift", 0, 0, 'U'},
 
             {"colour",      1, 0, 'c'},
             {"color",       1, 0, 'c'},
@@ -1338,7 +1439,7 @@ int main (int argc, char *argv[]) {
             {0,0,0,0}
         };
 
-        c = getopt_long(argc, argv, "hVs:p:m:r:c:1:2:3:4:5:6:7:8:9:",
+        c = getopt_long(argc, argv, "hVs:p:m:r:A:B:C:D:F:S::Uc:1:2:3:4:5:6:7:8:9:",
                 long_options, &option_index);
 
         // If we've had a previous error, or there's not more options, break
@@ -1515,6 +1616,83 @@ int main (int argc, char *argv[]) {
                     continue;
                 }
             break;
+
+            // DPI setting
+            case 'A':
+            case 'B':
+            case 'C':
+            case 'D':
+                if (!optarg) {
+                    elog("ERROR: DPI value required for DPI setting\n");
+                    continue;
+                }
+
+                if (mode == mode_COUNT) {
+                    elog("ERROR: Mode not specified before DPI setting\n");
+                    continue;
+                }
+
+                if (!set_mode_dpi(&mode_data_s[0], c-'A', atoi(optarg))) {
+                    // Failed
+                    elog("ERROR: Invalid DPI: %s\n", optarg);
+                    continue;
+                }
+                break;
+
+            // Select default DPI
+            case 'F':
+                if (!optarg) {
+                    elog("ERROR: DPI number required for selecting default DPI\n");
+                    continue;
+                }
+
+                if (mode == mode_COUNT) {
+                    elog("ERROR: Mode not specified before DPI setting\n");
+                    continue;
+                }
+
+                if (!set_mode_defdpi(&mode_data_s[0], atoi(optarg) - 1)) {
+                    // Failed
+                    elog("ERROR: Invalid DPI number: %s\n", optarg);
+                    continue;
+                }
+                break;
+
+            // DPI shift setting
+            case 'S':
+                if (mode == mode_COUNT) {
+                    elog("ERROR: Mode not specified before DPI setting\n");
+                    continue;
+                }
+
+                if (!optarg) {
+                    if (!set_mode_enabledpishift(&mode_data_s[0])) {
+                        // Failed
+                        elog("ERROR: Enable DPI shift failed\n");
+                        continue;
+                    }
+                } else {
+                    if (!set_mode_dpishift(&mode_data_s[0], atoi(optarg))) {
+                        // Failed
+                        elog("ERROR: Invalid DPI: %s\n", optarg);
+                        continue;
+                    }
+                }
+                break;
+
+            // Disable DPI shift
+            case 'U':
+                if (mode == mode_COUNT) {
+                    elog("ERROR: Mode not specified before disable DPI shift option\n");
+                    continue;
+                }
+
+                if (!set_mode_nodpishift(&mode_data_s[0])) {
+                    // Failed
+                    elog("ERROR: Disable DPI shift failed\n");
+                    continue;
+                }
+                break;
 
             // Colour/Color
             case 'c':
