@@ -1,0 +1,36 @@
+@font-face {
+    font-family: 'Bitstream';
+    font-style:  normal;
+    line-height: 1.3em;
+    font-size:   9pt;
+    src:         local("Bitstream Vera Sans Mono"), local("Monaco"), local("Consolas"), local("Courier New"), local(monospace);
+}
+
+ h1
+,h2
+,h3
+,h4
+,h5 { color:             DarkBlue; }
+
+h1 { padding-left:       0.0em; }
+h2 { padding-left:       0.5em; }
+h3 { padding-left:       1.0em; }
+h4 { padding-left:       1.5em; }
+h5 { padding-left:       2.0em; }
+
+table, tr, td, th, tt, pre {
+    font-weight:        normal;
+    border-collapse:    separate;
+    border-spacing:     0px;
+    padding:            0px;
+    margin-bottom:      0em;
+    padding-bottom:     0em;
+}
+
+th, td {
+    border:             1px solid #808080;
+}
+
+/*
+vim:ts=4:sw=4:et
+*/

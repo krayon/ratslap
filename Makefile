@@ -34,6 +34,7 @@ GPG_KEY        = 81ECF212
 CC             = gcc
 LINK           = gcc -o
 CTAGS          = ctags
+MARKDOWN_GEN   = $(shell which markdown_py)
 ARCHIVER       = tar -zcvf
 ARCHIVE_EXT    = tar.gz
 
@@ -78,6 +79,9 @@ PKGS           = libusb-1.0
 LIBS           = $(shell pkg-config --libs $(PKGS))
 
 CFLAGS        += $(CARCH_FLAG) $(CPU_FLAG) $(OPT_FLAGS) $(BUILDOPTS) $(shell pkg-config --cflags $(PKGS)) -DDEBUG -DINFO
+
+# Markdown parser flags
+MD_FLAGS      += -x abbr -x def_list -x footnotes -x tables -x toc -o html4
 
 
 
@@ -127,12 +131,15 @@ DIST_FILES     = $(PROGS) $(PROGS:=.asc) LICENSE README.creole Changelog
 # Object files to build
 OBJS           = log.o main.o
 
+# Documents (markdown files)
+MD_FILES       = $(wildcard *.md)
+MD_OBJS        = $(patsubst %.md, %.html, ${MD_FILES})
 
 
 
 # all (DEFAULT)
 .PHONY: all
-all: tags Changelog manpage.1 $(OPTIONS_FILE) $(PROGS) done
+all: tags Changelog manpage.1 $(if $(strip $(MARKDOWN_GEN)),$(MD_OBJS),) $(OPTIONS_FILE) $(PROGS) done
 
 # Error
 .PHONY: err
@@ -180,6 +187,11 @@ clean:
 	
 	@echo "  deleting: manpage.1";
 	@rm -f manpage.1;
+	
+	@for f in $(MD_OBJS); do \
+		echo "  deleting: $$f"; \
+		rm -f $$f; \
+	done
 	
 	@echo "  deleting: tags";
 	@rm -f tags;
@@ -253,6 +265,16 @@ $(OPTIONS_FILE): $(OPTIONS_FILE).DEFAULT
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCDIR) -c "$<" -o "$@"
+
+%.html: %.md markdown.TEMPLATE.html
+	@# Generating HTML
+	@sed '/^/,/^%%%%%BODY%%%%%/{/^%%%%%BODY%%%%%/,$$d}' <markdown.TEMPLATE.html  >"$@"
+	@TITLE="$(shell sed -n 's/^# \([^#]*\) #$$/\1/p;q' <"$<")"; \
+		echo "Generating $$TITLE ($<)"; \
+		sed -i 's/%%%%%TITLE%%%%%/'"$$TITLE"'/'             "$@"
+	$(MARKDOWN_GEN) $(MD_FLAGS) "$<"                                            >>"$@"
+	@echo                                                                       >>"$@"
+	@sed '1,/^%%%%%BODY%%%%%/d'                         <markdown.TEMPLATE.html >>"$@"
 
 %.asc: %
 	@echo "Signing: $${f}..."
