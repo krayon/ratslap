@@ -1189,7 +1189,9 @@ static int set_mode_button(unsigned char *mode_data, const unsigned char button,
         // Is the next char a '+' or the end of our string?
         //   - We allow end of string to fall through here so that if the last
         //   token is a modifier it gets applied as BOTH a modifier and the key
-        if (*kptr == '+' || *kptr == '\0') {
+        //   - We skip this if the '+' is the last character as it's a key, so
+        //   we can skip all this (fixes QB#125).
+        if ((*kptr == '+' && *(kptr+1) != '\0') || *kptr == '\0') {
             // keys is:
             //     "<something>+..."
             // or:
@@ -1213,8 +1215,6 @@ static int set_mode_button(unsigned char *mode_data, const unsigned char button,
 
                 ++ky;
             }
-
-            // FIXME: QB#125 - Handle Keys containing '+' (currently only "Num+")
 
             // If it's not the last element...
             if (*kptr) {
