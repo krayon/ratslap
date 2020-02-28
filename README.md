@@ -39,7 +39,11 @@ please see [CONTRIBUTING](CONTRIBUTING.md) .
 
 ### { BACKWARDS COMPATIBILITY WARNING { ###
 
-There was a bug whereby unrecognised keys would be silently
+***The key that was called `Menu` in now called `Application` (bringing it in line
+with the standard USB HID naming scheme. If you have any scripts calling this,
+and using `Menu`, they will need to be updated.***
+
+Additionally, there was a bug whereby unrecognised keys would be silently
 ignored - this is no longer the case, they are now reported as an error.
 
 ### } BACKWARDS COMPATIBILITY WARNING } ###
@@ -85,6 +89,34 @@ and [BitBucket](https://bitbucket.org/krayonx/ratslap)
 with the primary (public) repository being
 [GitLab](https://gitlab.com/krayon/ratslap)
 .
+
+## What's New? ##
+
+The main changes in the latest version is the DPI Support
+( [Daniel Dawson](https://gitlab.com/danieldawson) ) and the new keys:
+`NonUS#`, `CapsLock`, `NonUS\`, `Application`, `Power`, `Num=`, `F13`, `F14`,
+`F15`, `F16`, `F17`, `F18`, `F19`, `F20`, `F21`, `F22`, `F23`, `F24`, `Execute`,
+`Help`, `Menu`, `Select`, `Stop`, `Again`, `Undo`, `Cut`, `Copy`, `Paste`,
+`Find`, `Mute`, `VolumeUp`, `VolumeDown`,
+`Num,` (Brazillian keypad period (.)?),
+`AS400Num=` (Keypad Equal Sign on AS/400 keyboards),
+`SysReq` (SysReq/Attention), `Cancel`, `Clear`, `Prior`, `Return`, `Separator`,
+`Out`, `Oper`, `ClearAgain`, `CrSelProps`, `ExSel`, `Num00`, `Num000`,
+`Sep1000s` (Thousands separator - locale specific?),
+`SepDec` (Decimal separator - locale specific?),
+`CurrUnit` (Currency Unit - locale specific?),
+`CurrSubUnit` (Currency Sub-Unit - locale specific?),
+`Num(`, `Num)`, `Num{`, `Num}`, `NumTab`, `NumBackspace`, `NumA`, `NumB`,
+`NumC`, `NumD`, `NumE`, `NumF`, `NumXOR`, `Num^`, `Num%`, `Num<`, `Num>`,
+`Num&`, `Num&&`, `Num|`, `Num||`, `Num:`, `Num#`, `NumSpace`, `Num@`, `Num!`,
+`NumMemStore`, `NumMemRecall`, `NumMemClear`, `NumMemAdd`, `NumMemSub`,
+`NumMemMul`, `NumMemDiv`, `NumPlusMinus`, `NumClear`, `NumClearEntry`,
+`NumBinary`, `NumOctal`, `NumDecimal`, `NumHex`.
+
+Now a lot of the above keys haven't been tested and in some cases I have NO IDEA
+what they are :P They come from the [USB HID keyboard codes](#key-names) though.
+
+For other features and bug fixes see [Version History](#version-history) below.
 
 ## Bug Tracker ##
 
@@ -308,15 +340,23 @@ tool cannot do).
   * [QB#125 - Error assigning Num+](https://bugs.qdnx.org/bug/125)
   * [QB#126 - Doco should generate HTML versions](https://bugs.qdnx.org/task/126)
   * [QB#128 - Unrecognised keys silently ignored ](https://bugs.qdnx.org/task/128)
+  * [QB#129 - Add missing keys](https://bugs.qdnx.org/bug/129)
 
 ## TODO ##
 
 * FEATURE: [QB#114 - Factory reset option](https://bugs.qdnx.org/bug/114)
 * FEATURE: [QB#115 - Ability to save/load profiles](https://bugs.qdnx.org/bug/115)
 * FEATURE: [QB#127 - musl build for lean standalone](https://bugs.qdnx.org/bug/127)
-* FEATURE: [QB#129 - Add missing keys](https://bugs.qdnx.org/bug/129)
 
 ## Notes ##
+
+### Key names ###
+
+It seems the key names (and codes) are standard USB HID ones, who knew?! :D
+
+More info at: 
+
+  * https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf
 
 ### Technique to sniff USB traffic ###
 
