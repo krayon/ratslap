@@ -37,6 +37,13 @@ please see [CONTRIBUTING](CONTRIBUTING.md) .
 
 ## Availability ##
 
+### { BACKWARDS COMPATIBILITY WARNING { ###
+
+There was a bug whereby unrecognised keys would be silently
+ignored - this is no longer the case, they are now reported as an error.
+
+### } BACKWARDS COMPATIBILITY WARNING } ###
+
 The most current release is v0.2.3 and is available from:
 
 * [GitLab (RELEASE v0.2.3)](https://gitlab.com/krayon/ratslap/tags/0.2.3)
@@ -299,6 +306,7 @@ tool cannot do).
     Thanks [Daniel Dawson](https://gitlab.com/danieldawson) ( and
     [sanikk](https://github.com/sanikk) )
   * [QB#126 - Doco should generate HTML versions](https://bugs.qdnx.org/task/126)
+  * [QB#128 - Unrecognised keys silently ignored ](https://bugs.qdnx.org/task/128)
 
 ## TODO ##
 
