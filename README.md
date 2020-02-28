@@ -1,4 +1,4 @@
-{{{
+```
      ##### /##                          #######  ###
   ######  / ##                        /       ### ###
  /#   /  /  ##                 #     /         ##  ##
@@ -18,37 +18,38 @@
  ##                                \)                              ##
                                                                    ##
                                                                     ##
-}}}
-= RatSlap =
+```
+# RatSlap #
 
-== Linux configuration tool for Logitech mice //(currently only G300/G300S)// ==
+## Linux configuration tool for Logitech mice *(currently only G300/G300S)* ##
 
-== Introduction ==
+## Introduction ##
 
-//RatSlap// aims to provide a way to configure configurable Logitech mice from
+*RatSlap* aims to provide a way to configure configurable Logitech mice from
 within Linux. It is licensed under the GNU GPL version 2. For more information,
-see [[LICENSE]] / [[COPYING]] .
+see [LICENSE](LICENSE) / [COPYING](COPYING) .
 
-For a list of authors and contributors, see [[AUTHORS.creole]] /
-[[CONTRIBUTORS.creole]] .
+For a list of authors and contributors, see [AUTHORS](AUTHORS.md) /
+[CONTRIBUTORS](CONTRIBUTORS.md) .
 
 For more information on contributing (new feature, bug fix, pull request etc),
-please see [[CONTRIBUTING.creole]] .
+please see [CONTRIBUTING](CONTRIBUTING.md) .
 
-== Availability ==
+## Availability ##
 
 The most current release is v0.2.3 and is available from:
 
-* [[https://gitlab.com/krayon/ratslap/tags/0.2.3|GitLab (RELEASE v0.2.3)]]
-* [[https://github.com/krayon/ratslap/releases/tag/0.2.3|GitHub (RELEASE v0.2.3)]]
+* [GitLab (RELEASE v0.2.3)](https://gitlab.com/krayon/ratslap/tags/0.2.3)
+* [GitHub (RELEASE v0.2.3)](https://github.com/krayon/ratslap/releases/tag/0.2.3)
 
-//RatSlap// binary and archive should be signed with my GPG key (
-[[http://pgp.mit.edu/pks/lookup?op=get&search=0x231A94F481ECF212|231A 94F4 81EC F212]]
+*RatSlap* binary and archive should be signed with my GPG key (
+[231A 94F4 81EC F212](http://pgp.mit.edu/pks/lookup?op=get&search=0x231A94F481ECF212)
 ).
 
 Binary signature files end in .asc and can be verified using
-[[https://www.gnupg.org/|gpg/gpg2]] thus:
-{{{
+[gpg/gpg2](https://www.gnupg.org/)
+thus:
+```
 gpg --verify ratslap-0.2.2.x86_64.tar.gz.asc
     gpg: assuming signed data in `ratslap-0.2.2.x86_64.tar.gz'
     gpg: Signature made 2018-05-01T01:00:52 AEST using RSA key ID 81ECF212
@@ -56,36 +57,40 @@ gpg --verify ratslap-0.2.2.x86_64.tar.gz.asc
     gpg: WARNING: This key is not certified with a trusted signature!
     gpg:          There is no indication that the signature belongs to the owner.
     Primary key fingerprint: CDEC 1051 0874 06FB 8323  46DC 231A 94F4 81EC F212
-}}}
+```
 
 You may first need to retrieve my public key if you haven't already done so:
-{{{
+```
 gpg --recv-keys 81ECF212
-    gpg: keyring `/home/krayon//.gnupg/secring.gpg' created
+    gpg: keyring `/home/krayon/.gnupg/secring.gpg' created
     gpg: requesting key 81ECF212 from hkp server keys.gnupg.net
-    gpg: /home/krayon//.gnupg/trustdb.gpg: trustdb created
+    gpg: /home/krayon/.gnupg/trustdb.gpg: trustdb created
     gpg: key 81ECF212: public key "Krayon (Code Signing Key) <krayon.git@qdnx.org>" imported
     gpg: no ultimately trusted keys found
     gpg: Total number processed: 1
     gpg:               imported: 1  (RSA: 1)
-}}}
+```
 
-//RatSlap// source is available on [[https://gitlab.com/krayon/ratslap|GitLab]],
-[[https://github.com/krayon/ratslap|GitHub]] and
-[[https://bitbucket.org/krayonx/ratslap|BitBucket]] with the primary (public)
-repository being [[https://gitlab.com/krayon/ratslap|GitLab]].
+*RatSlap* source is available on
+[GitLab](https://gitlab.com/krayon/ratslap)
+, [GitHub](https://github.com/krayon/ratslap)
+and [BitBucket](https://bitbucket.org/krayonx/ratslap)
+with the primary (public) repository being
+[GitLab](https://gitlab.com/krayon/ratslap)
+.
 
-== Bug Tracker ==
+## Bug Tracker ##
 
 Bugs are tracked on the
-[[https://bugs.qdnx.org/project/5|Quadronyx Bug Tracker]].
+[Quadronyx Bug Tracker](https://bugs.qdnx.org/project/5)
+.
 
-== Usage ==
+## Usage ##
 
-NOTE: The //Logitech G300// and //G300s// differ only by name and physical
+NOTE: The *Logitech G300* and *G300s* differ only by name and physical
 appearance, otherwise they are functionally (and USB VID:PID) identical.
 
-The //Logitech G300/G300s// has 3 button modes, affectionately known as F3, F4
+The *Logitech G300/G300s* has 3 button modes, affectionately known as F3, F4
 and F5. For each of these modes, you can assign an LED colour, report rate
 (speed at which the mouse communicates with the computer), DPI setting(s) and
 button/key combinations.
@@ -94,7 +99,7 @@ NOTE: You cannot remap the scrollwheel. These generate button 4 (up) and 5
 (down) and cannot be changed.
 
 The default mapping for F3 on the G300/G300s, for example, is currently:
-{{{
+```
 $ ratslap -pf3
 Printing Mode: F3
   Colour:              cyan
@@ -113,19 +118,19 @@ Printing Mode: F3
   G7:                  LeftAlt +
   G8:                  ModeSwitch
   G9:                  DPICycle
-}}}
+```
 
-=== Remapping to just mouse buttons ===
+### Remapping to just mouse buttons ###
 
-One usage for //RatSlap// may be to remap the buttons to generate standard mouse
+One usage for *RatSlap* may be to remap the buttons to generate standard mouse
 buttons higher than the 1-3 + scrollwheel (4 and 5).
 
 Above, we see a typical button 1/2/3 configuration for left, right and middle
 respectively. We can also see the G4 button generates mouse button 6 and G5
 generates mouse button 7. Unfortunately, G6-G9 do not generate the desired extra
 
-We can rectify this easily, using //RatSlap//:
-{{{
+We can rectify this easily, using *RatSlap*:
+```
 $ ratslap --modify F3 --colour Magenta --G6 Button8 --G7 Button9 --G8 Button10 --G9 Button11
 Modifying Mode: F3
     Setting colour: magenta
@@ -134,11 +139,11 @@ Modifying Mode: F3
     Setting button 8: Button10
     Setting button 9: Button11
 Saving Mode: F3
-}}}
+```
 
 Now, we have all mouse buttons functioning as mouse buttons! Go figure! And as
 an added bonus, we have a nice Magenta glow.
-{{{
+```
 $ ./ratslap --print F3
 Printing Mode: F3
   Colour:              magenta
@@ -157,15 +162,15 @@ Printing Mode: F3
   G7:                  Button9
   G8:                  Button10
   G9:                  Button11
-}}}
+```
 
 Finally, we can select the F3 mode (if we're not already using it):
-{{{
+```
 $ ./ratslap --select F3
 Selecting Mode: F3
-}}}
+```
 
-=== Firefox tab switching buttons ===
+### Firefox tab switching buttons ###
 
 Another option might be using the buttons behind the wheel (G8 and G9) to switch
 forward and backward (respectively) between tabs in your favourite browser ...
@@ -173,7 +178,7 @@ or Firefox.
 
 So, let's set the buttons to Control-TAB and Control-Shift-TAB, print out our
 config, then switch to that mode:
-{{{
+```
 $ ratslap --modify F3 --G8 LeftCtrl+TAB --G9 LeftCtrl+LeftShift+TAB --print F3 --select F3
 Modifying Mode: F3
     Setting button 8: LeftCtrl+TAB
@@ -199,29 +204,29 @@ Printing Mode: F3
   G9:                  LeftCtrl + LeftShift + Tab
 
 Selecting Mode: F3
-}}}
+```
 
-=== ERROR: libusbx: error [_get_usbfs_fd] libusbx... ===
+### ERROR: libusbx: error [_get_usbfs_fd] libusbx... ###
 
-When you try to run //RatSlap//, you may receive an error similar to the
+When you try to run *RatSlap*, you may receive an error similar to the
 following:
-{{{
+```
 libusbx: error [_get_usbfs_fd] libusbx couldn't open USB device /dev/bus/usb/002/090: Permission denied
 libusbx: error [_get_usbfs_fd] libusbx requires write access to USB device nodes.
 20161115T002046+1100 [E]           main.c:00581:mouse_init      Failed to find Logitech G300s (046d:c246)
-}}}
+```
 
 This is caused, as the error suggests, by the fact that you do not have write
 access to the mouse (/dev/bus/usb/002/090 in the example above).
 
 There are two possible ways around this issue:
-# (NOT RECOMMENDED) Run ratslap as root;
-# Grant permissions to the device for your user account.
+  1. (NOT RECOMMENDED) Run ratslap as root;
+  1. Grant permissions to the device for your user account.
 
 The later is the preferred option here. To do this, simply ensure you have write
 permissions to the device. One such way is to make it group-writable, change the
 group ownership and place yourself in the newly owning group, eg:
-{{{
+```
 $ ls -lah /dev/bus/usb/002/090
 crw-r--r-- 1 root root 189, 217 2016-11-14 19:22 /dev/bus/usb/002/090
 
@@ -233,9 +238,9 @@ $ sudo chgrp adm /dev/bus/usb/002/090
 [sudo] password for krayon:
 
 $ sudo chmod g+w /dev/bus/usb/002/090
-}}}
+```
 
-== History ==
+## History ##
 
 I recently (October 2016) purchased a Logitech G300S due mainly to the many
 extra buttons. I didn't care that the software didn't support Linux as I only
@@ -244,17 +249,17 @@ fancy.
 
 Unfortunately, when I plugged it in, I discovered that none of the default 3
 modes generated the extra mouse buttons I desired, instead generating useless
-and annoying keypress events such as //CTRL-C//, //CTRL-X// and //CTRL-V//.
+and annoying keypress events such as *CTRL-C*, *CTRL-X* and *CTRL-V*.
 
 Worse still, I also discovered that the Windows software only allows you to
 assign mouse buttons 1 through 7, skipping 4 and 5 (scroll-wheel). These are
-//Left-Click// (1), //Middle-Click// (2), //Right-Click// (3),
-//Browser Back// (6) and //Browser Forward// (7) respectively! Therefore,
+*Left-Click* (1), *Middle-Click* (2), *Right-Click* (3),
+*Browser Back* (6) and *Browser Forward* (7) respectively! Therefore,
 Logitech provides no way of generating higher mouse button events, button 8 for
 example. --Hopefully this is a limitation in the Logitech software and not in
 the mouse itself-- (see Notes).
 
-== Features ==
+## Features ##
 
 * Configure the mouse options, same as the Logitech Windows only software.
 * Bind all buttons, except the scroll wheel up and down, a total of 9 (Logitech
@@ -264,50 +269,50 @@ tool cannot do).
 * Freely assign 'Mode Switch' to a mouse button in only one mode/profile.
 * Assign mouse clicks with key modifiers (which Logitech doesn't offer).
 
-== Version History ==
+## Version History ##
 
 * v0.1.0
-** First version, ability to select mode
+  * First version, ability to select mode
 * v0.1.1
-** Hotfix for GCC 5 compatibility
-** Print current mode's mapping ( accidental check-in, oops :S )
+  * Hotfix for GCC 5 compatibility
+  * Print current mode's mapping ( accidental check-in, oops :S )
 * v0.2.0
-** [[https://bugs.qdnx.org/bug/104|QB#104 - Modify mode - change refresh rate]]
-** [[https://bugs.qdnx.org/bug/105|QB#105 - Modify mode - change mode LED colour]]
-** [[https://bugs.qdnx.org/bug/106|QB#106 - Modify mode - change button assignment]]
-** [[https://bugs.qdnx.org/bug/108|QB#108 - kernel driver disconnect after --help/--version]]
-** [[https://bugs.qdnx.org/bug/109|QB#109 - kernel driver disconnect after --listkeys]]
+  * [QB#104 - Modify mode - change refresh rate](https://bugs.qdnx.org/bug/104)
+  * [QB#105 - Modify mode - change mode LED colour](https://bugs.qdnx.org/bug/105)
+  * [QB#106 - Modify mode - change button assignment](https://bugs.qdnx.org/bug/106)
+  * [QB#108 - kernel driver disconnect after --help/--version](https://bugs.qdnx.org/bug/108)
+  * [QB#109 - kernel driver disconnect after --listkeys](https://bugs.qdnx.org/bug/109)
 * v0.2.1
-** [[https://bugs.qdnx.org/bug/111|QB#111 - missing libusb_strerror function]]
-** [[https://bugs.qdnx.org/bug/117|QB#117 - Compile fails when ctags missing]]
-** Prettier Changelog
-** Added man page
+  * [QB#111 - missing libusb_strerror function](https://bugs.qdnx.org/bug/111)
+  * [QB#117 - Compile fails when ctags missing](https://bugs.qdnx.org/bug/117)
+  * Prettier Changelog
+  * Added man page
 * v0.2.2
-** [[https://bugs.qdnx.org/bug/121|QB#121 - set_debug is deprecated, use libusb_set_option instead]]
-** Added some documentation: AUTHORS, CONTRIBUTING
+  * [QB#121 - set_debug is deprecated, use libusb_set_option instead](https://bugs.qdnx.org/bug/121)
+  * Added some documentation: [AUTHORS](AUTHORS.md), [CONTRIBUTING](CONTRIBUTING.md)
 * v0.2.3
-** [[https://bugs.qdnx.org/bug/122|QB#122 - Help shouldn't require USB permissions]]
-** [[https://bugs.qdnx.org/bug/123|QB#123 - Check mode_load() return code]]
-** [[https://bugs.qdnx.org/bug/124|QB#124 - Failed operations don't abort execution]]
+  * [QB#122 - Help shouldn't require USB permissions](https://bugs.qdnx.org/bug/122)
+  * [QB#123 - Check mode_load() return code](https://bugs.qdnx.org/bug/123)
+  * [QB#124 - Failed operations don't abort execution](https://bugs.qdnx.org/bug/124)
 
-== TODO ==
+## TODO ##
 
-* BUG:     [[https://bugs.qdnx.org/bug/125|QB#125 - Error assigning Num+]]
-* FEATURE: [[https://bugs.qdnx.org/bug/113|QB#113 - Configure DPI #[1-4], DPI Default and * DPI Shift values]]
-* FEATURE: [[https://bugs.qdnx.org/bug/114|QB#114 - Factory reset option]]
-* FEATURE: [[https://bugs.qdnx.org/bug/115|QB#115 - Ability to save/load profiles]]
+* BUG:     [QB#125 - Error assigning Num+](https://bugs.qdnx.org/bug/125)
+* FEATURE: [QB#113 - Configure DPI #[1-4], DPI Default and * DPI Shift values](https://bugs.qdnx.org/bug/113)
+* FEATURE: [QB#114 - Factory reset option](https://bugs.qdnx.org/bug/114)
+* FEATURE: [QB#115 - Ability to save/load profiles](https://bugs.qdnx.org/bug/115)
 
-== Notes ==
+## Notes ##
 
-=== Technique to sniff USB traffic ===
+### Technique to sniff USB traffic ###
 
 https://julien.danjou.info/blog/2012/logitech-k750-linux-support shows a
-technique for sniffing USB traffic using the //usbmon// kernel module.
+technique for sniffing USB traffic using the *usbmon* kernel module.
 
 Unfortunately it looks like I'll need to create a Windows VM to run the Logitech
 software on :(
 
-=== Logitech Software's Artificial Restrictions ===
+### Logitech Software's Artificial Restrictions ###
 
 After considerable testing, I have found some operations the hardware supports
 that Logitech's management software does not.
@@ -328,4 +333,7 @@ Lastly, and perhaps rather attractively, we can assign mouse buttons to perform
 mouse clicks WITH modifiers! You can therefore bind Ctrl+Shift+Right-Click to
 the left mouse button if you so desire.
 
-<<< vim:set ts=4 sw=4 tw=80 et cindent ai si syn=creole: >>>
+
+
+----
+##### vim:set ts=4 sw=4 tw=80 et cindent ai si syn=markdown: #####
