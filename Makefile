@@ -80,6 +80,7 @@ LIBS           = $(shell pkg-config --libs $(PKGS))
 CFLAGS        += $(CARCH_FLAG) $(CPU_FLAG) $(OPT_FLAGS) $(BUILDOPTS) $(shell pkg-config --cflags $(PKGS)) -DDEBUG -DINFO
 
 
+
 # Application name
 APPNAME        = $(shell sed -n 's/^[ \t]*\#define[ \t]*APP_NAME[ \t]*"\([^"]*\)".*$$/\1/p'    app.h)
 BINNAME        = $(shell sed -n 's/^[ \t]*\#define[ \t]*BIN_NAME[ \t]*"\([^"]*\)".*$$/\1/p'    app.h)
@@ -126,108 +127,46 @@ DIST_FILES     = $(PROGS) $(PROGS:=.asc) LICENSE README.creole Changelog
 # Object files to build
 OBJS           = log.o main.o
 
-# Default target
-.PHONY: _PHONY
-_PHONY: all
 
 
 
+# all (DEFAULT)
+.PHONY: all
 all: tags Changelog manpage.1 $(OPTIONS_FILE) $(PROGS) done
 
+# Error
+.PHONY: err
+err:
+	@echo "No target specified (try dist)"
 
+# Done
+.PHONY: done
+done:
+	@echo "BUILD COMPLETE: $(APPNAME) ($(BINNAME)) v$(APPVER)"
 
+# git update
+.PHONY: gitup
 gitup:
 	@echo "$(APPNAME)"
 	@# Ensure up to date
 	@echo "Pulling from origin..."
 	@git pull || true
 
-Changelog: gitup
-	@# Generate Changelog
-	@echo "Generating Changelog..."
-	@git log --color=never --pretty=tformat:"%ai %an <%aE>%n%w(76,4,4)%h %s%n%+b" >Changelog
-
-git.h: gitup git.h.TEMPLATE
-	@# Generating GIT header
-	@echo "Generating git header file..."
-	@cat git.h.TEMPLATE >git.h
-	@sed -i 's#//SOURCE//#// WARNING // Auto-generated file, DO NOT MODIFY //#' git.h
-	@sed -i 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  git.h
-	@sed -i 's#\%\%BUILD_DATE\%\%#$(BUILD_DATE)#'                               git.h
-	@sed -i 's#\%\%BUILD_COMMIT\%\%#$(BUILD_COMMIT)#'                           git.h
-
-log.h: log.h.TEMPLATE
-	@# Generating log header
-	@echo "Generating log header file..."
-	@cat log.h.TEMPLATE >log.h
-	@for o in $(OPTIONS:DEBUG%=LOG%); do \
-	    sed -i 's/\(#define '$${o}' *\)NULL.*$$/\1_logfile/' log.h; \
-	done
-
-manpage.1: manpage.1.TEMPLATE
-	@# Generating manpage
-	@echo "Generating man page file..."
-	@cat manpage.1.TEMPLATE >manpage.1
-	@sed -i 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  manpage.1
-	@sed -i 's#\%\%BUILD_MONTH\%\%#$(BUILD_MONTH)#'                             manpage.1
-	@sed -i 's#\%\%BUILD_YEAR\%\%#$(BUILD_YEAR)#'                               manpage.1
-
-
-
-# Error
-err:
-	@echo "No target specified (try dist)"
-
-# Done
-done:
-	@echo "BUILD COMPLETE: $(APPNAME) ($(BINNAME)) v$(APPVER)"
-
 # Sign
+.PHONY: sign
 sign: $(PROGS:=.asc)
 
 # Tags
+.PHONY: ctags
 ctags:
 	@# Generate CTags
 	@echo "Generating tags file..."
 	@$(CTAGS) -R --fields=+lS . || echo "No ctags found, skipping tags file..."
+.PHONY: tags
 tags: ctags
 
-$(OPTIONS_FILE): $(OPTIONS_FILE).DEFAULT
-	@cp $(OPTIONS_FILE).DEFAULT $(OPTIONS_FILE)
-
-%.o: %.c
-	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $*.o
-
-%.asc: %
-	@echo "Signing: $${f}..."
-	@rm "$@" 2>/dev/null || true
-	gpg -o $@ --local-user $(GPG_KEY) --armor --detach-sign $<
-
-$(BINNAME): gitup git.h log.h $(OBJS)
-	@echo "Linking $(BINNAME)..."
-	
-	$(LINK) "$(BINNAME)" $(CFLAGS) $(LIBDIR) $(OBJS) $(LIBS)
-
-$(ARCHIVE_FILE): $(DIST_FILES)
-	@echo "Making $(ARCHIVE_FILE)..."
-	
-	@if [ -d "$(ARCHIVE_NAME)" ]; then \
-		echo "Directory '$(ARCHIVE_NAME)' exists"; \
-		exit 1; \
-	fi
-	
-	@if [ -f "$(ARCHIVE_FILE)" ]; then \
-		echo "Archive '$(ARCHIVE_FILE)' exists"; \
-		exit 2; \
-	fi
-	
-	@mkdir "$(ARCHIVE_NAME)"
-	
-	@cp -a $(DIST_FILES) "$(ARCHIVE_NAME)/"
-	@$(ARCHIVER) "$(ARCHIVE_FILE)" "$(ARCHIVE_NAME)/"
-
-dist: $(ARCHIVE_FILE) $(ARCHIVE_FILE).asc
-
+# Clean up
+.PHONY: clean
 clean:
 	@echo "Cleaning up..."
 	
@@ -265,9 +204,84 @@ clean:
 	
 	@echo "Done."
 
+# Clean up - pre-distribution
+.PHONY: distclean
 distclean: clean
 	@echo "Cleaning (for distribution)..."
 	
 	@for f in $(ARCHIVE_FILE).asc $(ARCHIVE_FILE) $(PROGS:=.asc) $(PROGS); do \
-		[ -f "$${f}" ] && echo "  deleting: $${f}" && rm "$${f}" || true; \
+		if [ -f "$${f}" ]; then; \
+			echo "  deleting: $${f}"; \
+			rm "$${f}"; \
+		fi; \
 	done
+
+
+
+Changelog: gitup
+	@# Generate Changelog
+	@echo "Generating Changelog..."
+	@git log --color=never --pretty=tformat:"%ai %an <%aE>%n%w(76,4,4)%h %s%n%+b" >Changelog
+
+git.h: gitup git.h.TEMPLATE
+	@# Generating GIT header
+	@echo "Generating git header file..."
+	@cat git.h.TEMPLATE >git.h
+	@sed -i 's#//SOURCE//#// WARNING // Auto-generated file, DO NOT MODIFY //#' git.h
+	@sed -i 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  git.h
+	@sed -i 's#\%\%BUILD_DATE\%\%#$(BUILD_DATE)#'                               git.h
+	@sed -i 's#\%\%BUILD_COMMIT\%\%#$(BUILD_COMMIT)#'                           git.h
+
+log.h: log.h.TEMPLATE
+	@# Generating log header
+	@echo "Generating log header file..."
+	@cat log.h.TEMPLATE >log.h
+	@for o in $(OPTIONS:DEBUG%=LOG%); do \
+	    sed -i 's/\(#define '$${o}' *\)NULL.*$$/\1_logfile/' log.h; \
+	done
+
+manpage.1: manpage.1.TEMPLATE
+	@# Generating manpage
+	@echo "Generating man page file..."
+	@cat manpage.1.TEMPLATE >manpage.1
+	@sed -i 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  manpage.1
+	@sed -i 's#\%\%BUILD_MONTH\%\%#$(BUILD_MONTH)#'                             manpage.1
+	@sed -i 's#\%\%BUILD_YEAR\%\%#$(BUILD_YEAR)#'                               manpage.1
+
+$(OPTIONS_FILE): $(OPTIONS_FILE).DEFAULT
+	@cp $(OPTIONS_FILE).DEFAULT $(OPTIONS_FILE)
+
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCDIR) -c "$<" -o "$@"
+
+%.asc: %
+	@echo "Signing: $${f}..."
+	@rm "$@" 2>/dev/null || true
+	gpg -o $@ --local-user $(GPG_KEY) --armor --detach-sign $<
+
+$(BINNAME): gitup git.h log.h $(OBJS)
+	@echo "Linking $(BINNAME)..."
+	
+	$(LINK) "$(BINNAME)" $(CFLAGS) $(LIBDIR) $(OBJS) $(LIBS)
+
+$(ARCHIVE_FILE): $(DIST_FILES)
+	@echo "Making $(ARCHIVE_FILE)..."
+	
+	@if [ -d "$(ARCHIVE_NAME)" ]; then \
+		echo "Directory '$(ARCHIVE_NAME)' exists"; \
+		exit 1; \
+	fi
+	
+	@if [ -f "$(ARCHIVE_FILE)" ]; then \
+		echo "Archive '$(ARCHIVE_FILE)' exists"; \
+		exit 2; \
+	fi
+	
+	@mkdir "$(ARCHIVE_NAME)"
+	
+	@cp -a $(DIST_FILES) "$(ARCHIVE_NAME)/"
+	@$(ARCHIVER) "$(ARCHIVE_FILE)" "$(ARCHIVE_NAME)/"
+
+# Build distribution bundle
+dist: $(ARCHIVE_FILE) $(ARCHIVE_FILE).asc
+
