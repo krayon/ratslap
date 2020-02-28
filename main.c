@@ -1180,6 +1180,7 @@ static int set_mode_button(unsigned char *mode_data, const unsigned char button,
     do {
         dlog(LOG_KEY, "    > %c\n", *kptr ? *kptr : ' ');
 
+        // Only accepting 31 characters for the modkey name
         if (mki < 31) {
             modkey[mki++] = *kptr;
             modkey[mki  ] = '\0';
@@ -1258,6 +1259,12 @@ static int set_mode_button(unsigned char *mode_data, const unsigned char button,
                 newkeys[2] = bt;
                 break;
             }
+        }
+
+        // Invalid key?
+        if (bt == 0xff) {
+            elog("ERROR: Invalid key (%s) specified: %s\n", kptrprev, keys);
+            return 0;
         }
     }
 
