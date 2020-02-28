@@ -298,12 +298,14 @@ tool cannot do).
   * [QB#113 - Configure DPI #[1-4], DPI Default and * DPI Shift values](https://bugs.qdnx.org/bug/113) -
     Thanks [Daniel Dawson](https://gitlab.com/danieldawson) ( and
     [sanikk](https://github.com/sanikk) )
+  * [QB#126 - Doco should generate HTML versions](https://bugs.qdnx.org/task/126)
 
 ## TODO ##
 
 * BUG:     [QB#125 - Error assigning Num+](https://bugs.qdnx.org/bug/125)
 * FEATURE: [QB#114 - Factory reset option](https://bugs.qdnx.org/bug/114)
 * FEATURE: [QB#115 - Ability to save/load profiles](https://bugs.qdnx.org/bug/115)
+* FEATURE: [QB#127 - musl build for lean standalone](https://bugs.qdnx.org/bug/127)
 
 ## Notes ##
 
