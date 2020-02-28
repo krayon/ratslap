@@ -256,8 +256,8 @@ assign mouse buttons 1 through 7, skipping 4 and 5 (scroll-wheel). These are
 *Left-Click* (1), *Middle-Click* (2), *Right-Click* (3),
 *Browser Back* (6) and *Browser Forward* (7) respectively! Therefore,
 Logitech provides no way of generating higher mouse button events, button 8 for
-example. --Hopefully this is a limitation in the Logitech software and not in
-the mouse itself-- (see Notes).
+example. ~~Hopefully this is a limitation in the Logitech software and not in
+the mouse itself~~ (see [Notes](#Notes)).
 
 ## Features ##
 
@@ -294,11 +294,14 @@ tool cannot do).
   * [QB#122 - Help shouldn't require USB permissions](https://bugs.qdnx.org/bug/122)
   * [QB#123 - Check mode_load() return code](https://bugs.qdnx.org/bug/123)
   * [QB#124 - Failed operations don't abort execution](https://bugs.qdnx.org/bug/124)
+* v0.3.0
+  * [QB#113 - Configure DPI #[1-4], DPI Default and * DPI Shift values](https://bugs.qdnx.org/bug/113) -
+    Thanks [Daniel Dawson](https://gitlab.com/danieldawson) ( and
+    [sanikk](https://github.com/sanikk) )
 
 ## TODO ##
 
 * BUG:     [QB#125 - Error assigning Num+](https://bugs.qdnx.org/bug/125)
-* FEATURE: [QB#113 - Configure DPI #[1-4], DPI Default and * DPI Shift values](https://bugs.qdnx.org/bug/113)
 * FEATURE: [QB#114 - Factory reset option](https://bugs.qdnx.org/bug/114)
 * FEATURE: [QB#115 - Ability to save/load profiles](https://bugs.qdnx.org/bug/115)
 

@@ -171,6 +171,96 @@ are "125", "250", "500", "1000", measured in hertz (times per second).
 .
 .TP
 .PD 0
+.BI \-A    " DPI"
+.TP
+.PD
+.BI \-\-D1 " DPI"
+Sets the DPI value for sensitivity level 1 to
+.IR DPI .
+Valid
+.IR DPI s
+range from 250 to 4000, at intervals of 250.
+.
+.
+.
+.TP
+.PD 0
+.BI \-B    " DPI"
+.TP
+.PD
+.BI \-\-D2 " DPI"
+Sets the DPI value for sensitivity level 2 to
+.IR DPI .
+Valid
+.IR DPI s
+range from 250 to 4000, at intervals of 250.
+.
+.
+.
+.TP
+.PD 0
+.BI \-C    " DPI"
+.TP
+.PD
+.BI \-\-D3 " DPI"
+Sets the DPI value for sensitivity level 3 to
+.IR DPI .
+Valid
+.IR DPI s
+range from 250 to 4000, at intervals of 250.
+.
+.
+.
+.TP
+.PD 0
+.BI \-D    " DPI"
+.TP
+.PD
+.BI \-\-D4 " DPI"
+Sets the DPI value for sensitivity level 4 to
+.IR DPI .
+Valid
+.IR DPI s
+range from 250 to 4000, at intervals of 250.
+.
+.
+.
+.TP
+.PD 0
+.BI \-F              " LEVEL"
+.TP
+.PD
+.BI \-\-default\-dpi " LEVEL"
+Selects which DPI sensitivity level (1\(en4) is the default.
+.
+.
+.
+.TP
+.PD 0
+.BI \-S          " [DPI]"
+.TP
+.PD
+.BI \-\-dpishift " [DPI]"
+Enables the DPI shift function. If
+.I DPI
+is specified, also sets the shifted DPI to that value. Valid
+.IR DPI s
+range from 250 to 4000, at intervals of 250.
+.
+.
+.
+.TP
+.PD 0
+.B \-U
+.TP
+.PD
+.B \-\-no\-dpishift
+Disables the DPI shift function. The currently set value is not changed.
+.
+.
+.
+.TP
+.PD 0
 .BI \-c        " COLOUR"
 .TP
 .PD 0
