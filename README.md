@@ -215,8 +215,8 @@ Another option might be using the buttons behind the wheel (G8 and G9) to switch
 forward and backward (respectively) between tabs in your favourite browser ...
 or Firefox.
 
-So, let's set the buttons to Control-TAB and Control-Shift-TAB, print out our
-config, then switch to that mode:
+So, let's set the buttons to `Control-TAB` and `Control-Shift-TAB`, print out
+our config, then switch to that mode:
 ```
 $ ratslap --modify F3 --G8 LeftCtrl+TAB --G9 LeftCtrl+LeftShift+TAB --print F3 --select F3
 Modifying Mode: F3
