@@ -257,7 +257,7 @@ assign mouse buttons 1 through 7, skipping 4 and 5 (scroll-wheel). These are
 *Browser Back* (6) and *Browser Forward* (7) respectively! Therefore,
 Logitech provides no way of generating higher mouse button events, button 8 for
 example. ~~Hopefully this is a limitation in the Logitech software and not in
-the mouse itself~~ (see [Notes](#Notes)).
+the mouse itself~~ (see [Notes](#notes)).
 
 ## Features ##
 
