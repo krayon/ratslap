@@ -124,11 +124,13 @@ const char *s_buttons[] = {
     ,"DPIDefault"
 };
 
+// Turns out these are likely HID standard codes!
+// ( https://www.usb.org/sites/default/files/documents/hut1_12v2.pdf )
 const char *s_keys[] = {
      "NONE"
-    ,"UNKNOWN:01"
-    ,"UNKNOWN:02"
-    ,"UNKNOWN:03"
+    ,"UNKNOWN:01" // 01 ==   1 // "HID: Keyboard Err: Rollover - not a key
+    ,"UNKNOWN:02" // 02 ==   2 // "HID: Keyboard Err: POST Fail - not a key
+    ,"UNKNOWN:03" // 03 ==   3 // "HID: Keyboard Err: Undefined - not a key
     ,"A"          // 04 ==   4
     ,"B"
     ,"C"
@@ -175,14 +177,14 @@ const char *s_keys[] = {
     ,"["           // 2f ==  47
     ,"]"           // 30 ==  48
     ,"\\"          // 31 ==  49
-    ,"UNKNOWN:32"  // 32 ==  50
+    ,"NonUS#"      // 32 ==  50
     ,";"           // 33 ==  51
     ,"'"           // 34 ==  52
     ,"`"           // 35 ==  53
     ,","           // 36 ==  54
     ,"."           // 37 ==  55
     ,"/"           // 38 ==  56
-    ,"UNKNOWN:39"  // 39 ==  57
+    ,"CapsLock"    // 39 ==  57
     ,"F1"          // 3a ==  58
     ,"F2"          // 3b ==  59
     ,"F3"          // 3c ==  60
@@ -225,162 +227,163 @@ const char *s_keys[] = {
     ,"Num9"        // 61 ==  97
     ,"Num0"        // 62 ==  98
     ,"Num."        // 63 ==  99
-    ,"UNKNOWN:64"  // 64 == 100
-    ,"Menu"        // 65 == 101
-    ,"UNKNOWN:66"  // 66 == 102
-    ,"UNKNOWN:67"  // 67 == 103
-    ,"UNKNOWN:68"  // 68 == 104
-    ,"UNKNOWN:69"  // 69 == 105
-    ,"UNKNOWN:6a"  // 6a == 106
-    ,"UNKNOWN:6b"  // 6b == 107
-    ,"UNKNOWN:6c"  // 6c == 108
-    ,"UNKNOWN:6d"  // 6d == 109
-    ,"UNKNOWN:6e"  // 6e == 110
-    ,"UNKNOWN:6f"  // 6f == 111
-    ,"UNKNOWN:70"  // 70 == 112
-    ,"UNKNOWN:71"  // 71 == 113
-    ,"UNKNOWN:72"  // 72 == 114
-    ,"UNKNOWN:73"  // 73 == 115
-    ,"UNKNOWN:74"  // 74 == 116
-    ,"UNKNOWN:75"  // 75 == 117
-    ,"UNKNOWN:76"  // 76 == 118
-    ,"UNKNOWN:77"  // 77 == 119
-    ,"UNKNOWN:78"  // 78 == 120
-    ,"UNKNOWN:79"  // 79 == 121
-    ,"UNKNOWN:7a"  // 7a == 122
-    ,"UNKNOWN:7b"  // 7b == 123
-    ,"UNKNOWN:7c"  // 7c == 124
-    ,"UNKNOWN:7d"  // 7d == 125
-    ,"UNKNOWN:7e"  // 7e == 126
-    ,"UNKNOWN:7f"  // 7f == 127
-    ,"UNKNOWN:80"  // 80 == 128
-    ,"UNKNOWN:81"  // 81 == 129
-    ,"UNKNOWN:82"  // 82 == 130
-    ,"UNKNOWN:83"  // 83 == 131
-    ,"UNKNOWN:84"  // 84 == 132
-    ,"UNKNOWN:85"  // 85 == 133
-    ,"UNKNOWN:86"  // 86 == 134
-    ,"UNKNOWN:87"  // 87 == 135
-    ,"UNKNOWN:88"  // 88 == 136
-    ,"UNKNOWN:89"  // 89 == 137
-    ,"UNKNOWN:8a"  // 8a == 138
-    ,"UNKNOWN:8b"  // 8b == 139
-    ,"UNKNOWN:8c"  // 8c == 140
-    ,"UNKNOWN:8d"  // 8d == 141
-    ,"UNKNOWN:8e"  // 8e == 142
-    ,"UNKNOWN:8f"  // 8f == 143
-    ,"UNKNOWN:90"  // 90 == 144
-    ,"UNKNOWN:91"  // 91 == 145
-    ,"UNKNOWN:92"  // 92 == 146
-    ,"UNKNOWN:93"  // 93 == 147
-    ,"UNKNOWN:94"  // 94 == 148
-    ,"UNKNOWN:95"  // 95 == 149
-    ,"UNKNOWN:96"  // 96 == 150
-    ,"UNKNOWN:97"  // 97 == 151
-    ,"UNKNOWN:98"  // 98 == 152
-    ,"UNKNOWN:99"  // 99 == 153
-    ,"UNKNOWN:9a"  // 9a == 154
-    ,"UNKNOWN:9b"  // 9b == 155
-    ,"UNKNOWN:9c"  // 9c == 156
-    ,"UNKNOWN:9d"  // 9d == 157
-    ,"UNKNOWN:9e"  // 9e == 158
-    ,"UNKNOWN:9f"  // 9f == 159
-    ,"UNKNOWN:a0"  // a0 == 160
-    ,"UNKNOWN:a1"  // a1 == 161
-    ,"UNKNOWN:a2"  // a2 == 162
-    ,"UNKNOWN:a3"  // a3 == 163
-    ,"UNKNOWN:a4"  // a4 == 164
-    ,"UNKNOWN:a5"  // a5 == 165
-    ,"UNKNOWN:a6"  // a6 == 166
-    ,"UNKNOWN:a7"  // a7 == 167
-    ,"UNKNOWN:a8"  // a8 == 168
-    ,"UNKNOWN:a9"  // a9 == 169
-    ,"UNKNOWN:aa"  // aa == 170
-    ,"UNKNOWN:ab"  // ab == 171
-    ,"UNKNOWN:ac"  // ac == 172
-    ,"UNKNOWN:ad"  // ad == 173
-    ,"UNKNOWN:ae"  // ae == 174
-    ,"UNKNOWN:af"  // af == 175
-    ,"UNKNOWN:b0"  // b0 == 176
-    ,"UNKNOWN:b1"  // b1 == 177
-    ,"UNKNOWN:b2"  // b2 == 178
-    ,"UNKNOWN:b3"  // b3 == 179
-    ,"UNKNOWN:b4"  // b4 == 180
-    ,"UNKNOWN:b5"  // b5 == 181
-    ,"UNKNOWN:b6"  // b6 == 182
-    ,"UNKNOWN:b7"  // b7 == 183
-    ,"UNKNOWN:b8"  // b8 == 184
-    ,"UNKNOWN:b9"  // b9 == 185
-    ,"UNKNOWN:ba"  // ba == 186
-    ,"UNKNOWN:bb"  // bb == 187
-    ,"UNKNOWN:bc"  // bc == 188
-    ,"UNKNOWN:bd"  // bd == 189
-    ,"UNKNOWN:be"  // be == 190
-    ,"UNKNOWN:bf"  // bf == 191
-    ,"UNKNOWN:c0"  // c0 == 192
-    ,"UNKNOWN:c1"  // c1 == 193
-    ,"UNKNOWN:c2"  // c2 == 194
-    ,"UNKNOWN:c3"  // c3 == 195
-    ,"UNKNOWN:c4"  // c4 == 196
-    ,"UNKNOWN:c5"  // c5 == 197
-    ,"UNKNOWN:c6"  // c6 == 198
-    ,"UNKNOWN:c7"  // c7 == 199
-    ,"UNKNOWN:c8"  // c8 == 200
-    ,"UNKNOWN:c9"  // c9 == 201
-    ,"UNKNOWN:ca"  // ca == 202
-    ,"UNKNOWN:cb"  // cb == 203
-    ,"UNKNOWN:cc"  // cc == 204
-    ,"UNKNOWN:cd"  // cd == 205
-    ,"UNKNOWN:ce"  // ce == 206
-    ,"UNKNOWN:cf"  // cf == 207
-    ,"UNKNOWN:d0"  // d0 == 208
-    ,"UNKNOWN:d1"  // d1 == 209
-    ,"UNKNOWN:d2"  // d2 == 210
-    ,"UNKNOWN:d3"  // d3 == 211
-    ,"UNKNOWN:d4"  // d4 == 212
-    ,"UNKNOWN:d5"  // d5 == 213
-    ,"UNKNOWN:d6"  // d6 == 214
-    ,"UNKNOWN:d7"  // d7 == 215
-    ,"UNKNOWN:d8"  // d8 == 216
-    ,"UNKNOWN:d9"  // d9 == 217
-    ,"UNKNOWN:da"  // da == 218
-    ,"UNKNOWN:db"  // db == 219
-    ,"UNKNOWN:dc"  // dc == 220
-    ,"UNKNOWN:dd"  // dd == 221
-    ,"UNKNOWN:de"  // de == 222
-    ,"UNKNOWN:df"  // df == 223
+    ,"NonUS\\"     // 64 == 100
+    ,"Application" // 65 == 101
+    ,"Power"       // 66 == 102
+    ,"Num="        // 67 == 103
+    ,"F13"         // 68 == 104
+    ,"F14"         // 69 == 105
+    ,"F15"         // 6a == 106
+    ,"F16"         // 6b == 107
+    ,"F17"         // 6c == 108
+    ,"F18"         // 6d == 109
+    ,"F19"         // 6e == 110
+    ,"F20"         // 6f == 111
+    ,"F21"         // 70 == 112
+    ,"F22"         // 71 == 113
+    ,"F23"         // 72 == 114
+    ,"F24"         // 73 == 115
+    ,"Execute"     // 74 == 116
+    ,"Help"        // 75 == 117
+    ,"Menu"        // 76 == 118
+    ,"Select"      // 77 == 119
+    ,"Stop"        // 78 == 120
+    ,"Again"       // 79 == 121
+    ,"Undo"        // 7a == 122
+    ,"Cut"         // 7b == 123
+    ,"Copy"        // 7c == 124
+    ,"Paste"       // 7d == 125
+    ,"Find"        // 7e == 126
+    ,"Mute"        // 7f == 127
+    ,"VolumeUp"    // 80 == 128
+    ,"VolumeDown"  // 81 == 129
+    ,"UNKNOWN:82"  // 82 == 130 // Locking CapsLock but legacy so not defining
+    ,"UNKNOWN:83"  // 83 == 131 // Locking CapsLock but legacy so not defining
+    ,"UNKNOWN:84"  // 84 == 132 // Locking CapsLock but legacy so not defining
+    ,"Num,"        // 85 == 133 // Brazillian keypad period (.)?
+    ,"AS400Num="   // 86 == 134 // Keypad Equal Sign on AS/400 keyboards
+    ,"UNKNOWN:87"  // 87 == 135 // International 1?
+    ,"UNKNOWN:88"  // 88 == 136 // International 2?
+    ,"UNKNOWN:89"  // 89 == 137 // International 3?
+    ,"UNKNOWN:8a"  // 8a == 138 // International 4?
+    ,"UNKNOWN:8b"  // 8b == 139 // International 5?
+    ,"UNKNOWN:8c"  // 8c == 140 // International 6?
+    ,"UNKNOWN:8d"  // 8d == 141 // International 7?
+    ,"UNKNOWN:8e"  // 8e == 142 // International 8?
+    ,"UNKNOWN:8f"  // 8f == 143 // International 9?
+    ,"UNKNOWN:90"  // 90 == 144 // LANG1 - Hangul/English toggle - Korean?
+    ,"UNKNOWN:91"  // 91 == 145 // LANG2 - Hanja conversion key - Korean?
+    ,"UNKNOWN:92"  // 92 == 146 // LANG3 - Katakana key - Japanese?
+    ,"UNKNOWN:93"  // 93 == 147 // LANG4 - Hiragana key - Japanese?
+    ,"UNKNOWN:94"  // 94 == 148 // LANG5 - Zenkaku/Hankaku key - Japanese?
+    ,"UNKNOWN:95"  // 95 == 149 // LANG6 - Reserved?
+    ,"UNKNOWN:96"  // 96 == 150 // LANG7 - Reserved?
+    ,"UNKNOWN:97"  // 97 == 151 // LANG8 - Reserved?
+    ,"UNKNOWN:98"  // 98 == 152 // LANG9 - Reserved?
+    ,"UNKNOWN:99"  // 99 == 153 // Alternate Erase (Erase-Eaze(tm))?
+    ,"SysReq"      // 9a == 154 // SysReq/Attention
+    ,"Cancel"      // 9b == 155
+    ,"Clear"       // 9c == 156
+    ,"Prior"       // 9d == 157
+    ,"Return"      // 9e == 158
+    ,"Separator"   // 9f == 159
+    ,"Out"         // a0 == 160
+    ,"Oper"        // a1 == 161
+    ,"ClearAgain"  // a2 == 162
+    ,"CrSelProps"  // a3 == 163
+    ,"ExSel"       // a4 == 164
+    ,"UNKNOWN:a5"  // a5 == 165 // Reserved
+    ,"UNKNOWN:a6"  // a6 == 166 // Reserved
+    ,"UNKNOWN:a7"  // a7 == 167 // Reserved
+    ,"UNKNOWN:a8"  // a8 == 168 // Reserved
+    ,"UNKNOWN:a9"  // a9 == 169 // Reserved
+    ,"UNKNOWN:aa"  // aa == 170 // Reserved
+    ,"UNKNOWN:ab"  // ab == 171 // Reserved
+    ,"UNKNOWN:ac"  // ac == 172 // Reserved
+    ,"UNKNOWN:ad"  // ad == 173 // Reserved
+    ,"UNKNOWN:ae"  // ae == 174 // Reserved
+    ,"UNKNOWN:af"  // af == 175 // Reserved
+    ,"Num00"       // b0 == 176
+    ,"Num000"      // b1 == 177
+    ,"Sep1000s"    // b2 == 178 // Thousands separator - locale specific?
+    ,"SepDec"      // b3 == 179 // Decimal   separator - locale specific?
+    ,"CurrUnit"    // b4 == 180 // Currency Unit       - locale specific?
+    ,"CurrSubUnit" // b5 == 181 // Currency Sub-Unit   - locale specific?
+    ,"Num("        // b6 == 182
+    ,"Num)"        // b7 == 183
+    ,"Num{"        // b8 == 184
+    ,"Num}"        // b9 == 185
+    ,"NumTab"      // ba == 186
+    ,"NumBackspace"// bb == 187
+    ,"NumA"        // bc == 188
+    ,"NumB"        // bd == 189
+    ,"NumC"        // be == 190
+    ,"NumD"        // bf == 191
+    ,"NumE"        // c0 == 192
+    ,"NumF"        // c1 == 193
+    ,"NumXOR"      // c2 == 194
+    ,"Num^"        // c3 == 195
+    ,"Num%"        // c4 == 196
+    ,"Num<"        // c5 == 197
+    ,"Num>"        // c6 == 198
+    ,"Num&"        // c7 == 199
+    ,"Num&&"       // c8 == 200
+    ,"Num|"        // c9 == 201
+    ,"Num||"       // ca == 202
+    ,"Num:"        // cb == 203
+    ,"Num#"        // cc == 204
+    ,"NumSpace"    // cd == 205
+    ,"Num@"        // ce == 206
+    ,"Num!"        // cf == 207
+    ,"NumMemStore" // d0 == 208
+    ,"NumMemRecall"// d1 == 209
+    ,"NumMemClear" // d2 == 210
+    ,"NumMemAdd"   // d3 == 211
+    ,"NumMemSub"   // d4 == 212
+    ,"NumMemMul"   // d5 == 213
+    ,"NumMemDiv"   // d6 == 214
+    ,"NumPlusMinus"// d7 == 215
+    ,"NumClear"    // d8 == 216
+    ,"NumClearEntry"// d9 == 217
+    ,"NumBinary"   // da == 218
+    ,"NumOctal"    // db == 219
+    ,"NumDecimal"  // dc == 220
+    ,"NumHex"      // dd == 221
+    ,"UNKNOWN:de"  // de == 222 // Reserved
+    ,"UNKNOWN:df"  // df == 223 // Reserved
     ,"LeftCtrl"    // e0 == 224
     ,"LeftShift"   // e1 == 225
     ,"LeftAlt"     // e2 == 226
-    ,"Super_L"     // e3 == 227
+    ,"Super_L"     // e3 == 227 // Left GUI
     ,"RightCtrl"   // e4 == 228
     ,"RightShift"  // e5 == 229
     ,"RightAlt"    // e6 == 230
-    ,"Super_R"     // e7 == 231
-    ,"UNKNOWN:e8"  // e8 == 232
-    ,"UNKNOWN:e9"  // e9 == 233
-    ,"UNKNOWN:ea"  // ea == 234
-    ,"UNKNOWN:eb"  // eb == 235
-    ,"UNKNOWN:ec"  // ec == 236
-    ,"UNKNOWN:ed"  // ed == 237
-    ,"UNKNOWN:ee"  // ee == 238
-    ,"UNKNOWN:ef"  // ef == 239
-    ,"UNKNOWN:f0"  // f0 == 240
-    ,"UNKNOWN:f1"  // f1 == 241
-    ,"UNKNOWN:f2"  // f2 == 242
-    ,"UNKNOWN:f3"  // f3 == 243
-    ,"UNKNOWN:f4"  // f4 == 244
-    ,"UNKNOWN:f5"  // f5 == 245
-    ,"UNKNOWN:f6"  // f6 == 246
-    ,"UNKNOWN:f7"  // f7 == 247
-    ,"UNKNOWN:f8"  // f8 == 248
-    ,"UNKNOWN:f9"  // f9 == 249
-    ,"UNKNOWN:fa"  // fa == 250
-    ,"UNKNOWN:fb"  // fb == 251
-    ,"UNKNOWN:fc"  // fc == 252
-    ,"UNKNOWN:fd"  // fd == 253
-    ,"UNKNOWN:fe"  // fe == 254
-    ,"UNKNOWN:ff"  // ff == 255
+    ,"Super_R"     // e7 == 231 // Right GUI
+    ,"UNKNOWN:e8"  // e8 == 232 // Reserved
+    ,"UNKNOWN:e9"  // e9 == 233 // Reserved
+    ,"UNKNOWN:ea"  // ea == 234 // Reserved
+    ,"UNKNOWN:eb"  // eb == 235 // Reserved
+    ,"UNKNOWN:ec"  // ec == 236 // Reserved
+    ,"UNKNOWN:ed"  // ed == 237 // Reserved
+    ,"UNKNOWN:ee"  // ee == 238 // Reserved
+    ,"UNKNOWN:ef"  // ef == 239 // Reserved
+    ,"UNKNOWN:f0"  // f0 == 240 // Reserved
+    ,"UNKNOWN:f1"  // f1 == 241 // Reserved
+    ,"UNKNOWN:f2"  // f2 == 242 // Reserved
+    ,"UNKNOWN:f3"  // f3 == 243 // Reserved
+    ,"UNKNOWN:f4"  // f4 == 244 // Reserved
+    ,"UNKNOWN:f5"  // f5 == 245 // Reserved
+    ,"UNKNOWN:f6"  // f6 == 246 // Reserved
+    ,"UNKNOWN:f7"  // f7 == 247 // Reserved
+    ,"UNKNOWN:f8"  // f8 == 248 // Reserved
+    ,"UNKNOWN:f9"  // f9 == 249 // Reserved
+    ,"UNKNOWN:fa"  // fa == 250 // Reserved
+    ,"UNKNOWN:fb"  // fb == 251 // Reserved
+    ,"UNKNOWN:fc"  // fc == 252 // Reserved
+    ,"UNKNOWN:fd"  // fd == 253 // Reserved
+    ,"UNKNOWN:fe"  // fe == 254 // Reserved
+                   // ff = 255  // Reserved (and even if it weren't, it's not
+                   //              used in the loops :P)
 };
 
 const int report_rate[] = {
