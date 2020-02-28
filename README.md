@@ -314,6 +314,7 @@ tool cannot do).
 * FEATURE: [QB#114 - Factory reset option](https://bugs.qdnx.org/bug/114)
 * FEATURE: [QB#115 - Ability to save/load profiles](https://bugs.qdnx.org/bug/115)
 * FEATURE: [QB#127 - musl build for lean standalone](https://bugs.qdnx.org/bug/127)
+* FEATURE: [QB#129 - Add missing keys](https://bugs.qdnx.org/bug/129)
 
 ## Notes ##
 
