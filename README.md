@@ -48,10 +48,10 @@ ignored - this is no longer the case, they are now reported as an error.
 
 ### } BACKWARDS COMPATIBILITY WARNING } ###
 
-The most current release is v0.3.1 and is available from:
+The most current release is v0.3.2 and is available from:
 
-* [GitLab (RELEASE v0.3.1)](https://gitlab.com/krayon/ratslap/tags/0.3.1)
-* [GitHub (RELEASE v0.3.1)](https://github.com/krayon/ratslap/releases/tag/0.3.1)
+* [GitLab (RELEASE v0.3.2)](https://gitlab.com/krayon/ratslap/tags/0.3.2)
+* [GitHub (RELEASE v0.3.2)](https://github.com/krayon/ratslap/releases/tag/0.3.2)
 
 *RatSlap* binary and archive should be signed with my GPG key (
 [231A 94F4 81EC F212](http://pgp.mit.edu/pks/lookup?op=get&search=0x231A94F481ECF212)
@@ -333,7 +333,7 @@ tool cannot do).
   * [QB#122 - Help shouldn't require USB permissions](https://bugs.qdnx.org/bug/122)
   * [QB#123 - Check mode_load() return code](https://bugs.qdnx.org/bug/123)
   * [QB#124 - Failed operations don't abort execution](https://bugs.qdnx.org/bug/124)
-* v0.3.0 / v0.3.1
+* v0.3.0 / v0.3.1 / v0.3.2
   * [QB#113 - Configure DPI #[1-4], DPI Default and * DPI Shift values](https://bugs.qdnx.org/bug/113) -
     Thanks [Daniel Dawson](https://gitlab.com/danieldawson) ( and
     [sanikk](https://github.com/sanikk) )
