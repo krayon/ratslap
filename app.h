@@ -4,7 +4,7 @@
 
 /**********************************************************************
     RatSlap
-    Copyright (C) 2016 Todd Harbour
+    Copyright (C) 2016-2020 Todd Harbour
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@
 #define APP_SUMMARY                 "Linux configuration tool for Logitech mice (currently only G300/G300S)"
 #define BIN_NAME                    "ratslap"
 #define APP_AUTHOR                  "Todd Harbour"
-#define APP_COPYRIGHT               "Copyright (C) 2016 "APP_AUTHOR
+#define APP_COPYRIGHT               "Copyright (C) 2016-2020 "APP_AUTHOR
 #define APP_URL                     "https://gitlab.com/krayon/ratslap/"
 
 #endif /* APP_H */
