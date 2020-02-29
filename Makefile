@@ -129,7 +129,7 @@ ARCHIVE_FILE   = $(ARCHIVE_NAME).$(ARCHIVE_EXT)
 PROGS          = $(BINNAME)
 
 # Files to distribute
-DIST_FILES     = $(PROGS) $(PROGS:=.asc) LICENSE README.creole Changelog
+DIST_FILES     = $(PROGS) $(PROGS:=.asc) LICENSE README.md $(if $(strip $(MARKDOWN_GEN)),README.html,) Changelog
 
 # Object files to build
 OBJS           = log.o main.o
