@@ -100,17 +100,20 @@ BINNAME        = $(shell sed -n 's/^[ \t]*\#define[ \t]*BIN_NAME[ \t]*"\([^"]*\)
 #                                -ft-cool == ft-cool branch
 MAJVER = $(shell bash -c \
 	'\
-	  echo -n "$$(git describe --always --tags --match="*" --dirty)" \
+	  echo -n "$$(git describe --always --tags --match="*"        )" \
 	')
-
+VDIRTY = $(shell bash -c \
+	'\
+	  echo -n "$$(git describe --always --tags --match="*" --dirty)" \
+	  |sed "s@^$(MAJVER)@@" \
+	')
 APPBRANCH = $(shell bash -c \
 	'\
-	  git name-rev --always --name-only --no-undefined HEAD|sed "s@feature/@ft-@;s@hotfix/\(.*\)@\1.HF@;s@release/\(.*\)@\1.PRE@"\
+	  git name-rev --always --name-only --no-undefined HEAD|sed "s@^tags/$(MAJVER)[0^]*@@;s@^develop.*@dev@;s@^rl.*@rl@;s@^hf.*@hf@"\
 	')
-#APPVER="$(shell grep _APP_VERSION app.h|head -1|cut -d'"' -f2)"
 APPVER = $(shell bash -c \
 	'\
-	  echo -n "$(MAJVER)"; \
+	  echo -n "$(MAJVER)$(VDIRTY)"; \
 	  [ ! -z "$(APPBRANCH)" ] && [ "$(APPBRANCH)" != "master" ] && [ "$(APPBRANCH)" != "$(MAJVER)" ] && echo -n "-$(APPBRANCH)" \
 	')
 
@@ -222,7 +225,7 @@ distclean: clean
 	@echo "Cleaning (for distribution)..."
 	
 	@for f in $(ARCHIVE_FILE).asc $(ARCHIVE_FILE) $(PROGS:=.asc) $(PROGS); do \
-		if [ -f "$${f}" ]; then; \
+		if [ -f "$${f}" ]; then \
 			echo "  deleting: $${f}"; \
 			rm "$${f}"; \
 		fi; \
