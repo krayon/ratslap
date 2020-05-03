@@ -10,24 +10,55 @@ than no PR at all :D
 
 ... and Thank you.
 
-## Basic workflow ##
+
+
+----
+## Basic workflow - GitLab user ##
 
   1. Go to the project page, and select *Fork*
   2. Clone your copy of the repository:
+```bash
+git clone https://gitlab.com/${YOUR_GITLAB_USERNAME}/ratslap
 ```
-    git clone https://gitlab.com/<YOURUSERNAME>/ratslap
-```
+
   3. Check out the *develop* branch as your new feature branch:
+```bash
+git checkout -b feature/coolnewfeature origin/develop
 ```
-    git checkout -b feature/coolnewfeature origin/develop
-```
+
   4. Make your changes and commit them to your branch.
   5. Push your branch up to your repository:
+```bash
+git push origin feature/coolnewfeature:feature/coolnewfeature
 ```
-    git push origin feature/coolnewfeature:feature/coolnewfeature
+
+  6. Create a Merge Request (MR) with the `/krayon/ratslap` *develop* branch as
+     the base/destination.
+
+
+
+----
+## Basic workflow - GitHub user ##
+
+  1. Go to the project page, and select *Fork*
+  2. Clone your copy of the repository:
+```bash
+git clone https://github.com/${YOUR_GITHUB_USERNAME}/ratslap
 ```
-  6. Create a Pull Request (PR - GitHub)/Merge Request (MR - GitLab) with
-     *develop* as the base/destination.
+
+  3. Check out the *develop* branch as your new feature branch:
+```bash
+git checkout -b feature/coolnewfeature origin/develop
+```
+
+  4. Make your changes and commit them to your branch.
+  5. Push your branch up to your repository:
+```bash
+git push origin feature/coolnewfeature:feature/coolnewfeature
+```
+
+  6. Create a Pull Request (PR) with with the `/krayon/ratslap` *develop* branch
+     as the base/destination.
 
 
 

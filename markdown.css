@@ -31,6 +31,16 @@ th, td {
     border:             1px solid #808080;
 }
 
+code.console {
+    border-style:       solid;
+    border-width:       2px;
+    border-color:       #000000;
+    display:            block;
+    padding:            4px;
+    background:         #303030;
+    color:              #E0E0E0;
+}
+
 /*
 vim:ts=4:sw=4:et
 */

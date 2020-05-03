@@ -23,6 +23,7 @@
 
 ## Linux configuration tool for Logitech mice *(currently only G300/G300S)* ##
 
+----
 ## Introduction ##
 
 *RatSlap* aims to provide a way to configure configurable Logitech mice from
@@ -35,6 +36,9 @@ For a list of authors and contributors, see [AUTHORS](AUTHORS.md) /
 For more information on contributing (new feature, bug fix, pull request etc),
 please see [CONTRIBUTING](CONTRIBUTING.md) .
 
+
+
+----
 ## Availability ##
 
 ### { BACKWARDS COMPATIBILITY WARNING { ###
@@ -60,8 +64,9 @@ The most current release is v0.3.2 and is available from:
 Binary signature files end in .asc and can be verified using
 [gpg/gpg2](https://www.gnupg.org/)
 thus:
-```
-gpg --verify ratslap-0.2.2.x86_64.tar.gz.asc
+
+```console
+$ gpg --verify ratslap-0.2.2.x86_64.tar.gz.asc
     gpg: assuming signed data in `ratslap-0.2.2.x86_64.tar.gz'
     gpg: Signature made 2018-05-01T01:00:52 AEST using RSA key ID 81ECF212
     gpg: Good signature from "Krayon (Code Signing Key) <krayon.git@qdnx.org>"
@@ -71,8 +76,9 @@ gpg --verify ratslap-0.2.2.x86_64.tar.gz.asc
 ```
 
 You may first need to retrieve my public key if you haven't already done so:
-```
-gpg --recv-keys 81ECF212
+
+```console
+$ gpg --recv-keys 81ECF212
     gpg: keyring `/home/krayon/.gnupg/secring.gpg' created
     gpg: requesting key 81ECF212 from hkp server keys.gnupg.net
     gpg: /home/krayon/.gnupg/trustdb.gpg: trustdb created
@@ -90,6 +96,9 @@ with the primary (public) repository being
 [GitLab](https://gitlab.com/krayon/ratslap)
 .
 
+
+
+----
 ## What's New? ##
 
 The main changes in the latest version is the DPI Support
@@ -118,12 +127,18 @@ what they are :P They come from the [USB HID keyboard codes](#key-names) though.
 
 For other features and bug fixes see [Version History](#version-history) below.
 
+
+
+----
 ## Bug Tracker ##
 
 Bugs are tracked on the
 [Quadronyx Bug Tracker](https://bugs.qdnx.org/project/5)
 .
 
+
+
+----
 ## Usage ##
 
 NOTE: The *Logitech G300* and *G300s* differ only by name and physical
@@ -138,7 +153,8 @@ NOTE: You cannot remap the scrollwheel. These generate button 4 (up) and 5
 (down) and cannot be changed.
 
 The default mapping for F3 on the G300/G300s, for example, is currently:
-```
+
+```console
 $ ratslap -pf3
 Printing Mode: F3
   Colour:              cyan
@@ -169,7 +185,8 @@ respectively. We can also see the G4 button generates mouse button 6 and G5
 generates mouse button 7. Unfortunately, G6-G9 do not generate the desired extra
 
 We can rectify this easily, using *RatSlap*:
-```
+
+```console
 $ ratslap --modify F3 --colour Magenta --G6 Button8 --G7 Button9 --G8 Button10 --G9 Button11
 Modifying Mode: F3
     Setting colour: magenta
@@ -182,7 +199,8 @@ Saving Mode: F3
 
 Now, we have all mouse buttons functioning as mouse buttons! Go figure! And as
 an added bonus, we have a nice Magenta glow.
-```
+
+```console
 $ ./ratslap --print F3
 Printing Mode: F3
   Colour:              magenta
@@ -204,7 +222,8 @@ Printing Mode: F3
 ```
 
 Finally, we can select the F3 mode (if we're not already using it):
-```
+
+```console
 $ ./ratslap --select F3
 Selecting Mode: F3
 ```
@@ -217,7 +236,8 @@ or Firefox.
 
 So, let's set the buttons to `Control-TAB` and `Control-Shift-TAB`, print out
 our config, then switch to that mode:
-```
+
+```console
 $ ratslap --modify F3 --G8 LeftCtrl+TAB --G9 LeftCtrl+LeftShift+TAB --print F3 --select F3
 Modifying Mode: F3
     Setting button 8: LeftCtrl+TAB
@@ -249,7 +269,7 @@ Selecting Mode: F3
 
 When you try to run *RatSlap*, you may receive an error similar to the
 following:
-```
+```console
 libusbx: error [_get_usbfs_fd] libusbx couldn't open USB device /dev/bus/usb/002/090: Permission denied
 libusbx: error [_get_usbfs_fd] libusbx requires write access to USB device nodes.
 20161115T002046+1100 [E]           main.c:00581:mouse_init      Failed to find Logitech G300s (046d:c246)
@@ -265,7 +285,8 @@ There are two possible ways around this issue:
 The later is the preferred option here. To do this, simply ensure you have write
 permissions to the device. One such way is to make it group-writable, change the
 group ownership and place yourself in the newly owning group, eg:
-```
+
+```console
 $ ls -lah /dev/bus/usb/002/090
 crw-r--r-- 1 root root 189, 217 2016-11-14 19:22 /dev/bus/usb/002/090
 
@@ -279,6 +300,9 @@ $ sudo chgrp adm /dev/bus/usb/002/090
 $ sudo chmod g+w /dev/bus/usb/002/090
 ```
 
+
+
+----
 ## History ##
 
 I recently (October 2016) purchased a Logitech G300S due mainly to the many
@@ -298,6 +322,9 @@ Logitech provides no way of generating higher mouse button events, button 8 for
 example. ~~Hopefully this is a limitation in the Logitech software and not in
 the mouse itself~~ (see [Notes](#notes)).
 
+
+
+----
 ## Features ##
 
 * Configure the mouse options, same as the Logitech Windows only software.
@@ -308,6 +335,9 @@ tool cannot do).
 * Freely assign 'Mode Switch' to a mouse button in only one mode/profile.
 * Assign mouse clicks with key modifiers (which Logitech doesn't offer).
 
+
+
+----
 ## Version History ##
 
 * v0.1.0
@@ -342,12 +372,18 @@ tool cannot do).
   * [QB#128 - Unrecognised keys silently ignored ](https://bugs.qdnx.org/task/128)
   * [QB#129 - Add missing keys](https://bugs.qdnx.org/bug/129)
 
+
+
+----
 ## TODO ##
 
 * FEATURE: [QB#114 - Factory reset option](https://bugs.qdnx.org/bug/114)
 * FEATURE: [QB#115 - Ability to save/load profiles](https://bugs.qdnx.org/bug/115)
 * FEATURE: [QB#127 - musl build for lean standalone](https://bugs.qdnx.org/bug/127)
 
+
+
+----
 ## Notes ##
 
 ### Key names ###

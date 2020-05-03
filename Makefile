@@ -81,7 +81,7 @@ LIBS           = $(shell pkg-config --libs $(PKGS))
 CFLAGS        += $(CARCH_FLAG) $(CPU_FLAG) $(OPT_FLAGS) $(BUILDOPTS) $(shell pkg-config --cflags $(PKGS)) -DDEBUG -DINFO
 
 # Markdown parser flags
-MD_FLAGS      += -x abbr -x def_list -x footnotes -x tables -x toc -o html4
+MD_FLAGS      += -x abbr -x def_list -x footnotes -x tables -x toc -x fenced_code -o html4
 
 
 

@@ -7,19 +7,19 @@
 
 * FEATURE: ft.*<feature>* , eg. `ft.kitchen-sink-option`
 * HOTFIX:  hf.*<hotfix>*  , eg. `hf.teflon-tape`
-* RELEASE: rl.*<release>* , eg.  rl.1.2.3`
+* RELEASE: rl.*<release>* , eg. `rl.1.2.3`
 
 ## New Feature ##
 
 ### Start a new feature branch ###
 
-```shell
+```bash
 git checkout -b ft.kitchen-sink-option develop
 ```
 
 ### Work on new feature branch ###
 
-```shell
+```bash
 git checkout ft.kitchen-sink-option
 # WORK WORK WORK...
 git commit --gpg-sign -m 'Add stuffs'
@@ -30,7 +30,7 @@ git commit --gpg-sign -m 'Add more stuffs'
 
 ### Finish the feature - merge back into develop ###
 
-```shell
+```bash
 git checkout ft.kitchen-sink-option
 git rebase --interactive develop
 # PICK first, SQUASH rest (generally)
@@ -47,14 +47,14 @@ git branch -d ft.kitchen-sink-option
 
 ### Start a new hotfix branch ###
 
-```shell
+```bash
 git checkout -b hf.teflon-tape master
 ```
 * ***TODO: Will this allow us to hotfix previous versions?***
 
 ### Work on new hotfix branch ###
 
-```shell
+```bash
 git checkout hf.teflon-tape
 # WORK WORK WORK...
 git commit --gpg-sign -m 'Add stuffs'
@@ -65,7 +65,7 @@ git commit --gpg-sign -m 'Add more stuffs'
 
 ### Finish the hotfix - merge back into develop ###
 
-```shell
+```bash
 git checkout hf.teflon-tape
 # UPDATE Documentation for new hotfix etc
 git add README.md
@@ -86,7 +86,7 @@ git merge --ff-only 1.0.1
 
 ### Start a new release branch ###
 
-```shell
+```bash
 git checkout -b rl.1.2.3 develop
 # UPDATE Documentation for new version etc
 git add README.md
