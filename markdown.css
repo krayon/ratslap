@@ -41,6 +41,16 @@ code.console {
     color:              #E0E0E0;
 }
 
+code.bash, code.shell {
+    border-style:       solid;
+    border-width:       2px;
+    border-color:       #000000;
+    display:            block;
+    padding:            4px;
+    background:         #303030;
+    color:              #F0F0F0;
+}
+
 /*
 vim:ts=4:sw=4:et
 */
