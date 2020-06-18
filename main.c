@@ -396,12 +396,12 @@ const int n_report_rates = 4;
 
 
 
-libusb_context                     *usb_ctx        = NULL;
-libusb_device_handle               *usb_dev_handle = NULL;
-libusb_device                      *usb_device     = NULL;
-struct libusb_device_descriptor    usb_desc;
-int usb_interface_index = -1;
-int mouse_primed = 0;
+libusb_context                     *_usb_ctx        = NULL;
+libusb_device_handle               *_usb_dev_handle = NULL;
+libusb_device                      *_usb_device     = NULL;
+struct libusb_device_descriptor    _usb_desc;
+int _usb_interface_index = -1;
+int _mouse_primed = 0;
 
 
 
@@ -596,12 +596,12 @@ static void keylist_print(void) {
 }
 
 static libusb_context *usb_init(void) {
-    if (usb_ctx) return usb_ctx;
+    if (_usb_ctx) return _usb_ctx;
 
     // Initialise the USB context
-    libusb_init(&usb_ctx);
+    libusb_init(&_usb_ctx);
 
-    if (!usb_ctx) {
+    if (!_usb_ctx) {
         elog("ERROR: Failed to initialise USB interface\n");
         return NULL;
     }
@@ -609,26 +609,26 @@ static libusb_context *usb_init(void) {
     // TODO: Determine if we need to set debug here
     
 #if LIBUSBX_API_VERSION < 0x01000106
-    libusb_set_debug(usb_ctx, 3);
+    libusb_set_debug(_usb_ctx, 3);
 #else
-    libusb_set_option(usb_ctx, LIBUSB_OPTION_LOG_LEVEL, 3);
+    libusb_set_option(_usb_ctx, LIBUSB_OPTION_LOG_LEVEL, 3);
 #endif
 
-    return usb_ctx;
+    return _usb_ctx;
 }
 
 static int usb_deinit(void) {
     // Finish up with USB context
-    if (usb_ctx) libusb_exit(usb_ctx);
-    usb_ctx = NULL;
+    if (_usb_ctx) libusb_exit(_usb_ctx);
+    _usb_ctx = NULL;
 
     return 1;
 }
 
 static libusb_device_handle *mouse_init(const uint16_t vendor_id, const uint16_t product_id, const char* product_name) {
-    if (!usb_ctx) return NULL;
+    if (!_usb_ctx) return NULL;
 
-    if (!usb_dev_handle) {
+    if (!_usb_dev_handle) {
         // Look at the mouse based on vendor and usb_device id
         // TODO: According to doco (
         // http://libusb.sourceforge.net/api-1.0/group__dev.html#ga11ba48adb896b1492bbd3d0bf7e0f665
@@ -642,52 +642,52 @@ static libusb_device_handle *mouse_init(const uint16_t vendor_id, const uint16_t
         // > in real applications: if multiple devices have the same IDs it
         // > will only give you the first one, etc.
 
-        usb_dev_handle = libusb_open_device_with_vid_pid(usb_ctx, vendor_id, product_id);
-        if (!usb_dev_handle) {
+        _usb_dev_handle = libusb_open_device_with_vid_pid(_usb_ctx, vendor_id, product_id);
+        if (!_usb_dev_handle) {
             elog("Failed to find %s (%.4x:%.4x)\n", product_name, vendor_id, product_id);
             return NULL;
         }
 
-        printf("Found %s (%.4x:%.4x) @ %p\n", product_name, vendor_id, product_id, usb_dev_handle);
+        printf("Found %s (%.4x:%.4x) @ %p\n", product_name, vendor_id, product_id, _usb_dev_handle);
     }
 
-    if (!usb_device) {
-        usb_device = libusb_get_device(usb_dev_handle);
-        if (!usb_device) {
-            elog("ERROR: Failed to retrieve usb_device info @ %p\n", usb_dev_handle);
+    if (!_usb_device) {
+        _usb_device = libusb_get_device(_usb_dev_handle);
+        if (!_usb_device) {
+            elog("ERROR: Failed to retrieve usb_device info @ %p\n", _usb_dev_handle);
             return NULL;
         }
     }
 
     // Get usb_device descriptor
-    if (libusb_get_device_descriptor(usb_device, &usb_desc) != 0) {
-        elog("WARNING: Failed to retrieve usb_device descriptor @ %p\n", usb_dev_handle);
+    if (libusb_get_device_descriptor(_usb_device, &_usb_desc) != 0) {
+        elog("WARNING: Failed to retrieve usb_device descriptor @ %p\n", _usb_dev_handle);
     } else {
-        dlog(LOG_USB, "USB Device (%.4x:%.4x @ %p) Descriptor:\n", vendor_id, product_id, usb_dev_handle);
-        dlog(LOG_USB, "  bLength:            %d\n",     usb_desc.bLength           );
-        dlog(LOG_USB, "  bDescriptorType:    %d\n",     usb_desc.bDescriptorType   );
-        dlog(LOG_USB, "  bcdUSB:             0x%.4x\n", usb_desc.bcdUSB            );
-        dlog(LOG_USB, "  bDeviceClass:       %d\n",     usb_desc.bDeviceClass      );
-        dlog(LOG_USB, "  bDeviceSubClass:    %d\n",     usb_desc.bDeviceSubClass   );
-        dlog(LOG_USB, "  bDeviceProtocol:    %d\n",     usb_desc.bDeviceProtocol   );
-        dlog(LOG_USB, "  bMaxPacketSize0:    %d\n",     usb_desc.bMaxPacketSize0   );
-        dlog(LOG_USB, "  idVendor:           0x%.4x\n", usb_desc.idVendor          );
-        dlog(LOG_USB, "  idProduct:          0x%.4x\n", usb_desc.idProduct         );
-        dlog(LOG_USB, "  bcdDevice:          0x%.4x\n", usb_desc.bcdDevice         );
-        dlog(LOG_USB, "  iManufacturer:      %d\n",     usb_desc.iManufacturer     );
-        dlog(LOG_USB, "  iProduct:           %d\n",     usb_desc.iProduct          );
-        dlog(LOG_USB, "  iSerialNumber:      %d\n",     usb_desc.iSerialNumber     );
-        dlog(LOG_USB, "  bNumConfigurations: %d\n",     usb_desc.bNumConfigurations);
+        dlog(LOG_USB, "USB Device (%.4x:%.4x @ %p) Descriptor:\n", vendor_id, product_id, _usb_dev_handle);
+        dlog(LOG_USB, "  bLength:            %d\n",     _usb_desc.bLength           );
+        dlog(LOG_USB, "  bDescriptorType:    %d\n",     _usb_desc.bDescriptorType   );
+        dlog(LOG_USB, "  bcdUSB:             0x%.4x\n", _usb_desc.bcdUSB            );
+        dlog(LOG_USB, "  bDeviceClass:       %d\n",     _usb_desc.bDeviceClass      );
+        dlog(LOG_USB, "  bDeviceSubClass:    %d\n",     _usb_desc.bDeviceSubClass   );
+        dlog(LOG_USB, "  bDeviceProtocol:    %d\n",     _usb_desc.bDeviceProtocol   );
+        dlog(LOG_USB, "  bMaxPacketSize0:    %d\n",     _usb_desc.bMaxPacketSize0   );
+        dlog(LOG_USB, "  idVendor:           0x%.4x\n", _usb_desc.idVendor          );
+        dlog(LOG_USB, "  idProduct:          0x%.4x\n", _usb_desc.idProduct         );
+        dlog(LOG_USB, "  bcdDevice:          0x%.4x\n", _usb_desc.bcdDevice         );
+        dlog(LOG_USB, "  iManufacturer:      %d\n",     _usb_desc.iManufacturer     );
+        dlog(LOG_USB, "  iProduct:           %d\n",     _usb_desc.iProduct          );
+        dlog(LOG_USB, "  iSerialNumber:      %d\n",     _usb_desc.iSerialNumber     );
+        dlog(LOG_USB, "  bNumConfigurations: %d\n",     _usb_desc.bNumConfigurations);
     }
 
-    return usb_dev_handle;
+    return _usb_dev_handle;
 }
 
 static int mouse_deinit(void) {
     // Finish up with mouse
-    if (usb_dev_handle) libusb_close(usb_dev_handle);
-    usb_dev_handle = NULL;
-    usb_device     = NULL;
+    if (_usb_dev_handle) libusb_close(_usb_dev_handle);
+    _usb_dev_handle = NULL;
+    _usb_device     = NULL;
 
     return 1;
 }
@@ -696,20 +696,20 @@ static void display_mouse_hid(const uint16_t vendor_id, const uint16_t product_i
     uint8_t config_index    = 0;
     uint8_t iface_index     = 0;
 
-    if (!usb_device) return;
+    if (!_usb_device) return;
 
-    if (usb_desc.idVendor != vendor_id || usb_desc.idProduct != product_id) {
+    if (_usb_desc.idVendor != vendor_id || _usb_desc.idProduct != product_id) {
         elog("WARNING: Device descriptor doesn't match expected device\n");
         return;
     }
 
-    for (config_index = 0; config_index < usb_desc.bNumConfigurations; ++config_index) {
+    for (config_index = 0; config_index < _usb_desc.bNumConfigurations; ++config_index) {
         int                             altsetting_index = 0;
         struct libusb_config_descriptor *config          = NULL;
 
-        libusb_get_config_descriptor(usb_device, config_index, &config);
+        libusb_get_config_descriptor(_usb_device, config_index, &config);
 
-        dlog(LOG_USB, "USB Device @ %p : Config %d:\n", usb_dev_handle, config_index);
+        dlog(LOG_USB, "USB Device @ %p : Config %d:\n", _usb_dev_handle, config_index);
         dlog(LOG_USB, "  bLength:         %d\n", config->bLength);
         dlog(LOG_USB, "  bDescriptorType: %d\n", config->bDescriptorType);
         dlog(LOG_USB, "  wTotalLength:    %d\n", config->wTotalLength);
@@ -748,20 +748,20 @@ static void display_mouse_hid(const uint16_t vendor_id, const uint16_t product_i
 int mouse_hid_detach_kernel(int iface) {
     int ret = 0;
 
-    if (!usb_dev_handle || iface < 0) return -1;
+    if (!_usb_dev_handle || iface < 0) return -1;
 
-    ret = libusb_detach_kernel_driver(usb_dev_handle, iface);
+    ret = libusb_detach_kernel_driver(_usb_dev_handle, iface);
     if (ret != 0) {
         elog("ERROR: Failed to detach kernel driver: %s\n", libusb_strerror(ret));
         return ret;
     }
 
-    ret = libusb_claim_interface(usb_dev_handle, iface);
+    ret = libusb_claim_interface(_usb_dev_handle, iface);
     if (ret != 0) {
         elog("ERROR: Failed to claim interface: %s\n", libusb_strerror(ret));
 
         // Reattach the kernel driver
-        ret = libusb_attach_kernel_driver(usb_dev_handle, iface);
+        ret = libusb_attach_kernel_driver(_usb_dev_handle, iface);
         if (ret != 0) {
             elog("ERROR: Failed to attach kernel driver: %s\n", libusb_strerror(ret));
         }
@@ -775,14 +775,14 @@ int mouse_hid_detach_kernel(int iface) {
 int mouse_hid_attach_kernel(int iface) {
     int ret = 0;
 
-    if (!usb_dev_handle || iface < 0) return -1;
+    if (!_usb_dev_handle || iface < 0) return -1;
 
-    ret = libusb_release_interface(usb_dev_handle, iface);
+    ret = libusb_release_interface(_usb_dev_handle, iface);
     if (ret != 0) {
         elog("ERROR: Failed to release interface: %s\n", libusb_strerror(ret));
     }
 
-    ret = libusb_attach_kernel_driver(usb_dev_handle, iface);
+    ret = libusb_attach_kernel_driver(_usb_dev_handle, iface);
     if (ret != 0) {
         elog("ERROR: Failed to attach kernel driver: %s\n", libusb_strerror(ret));
         return ret;
@@ -796,7 +796,7 @@ static t_mode change_mode(libusb_device_handle *usb_dev_handle, t_mode mode) {
 
     int ret;
 
-    if (!mouse_primed || !usb_dev_handle || mode >= mode_COUNT) return mode_COUNT;
+    if (!_mouse_primed || !usb_dev_handle || mode >= mode_COUNT) return mode_COUNT;
 
     if (mode == mode_f3) {
         // Top Mode
@@ -847,7 +847,7 @@ static int mode_load(unsigned char *mode_data, libusb_device_handle *usb_dev_han
     uint16_t mi;
     int ret;
 
-    if (!mouse_primed || !mode_data || !usb_dev_handle || mode >= mode_COUNT) return 0;
+    if (!_mouse_primed || !mode_data || !usb_dev_handle || mode >= mode_COUNT) return 0;
 
     if      (mode == mode_f3) mi = 0xf3;
     else if (mode == mode_f4) mi = 0xf4;
@@ -895,7 +895,7 @@ static int mode_save(unsigned char *mode_data, libusb_device_handle *usb_dev_han
 
     unsigned char cmp[255];
 
-    if (!mouse_primed || !mode_data || !usb_dev_handle || mode >= mode_COUNT) return 0;
+    if (!_mouse_primed || !mode_data || !usb_dev_handle || mode >= mode_COUNT) return 0;
 
     if      (mode == mode_f3) mi = 0xf3;
     else if (mode == mode_f4) mi = 0xf4;
@@ -1203,7 +1203,7 @@ static int set_mode_button(unsigned char *mode_data, const unsigned char button,
             unsigned char ky = 0xe0;
             int m;
 
-            if (mki > 0) modkey[--mki] = '\0';
+            if (mki > 0) modkey[--mki] = '\0'; // Just in case - lgtm [cpp/constant-comparison]
 
             dlog(LOG_KEY, "Checking for Modifier: %s\n", modkey);
 
@@ -1281,24 +1281,24 @@ static int set_mode_button(unsigned char *mode_data, const unsigned char button,
 }
 
 static int mouse_editmode(void) {
-    if (!mouse_primed || !usb_dev_handle) return 0;
+    if (!_mouse_primed || !_usb_dev_handle) return 0;
 
     // LAUNCH EDITOR
     // 2117030035 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0423900
     // 2117031923 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0423900
     // 2117033709 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0423900
     // (only doing one as they're dups)
-    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f0, 0x0001, (unsigned char *)"\xf0\x42\x39\x00", 4, 1000); usleep(50000);
+    libusb_control_transfer(_usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f0, 0x0001, (unsigned char *)"\xf0\x42\x39\x00", 4, 1000); usleep(50000);
 
     // 2117041527 S Co:2:039:0 s 21 09 03f2 0001 0002 2 = f24f
-    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f2, 0x0001, (unsigned char *)"\xf2\x4f", 2, 1000); usleep(50000);
+    libusb_control_transfer(_usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f2, 0x0001, (unsigned char *)"\xf2\x4f", 2, 1000); usleep(50000);
 
     // 2117043288 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0000000
-    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f0, 0x0001, (unsigned char *)"\xf0\x00\x00\x00", 4, 1000); usleep(50000);
+    libusb_control_transfer(_usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f0, 0x0001, (unsigned char *)"\xf0\x00\x00\x00", 4, 1000); usleep(50000);
 
     // 2117063607 S Co:2:039:0 s 21 09 03f1 0001 0002 2 = f100
     // Is this reboot or something? Causes lights to turn off
-    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f1, 0x0001, (unsigned char *)"\xf1\x00", 2, 1000); usleep(50000);
+    libusb_control_transfer(_usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f1, 0x0001, (unsigned char *)"\xf1\x00", 2, 1000); usleep(50000);
 
     //DUPS OF ABOVE// // 2117071455 S Co:2:039:0 s 21 09 03f2 0001 0002 2 = f24f
     //DUPS OF ABOVE// // 2117074118 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0000000
@@ -1308,7 +1308,7 @@ static int mouse_editmode(void) {
 
     // START EDIT
     // 2161557129 S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0420000
-    libusb_control_transfer(usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f0, 0x0001, (unsigned char *)"\xf0\x42\x00\x00", 4, 1000);
+    libusb_control_transfer(_usb_dev_handle, LIBUSB_REQUEST_TYPE_CLASS|LIBUSB_RECIPIENT_INTERFACE|LIBUSB_ENDPOINT_OUT, HID_REQ_SET_REPORT, 0x03f0, 0x0001, (unsigned char *)"\xf0\x42\x00\x00", 4, 1000);
 
     // ALSO SEEN THESE... NO IDEA WHAT THEY ARE?
     // S Co:2:039:0 s 21 09 03f0 0001 0004 4 = f0400000
@@ -1322,7 +1322,7 @@ static int mouse_editmode(void) {
 }
 
 int mouse_prime(void) {
-    if (mouse_primed) return exit_none;
+    if (_mouse_primed) return exit_none;
 
     // Initialise USB
     usb_init();
@@ -1339,8 +1339,8 @@ int mouse_prime(void) {
     display_mouse_hid(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID);
 
     // TODO: Get interface index somehow
-    usb_interface_index = 1;
-    if (usb_interface_index < 0) {
+    _usb_interface_index = 1;
+    if (_usb_interface_index < 0) {
         // De-initialise USB
         usb_deinit();
 
@@ -1348,7 +1348,7 @@ int mouse_prime(void) {
     }
 
     printf("Detaching kernel driver...\n");
-    if (mouse_hid_detach_kernel(usb_interface_index) != 0) {
+    if (mouse_hid_detach_kernel(_usb_interface_index) != 0) {
         // De-initialise mouse
         mouse_deinit();
 
@@ -1358,17 +1358,17 @@ int mouse_prime(void) {
         return exit_usberr;
     }
 
-    mouse_primed = 1;
+    _mouse_primed = 1;
 
     return exit_none;
 }
 
 int mouse_unprime(void) {
-    if (!mouse_primed) return exit_none;
+    if (!_mouse_primed) return exit_none;
 
     // Re-attach kernel driver
     printf("Attaching kernel driver...\n");
-    mouse_hid_attach_kernel(usb_interface_index);
+    mouse_hid_attach_kernel(_usb_interface_index);
 
     // De-initialise mouse
     mouse_deinit();
@@ -1376,7 +1376,7 @@ int mouse_unprime(void) {
     // De-initialise USB
     usb_deinit();
 
-    mouse_primed = 0;
+    _mouse_primed = 0;
 
     return exit_none;
 }
@@ -1500,13 +1500,13 @@ int main (int argc, char *argv[]) {
                 if (mode != mode_COUNT) {
                     // They've been editing another mode, so save
                     printf("Saving Mode: %s\n", s_mode[mode]);
-                    mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                    mode_save(&mode_data_s[0], _usb_dev_handle, mode);
                     mode = mode_COUNT;
                 }
 
                 printf("Selecting Mode: %s\n", s_mode[mnew]);
 
-                if (change_mode(usb_dev_handle, mnew) == mode_COUNT) ret = exit_modesel;
+                if (change_mode(_usb_dev_handle, mnew) == mode_COUNT) ret = exit_modesel;
             }
             break;
 
@@ -1538,13 +1538,13 @@ int main (int argc, char *argv[]) {
                 if (mode != mode_COUNT) {
                     // They've been editing another mode, so save
                     printf("Saving Mode: %s\n", s_mode[mode]);
-                    mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                    mode_save(&mode_data_s[0], _usb_dev_handle, mode);
                     mode = mode_COUNT;
                 }
 
                 printf("Printing Mode: %s\n", s_mode[mnew]);
 
-                if ((len = mode_load(&mode_data_p[0], usb_dev_handle, mnew)) > 0) {
+                if ((len = mode_load(&mode_data_p[0], _usb_dev_handle, mnew)) > 0) {
                     mode_print(&mode_data_p[0], len);
                 }
             }
@@ -1565,7 +1565,7 @@ int main (int argc, char *argv[]) {
                     // For safety we reset mode now
                     if (mode != mode_COUNT) {
                         printf("Saving Mode: %s\n", s_mode[mode]);
-                        mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                        mode_save(&mode_data_s[0], _usb_dev_handle, mode);
                         mode = mode_COUNT;
                     }
 
@@ -1582,7 +1582,7 @@ int main (int argc, char *argv[]) {
                     // For safety we reset mode now
                     if (mode != mode_COUNT) {
                         printf("Saving Mode: %s\n", s_mode[mode]);
-                        mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                        mode_save(&mode_data_s[0], _usb_dev_handle, mode);
                     }
 
                     mode = mode_COUNT;
@@ -1593,7 +1593,7 @@ int main (int argc, char *argv[]) {
                 if (mode != mode_COUNT) {
                     // They've been editing another mode, so save
                     printf("Saving Mode: %s\n", s_mode[mode]);
-                    mode_save(&mode_data_s[0], usb_dev_handle, mode);
+                    mode_save(&mode_data_s[0], _usb_dev_handle, mode);
                 }
 
                 mode = mnew;
@@ -1602,7 +1602,7 @@ int main (int argc, char *argv[]) {
 
                 mouse_editmode();
 
-                if (mode_load(&mode_data_l[0], usb_dev_handle, mode) > 0) {
+                if (mode_load(&mode_data_l[0], _usb_dev_handle, mode) > 0) {
                     memcpy(&mode_data_s, &mode_data_l, 255);
                 }
             }
@@ -1796,7 +1796,7 @@ int main (int argc, char *argv[]) {
     if (mode != mode_COUNT) {
         // They've been editing another mode, so save
         printf("Saving Mode: %s\n", s_mode[mode]);
-        mode_save(&mode_data_s[0], usb_dev_handle, mode);
+        mode_save(&mode_data_s[0], _usb_dev_handle, mode);
         mode = mode_COUNT;
     }
 
