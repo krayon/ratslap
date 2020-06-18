@@ -606,7 +606,7 @@ static libusb_context *usb_init(void) {
         return NULL;
     }
 
-    // FIXME: Set debug?
+    // TODO: Determine if we need to set debug here
     
 #if LIBUSBX_API_VERSION < 0x01000106
     libusb_set_debug(usb_ctx, 3);
@@ -630,7 +630,7 @@ static libusb_device_handle *mouse_init(const uint16_t vendor_id, const uint16_t
 
     if (!usb_dev_handle) {
         // Look at the mouse based on vendor and usb_device id
-        // FIXME: According to doco (
+        // TODO: According to doco (
         // http://libusb.sourceforge.net/api-1.0/group__dev.html#ga11ba48adb896b1492bbd3d0bf7e0f665
         // ):
         // > This function is intended for those scenarios where you are using
@@ -1338,7 +1338,7 @@ int mouse_prime(void) {
 
     display_mouse_hid(LOGITECH_G300S_VENDOR_ID, LOGITECH_G300S_PRODUCT_ID);
 
-    // FIXME: Get interface index somehow
+    // TODO: Get interface index somehow
     usb_interface_index = 1;
     if (usb_interface_index < 0) {
         // De-initialise USB
