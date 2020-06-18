@@ -32,6 +32,7 @@
 #define max_src_len "16"
 
 FILE *_logfile = NULL;
+struct tm _timey;
 
 /*
 LOG LINE FORMAT:
@@ -61,16 +62,12 @@ void std_output(FILE *strm, const char *srcfile, const int line
     char *nl; // new line ptr
     va_list ap;
     time_t t;
-    struct tm *tmp;
 
     if (!strm) return;
 
     t = time(NULL);
-    tmp = localtime(&t);
-    if (
-       tmp == NULL
-    || strftime(_logtime, sizeof(_logtime), "%0Y%0m%0dT%0H%0M%0S%z", tmp) == 0
-    ) {
+    localtime_r(&t, &_timey);
+    if (strftime(_logtime, sizeof(_logtime), "%0Y%0m%0dT%0H%0M%0S%z", &_timey) == 0) {
         //                     "20140815T231613+1000"
         snprintf(_logtime, 32, "===== UNKNOWN  =====");
     }
