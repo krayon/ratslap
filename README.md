@@ -23,6 +23,11 @@
 
 ## Linux configuration tool for Logitech mice *(currently only G300/G300S)* ##
 
+[![Total
+alerts](https://img.shields.io/lgtm/alerts/g/krayon/ratslap.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/krayon/ratslap/alerts/)
+[![Language grade:
+C/C++](https://img.shields.io/lgtm/grade/cpp/g/krayon/ratslap.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/krayon/ratslap/context:cpp)
+
 ----
 ## Introduction ##
 
@@ -52,10 +57,10 @@ ignored - this is no longer the case, they are now reported as an error.
 
 ### } BACKWARDS COMPATIBILITY WARNING } ###
 
-The most current release is v0.3.2 and is available from:
+The most current release is v0.4.0 and is available from:
 
-* [GitLab (RELEASE v0.3.2)](https://gitlab.com/krayon/ratslap/tags/0.3.2)
-* [GitHub (RELEASE v0.3.2)](https://github.com/krayon/ratslap/releases/tag/0.3.2)
+* [GitLab (RELEASE v0.4.0)](https://gitlab.com/krayon/ratslap/tags/0.4.0)
+* [GitHub (RELEASE v0.4.0)](https://github.com/krayon/ratslap/releases/tag/0.4.0)
 
 *RatSlap* binary and archive should be signed with my GPG key (
 [231A 94F4 81EC F212](http://pgp.mit.edu/pks/lookup?op=get&search=0x231A94F481ECF212)
@@ -89,11 +94,11 @@ $ gpg --recv-keys 81ECF212
 ```
 
 *RatSlap* source is available on
-[GitLab](https://gitlab.com/krayon/ratslap)
-, [GitHub](https://github.com/krayon/ratslap)
+[GitHub](https://github.com/krayon/ratslap)
+, [GitLab](https://gitlab.com/krayon/ratslap)
 and [BitBucket](https://bitbucket.org/krayonx/ratslap)
 with the primary (public) repository being
-[GitLab](https://gitlab.com/krayon/ratslap)
+[GitHub](https://github.com/krayon/ratslap)
 .
 
 
@@ -101,7 +106,7 @@ with the primary (public) repository being
 ----
 ## What's New? ##
 
-The main changes in the latest version is the DPI Support
+The main changes in the more recent versions is the DPI Support
 ( [Daniel Dawson](https://gitlab.com/danieldawson) ) and the new keys:
 `NonUS#`, `CapsLock`, `NonUS\`, `Application`, `Power`, `Num=`, `F13`, `F14`,
 `F15`, `F16`, `F17`, `F18`, `F19`, `F20`, `F21`, `F22`, `F23`, `F24`, `Execute`,
@@ -371,6 +376,9 @@ tool cannot do).
   * [QB#126 - Doco should generate HTML versions](https://bugs.qdnx.org/task/126)
   * [QB#128 - Unrecognised keys silently ignored ](https://bugs.qdnx.org/task/128)
   * [QB#129 - Add missing keys](https://bugs.qdnx.org/bug/129)
+* v0.4.0
+  * Documentation fixes
+  * Fixed recommendations by LGTM ( GitHub #22 )
 
 
 
