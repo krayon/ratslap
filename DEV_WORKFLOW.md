@@ -101,9 +101,22 @@ git push --tags github develop:develop
 git branch -d rl.1.2.3
 git checkout main
 git merge --ff-only 1.2.3
+git push origin master:master
+make distclean
+make ratslap-1.2.3.tar.gz.asc
+rename tar tar.x86_64 ratslap*tar.gz*
 ```
 
+### Release on GitHub ###
 
+```bash
+git push github master:master
+```
+
+Edit releases page:
+
+  * [https://github.com/krayon/ratslap/releases/edit/1.2.3](https://github.com/krayon/ratslap/releases/edit/1.2.3)
+  * upload `tar.gz` and `tar.gz.asc`
 
 ----
 ##### vim:set ts=4 sw=4 tw=80 et cindent ai si syn=markdown: #####
