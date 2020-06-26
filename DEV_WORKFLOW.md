@@ -119,4 +119,4 @@ Edit releases page:
   * upload `tar.gz` and `tar.gz.asc`
 
 ----
-##### vim:set ts=4 sw=4 tw=80 et cindent ai si syn=markdown: #####
+[//]: # ( vim: set ts=4 sw=4 et cindent tw=80 ai si syn=markdown ft=markdown: )

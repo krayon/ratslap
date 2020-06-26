@@ -434,4 +434,4 @@ the left mouse button if you so desire.
 
 
 ----
-##### vim:set ts=4 sw=4 tw=80 et cindent ai si syn=markdown: #####
+[//]: # ( vim: set ts=4 sw=4 et cindent tw=80 ai si syn=markdown ft=markdown: )
