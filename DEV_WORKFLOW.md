@@ -116,7 +116,18 @@ git push github master:master
 Edit releases page:
 
   * [https://github.com/krayon/ratslap/releases/edit/1.2.3](https://github.com/krayon/ratslap/releases/edit/1.2.3)
-  * upload `tar.gz` and `tar.gz.asc`
+  * Upload `tar.gz` and `tar.gz.asc`
+
+### Release on GitLab ###
+
+```bash
+git push gitlab master:master
+```
+
+Edit releases page:
+
+  * [https://gitlab.com/krayon/ratslap/-/tags/1.2.3/release/edit](https://gitlab.com/krayon/ratslap/-/tags/1.2.3/release/edit)
+  * Attach `tar.gz` and `tar.gz.asc`
 
 ----
 [//]: # ( vim: set ts=4 sw=4 et cindent tw=80 ai si syn=markdown ft=markdown: )
