@@ -114,7 +114,7 @@ APPBRANCH = $(shell bash -c \
 APPVER = $(shell bash -c \
 	'\
 	  echo -n "$(MAJVER)$(VDIRTY)"; \
-	  [ ! -z "$(APPBRANCH)" ] && [ "$(APPBRANCH)" != "master" ] && [ "$(APPBRANCH)" != "$(MAJVER)" ] && echo -n "-$(APPBRANCH)" \
+	  [ ! -z "$(APPBRANCH)" ] && [ "$(APPBRANCH)" != "main" ] && [ "$(APPBRANCH)" != "$(MAJVER)" ] && echo -n "-$(APPBRANCH)" \
 	')
 
 BUILD_DATE     = $(shell date +'%Y-%m-%d %H:%M:%S%z')

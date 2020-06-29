@@ -1,6 +1,6 @@
 # Workflow #
 
-1. master (branch) is always current;
+1. main (branch) is always current;
 1. develop branch is always the "root" of new activity.
 
 ## Branch Naming ##
@@ -48,7 +48,7 @@ git branch -d ft.kitchen-sink-option
 ### Start a new hotfix branch ###
 
 ```bash
-git checkout -b hf.teflon-tape master
+git checkout -b hf.teflon-tape main
 ```
 * ***TODO: Will this allow us to hotfix previous versions?***
 
@@ -78,7 +78,7 @@ git push --tags gitlab develop:develop
 git push --tags github develop:develop
 # etc...
 git branch -d hf.teflon-tape
-git checkout master
+git checkout main
 git merge --ff-only 1.0.1
 ```
 
@@ -99,7 +99,7 @@ git push --tags gitlab develop:develop
 git push --tags github develop:develop
 # etc...
 git branch -d rl.1.2.3
-git checkout master
+git checkout main
 git merge --ff-only 1.2.3
 ```
 
