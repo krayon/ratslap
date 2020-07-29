@@ -46,7 +46,7 @@ please see [CONTRIBUTING](CONTRIBUTING.md) .
 ----
 ## Availability ##
 
-### { BACKWARDS COMPATIBILITY WARNING { ###
+### { BACKWARDS COMPATIBILITY WARNING FOR PRE-0.3.0 { ###
 
 ***The key that was called `Menu` in now called `Application` (bringing it in line
 with the standard USB HID naming scheme. If you have any scripts calling this,
@@ -55,7 +55,7 @@ and using `Menu`, they will need to be updated.***
 Additionally, there was a bug whereby unrecognised keys would be silently
 ignored - this is no longer the case, they are now reported as an error.
 
-### } BACKWARDS COMPATIBILITY WARNING } ###
+### } BACKWARDS COMPATIBILITY WARNING FOR PRE-0.3.0 } ###
 
 The most current release is v0.4.0 and is available from:
 
