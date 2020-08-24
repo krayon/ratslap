@@ -93,15 +93,18 @@ git add README.md
 git commit --gpg-sign -m 'Release: 1.2.3'
 git tag -s -m 'RELEASE: 1.2.3' 1.2.3
 git checkout develop
-git merge --gpg-sign rl.1.2.3
+git merge --ff-only --gpg-sign rl.1.2.3
 git push --tags origin develop:develop
-git push --tags gitlab develop:develop
 git push --tags github develop:develop
+git push --tags gitlab develop:develop
 # etc...
 git branch -d rl.1.2.3
 git checkout main
 git merge --ff-only 1.2.3
-git push origin master:master
+git push --tags origin main:main
+git push --tags github main:main
+git push --tags gitlab main:main
+# etc...
 make distclean
 make ratslap-1.2.3.tar.gz.asc
 rename tar tar.x86_64 ratslap*tar.gz*
@@ -110,7 +113,7 @@ rename tar tar.x86_64 ratslap*tar.gz*
 ### Release on GitHub ###
 
 ```bash
-git push github master:master
+git push github main:main
 ```
 
 Edit releases page:
@@ -121,7 +124,7 @@ Edit releases page:
 ### Release on GitLab ###
 
 ```bash
-git push gitlab master:master
+git push gitlab main:main
 ```
 
 Edit releases page:
