@@ -1424,7 +1424,7 @@ int main (int argc, char *argv[]) {
             {"d4",          1, 0, 'D'},
             {"D4",          1, 0, 'D'},
             {"default-dpi", 1, 0, 'F'},
-            {"dpishift",    2, 0, 'S'},
+            {"dpishift",    1, 0, 'S'},
             {"no-dpishift", 0, 0, 'U'},
 
             {"colour",      1, 0, 'c'},
