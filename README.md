@@ -46,6 +46,14 @@ please see [CONTRIBUTING](CONTRIBUTING.md) .
 ----
 ## Availability ##
 
+### { BACKWARDS COMPATIBILITY WARNING FOR PRE-0.4.0 { ###
+
+The default branch has changed from `master` to `main`. If you are building from
+source, and have an existing fork/clone, you may need to build this in a clean
+directory and/or update your remote tracking branch. Sorry about that.
+
+### } BACKWARDS COMPATIBILITY WARNING FOR PRE-0.4.0 } ###
+
 ### { BACKWARDS COMPATIBILITY WARNING FOR PRE-0.3.0 { ###
 
 ***The key that was called `Menu` in now called `Application` (bringing it in line
