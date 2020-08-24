@@ -65,10 +65,10 @@ ignored - this is no longer the case, they are now reported as an error.
 
 ### } BACKWARDS COMPATIBILITY WARNING FOR PRE-0.3.0 } ###
 
-The most current release is v0.4.0 and is available from:
+The most current release is v0.4.1 and is available from:
 
-* [GitLab (RELEASE v0.4.0)](https://gitlab.com/krayon/ratslap/tags/0.4.0)
-* [GitHub (RELEASE v0.4.0)](https://github.com/krayon/ratslap/releases/tag/0.4.0)
+* [GitLab (RELEASE v0.4.1)](https://gitlab.com/krayon/ratslap/tags/0.4.1)
+* [GitHub (RELEASE v0.4.1)](https://github.com/krayon/ratslap/releases/tag/0.4.1)
 
 *RatSlap* binary and archive should be signed with my GPG key (
 [231A 94F4 81EC F212](http://pgp.mit.edu/pks/lookup?op=get&search=0x231A94F481ECF212)
@@ -387,6 +387,10 @@ tool cannot do).
 * v0.4.0
   * Documentation fixes
   * Fixed recommendations by LGTM ( GitHub #22 )
+* v0.4.1
+  * Add automatic code scanning (CodeQL)
+  * Renamed default branch: `master` to `main`
+  * `dpishift` fix ( fixes GitHub #23 )
 
 
 
