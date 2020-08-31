@@ -52,6 +52,14 @@ The default branch has changed from `master` to `main`. If you are building from
 source, and have an existing fork/clone, you may need to build this in a clean
 directory and/or update your remote tracking branch. Sorry about that.
 
+Something like this should work:
+
+```shell
+git branch -m master main
+git fetch origin
+git branch -u origin/main main
+```
+
 ### } BACKWARDS COMPATIBILITY WARNING FOR PRE-0.4.0 } ###
 
 ### { BACKWARDS COMPATIBILITY WARNING FOR PRE-0.3.0 { ###
