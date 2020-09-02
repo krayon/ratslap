@@ -29,7 +29,7 @@ jobs:
 
     # Install dependencies
     - name: Install dependencies
-      run: DEBIAN_FRONTEND=noninteractive RUNLEVEL=1 apt-get install libusb-1.0-0-dev
+      run: sudo DEBIAN_FRONTEND=noninteractive RUNLEVEL=1 apt-get install libusb-1.0-0-dev
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
