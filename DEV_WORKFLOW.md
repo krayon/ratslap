@@ -121,6 +121,15 @@ Edit releases page:
   * [https://github.com/krayon/ratslap/releases/edit/1.2.3](https://github.com/krayon/ratslap/releases/edit/1.2.3)
   * Upload `tar.gz` and `tar.gz.asc`
 
+```md
+RELEASE: 1.2.3
+  - Did stuff
+  - Other stuff
+-----
+  - [ratslap-1.2.3.x86_64.tar.gz](/uploads/...)
+  - [ratslap-1.2.3.x86_64.tar.gz.asc](/uploads/...)
+```
+
 ### Release on GitLab ###
 
 ```bash
@@ -131,6 +140,15 @@ Edit releases page:
 
   * [https://gitlab.com/krayon/ratslap/-/tags/1.2.3/release/edit](https://gitlab.com/krayon/ratslap/-/tags/1.2.3/release/edit)
   * Attach `tar.gz` and `tar.gz.asc`
+
+```md
+RELEASE: 1.2.3
+  - Did stuff
+  - Other stuff
+-----
+  - [ratslap-1.2.3.x86_64.tar.gz](/uploads/...)
+  - [ratslap-1.2.3.x86_64.tar.gz.asc](/uploads/...)
+```
 
 ----
 [//]: # ( vim: set ts=4 sw=4 et cindent tw=80 ai si syn=markdown ft=markdown: )
