@@ -1782,12 +1782,17 @@ int main (int argc, char *argv[]) {
     } // while (1)
 
     if (ret == exit_none && optind < argc) {
-        char optout[255]
-             ,*po = &optout[0];
+        char optout[255];
+        int  off = 0;
 
-        while (optind < argc) {
-            sprintf(po, "%s ", argv[optind++]);
-            po += strlen(po);
+        while (optind < argc && off < 254) {
+            snprintf(&optout[off], 254-off, "%s ", argv[optind++]);
+            off += strlen(argv[optind - 1]) + 1;
+            if (off > 254) {
+                off = 254;
+                optout[off-3] = optout[off-2] = optout[off-1] = '.';
+            }
+            optout[off] = '\0';
         }
         elog("ERROR: Unrecognised options: %s\n", optout);
         ret = exit_param;
