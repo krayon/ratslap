@@ -46,6 +46,14 @@ please see [CONTRIBUTING](CONTRIBUTING.md) .
 ----
 ## Availability ##
 
+You can download, build, and run *RatSlap* in one command using the nix package manager.
+
+```
+nix run github:zebreus/ratslap
+```
+
+You can also use `nix develop .` to get a shell with all required dependencies.
+
 ### { BACKWARDS COMPATIBILITY WARNING FOR PRE-0.4.0 { ###
 
 The default branch has changed from `master` to `main`. If you are building from
@@ -108,8 +116,6 @@ and [BitBucket](https://bitbucket.org/krayonx/ratslap)
 with the primary (public) repository being
 [GitHub](https://github.com/krayon/ratslap)
 .
-
-
 
 ----
 ## What's New? ##
