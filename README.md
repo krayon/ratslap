@@ -28,6 +28,8 @@ alerts](https://img.shields.io/lgtm/alerts/g/krayon/ratslap.svg?logo=lgtm&logoWi
 [![Language grade:
 C/C++](https://img.shields.io/lgtm/grade/cpp/g/krayon/ratslap.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/krayon/ratslap/context:cpp)
 
+## *FREE OF COPILOT GENERATED CODE* ##
+
 ----
 ## Introduction ##
 
@@ -413,6 +415,8 @@ tool cannot do).
 
 ----
 ## Notes ##
+
+No Copilot generated code accepted.
 
 ### Key names ###
 
