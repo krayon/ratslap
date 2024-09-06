@@ -21,6 +21,8 @@
 ```
 # RatSlap #
 
+[![this product is ai free](https://raw.githubusercontent.com/krayon/this-product-is-ai-free/main/badge.svg)](https://this-product-is-ai-free.github.io)
+
 ## Linux configuration tool for Logitech mice *(currently only G300/G300S)* ##
 
 [![Total
@@ -416,7 +418,7 @@ tool cannot do).
 ----
 ## Notes ##
 
-No Copilot generated code accepted.
+No Copilot (or other AI) generated code accepted.
 
 ### Key names ###
 
