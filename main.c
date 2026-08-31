@@ -27,8 +27,13 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <string.h>
-#include <libusb-1.0/libusb.h>
+#include <libusb.h>
+#ifdef __linux__
 #include <linux/hid.h>
+#else
+#define HID_REQ_GET_REPORT 0x01
+#define HID_REQ_SET_REPORT 0x09
+#endif
 
 #include "app.h"
 #include "lang.h"
@@ -751,6 +756,8 @@ int mouse_hid_detach_kernel(int iface) {
     if (!_usb_dev_handle || iface < 0) return -1;
 
     ret = libusb_detach_kernel_driver(_usb_dev_handle, iface);
+    // No driver attached (or platform doesn't do kernel drivers, eg. macOS)
+    if (ret == LIBUSB_ERROR_NOT_FOUND || ret == LIBUSB_ERROR_NOT_SUPPORTED) ret = 0;
     if (ret != 0) {
         elog("ERROR: Failed to detach kernel driver: %s\n", libusb_strerror(ret));
         return ret;
@@ -783,6 +790,7 @@ int mouse_hid_attach_kernel(int iface) {
     }
 
     ret = libusb_attach_kernel_driver(_usb_dev_handle, iface);
+    if (ret == LIBUSB_ERROR_NOT_FOUND || ret == LIBUSB_ERROR_NOT_SUPPORTED) ret = 0;
     if (ret != 0) {
         elog("ERROR: Failed to attach kernel driver: %s\n", libusb_strerror(ret));
         return ret;

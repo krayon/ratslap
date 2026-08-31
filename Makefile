@@ -39,7 +39,7 @@ ARCHIVER       = tar -zcvf
 ARCHIVE_EXT    = tar.gz
 
 # Tune for current CPU (march implies mtune)
-CARCH_FLAG     = -march=native
+CARCH_FLAG     = $(shell $(CC) -march=native -E -x c /dev/null >/dev/null 2>&1 && echo -march=native)
 
 # Other CPU components
 # -m3dnow
@@ -171,7 +171,9 @@ sign: $(PROGS:=.asc)
 ctags:
 	@# Generate CTags
 	@echo "Generating tags file..."
-	@$(CTAGS) -R --fields=+lS . || echo "No ctags found, skipping tags file..."
+	@$(CTAGS) -R --fields=+lS . 2>/dev/null \
+	    || $(CTAGS) *.c *.h 2>/dev/null \
+	    || echo "No usable ctags found, skipping tags file..."
 .PHONY: tags
 tags: ctags
 
@@ -241,27 +243,30 @@ Changelog: gitup
 git.h: gitup git.h.TEMPLATE
 	@# Generating GIT header
 	@echo "Generating git header file..."
-	@cat git.h.TEMPLATE >git.h
-	@sed -i 's#//SOURCE//#// WARNING // Auto-generated file, DO NOT MODIFY //#' git.h
-	@sed -i 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  git.h
-	@sed -i 's#\%\%BUILD_DATE\%\%#$(BUILD_DATE)#'                               git.h
-	@sed -i 's#\%\%BUILD_COMMIT\%\%#$(BUILD_COMMIT)#'                           git.h
+	@sed \
+	    -e 's#//SOURCE//#// WARNING // Auto-generated file, DO NOT MODIFY //#' \
+	    -e 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  \
+	    -e 's#\%\%BUILD_DATE\%\%#$(BUILD_DATE)#'                               \
+	    -e 's#\%\%BUILD_COMMIT\%\%#$(BUILD_COMMIT)#'                           \
+	    git.h.TEMPLATE >git.h
 
 log.h: log.h.TEMPLATE
 	@# Generating log header
 	@echo "Generating log header file..."
 	@cat log.h.TEMPLATE >log.h
 	@for o in $(OPTIONS:DEBUG%=LOG%); do \
-	    sed -i 's/\(#define '$${o}' *\)NULL.*$$/\1_logfile/' log.h; \
+	    sed 's/\(#define '$${o}' *\)NULL.*$$/\1_logfile/' log.h >log.h.tmp \
+	    && mv log.h.tmp log.h; \
 	done
 
 manpage.1: manpage.1.TEMPLATE
 	@# Generating manpage
 	@echo "Generating man page file..."
-	@cat manpage.1.TEMPLATE >manpage.1
-	@sed -i 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  manpage.1
-	@sed -i 's#\%\%BUILD_MONTH\%\%#$(BUILD_MONTH)#'                             manpage.1
-	@sed -i 's#\%\%BUILD_YEAR\%\%#$(BUILD_YEAR)#'                               manpage.1
+	@sed \
+	    -e 's#\%\%APP_VERSION\%\%#$(APPVER)#'                                  \
+	    -e 's#\%\%BUILD_MONTH\%\%#$(BUILD_MONTH)#'                             \
+	    -e 's#\%\%BUILD_YEAR\%\%#$(BUILD_YEAR)#'                               \
+	    manpage.1.TEMPLATE >manpage.1
 
 $(OPTIONS_FILE): $(OPTIONS_FILE).DEFAULT
 	@cp $(OPTIONS_FILE).DEFAULT $(OPTIONS_FILE)
@@ -274,7 +279,7 @@ $(OPTIONS_FILE): $(OPTIONS_FILE).DEFAULT
 	@sed '/^/,/^%%%%%BODY%%%%%/{/^%%%%%BODY%%%%%/,$$d}' <markdown.TEMPLATE.html  >"$@"
 	@TITLE="$(shell sed -n 's/^# \([^#]*\) #$$/\1/p;q' <"$<")"; \
 		echo "Generating $$TITLE ($<)"; \
-		sed -i 's/%%%%%TITLE%%%%%/'"$$TITLE"'/'             "$@"
+		sed 's/%%%%%TITLE%%%%%/'"$$TITLE"'/' "$@" >"$@.tmp" && mv "$@.tmp" "$@"
 	$(MARKDOWN_GEN) $(MD_FLAGS) "$<"                                            >>"$@"
 	@echo                                                                       >>"$@"
 	@sed '1,/^%%%%%BODY%%%%%/d'                         <markdown.TEMPLATE.html >>"$@"
